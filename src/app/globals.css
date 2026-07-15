@@ -1,26 +1,859 @@
 @import "tailwindcss";
 
+/*
+  ShilaTeq design tokens — Stone & Ledger.
+  Source of truth: website/phase-3/03_COLOR_SYSTEM.md, 04_TYPOGRAPHY_SYSTEM.md, 07_MOTION_SYSTEM.md.
+  Token changes require a written amendment to those documents first (phase-4/14 rule 1).
+*/
+@theme {
+  /* ---- Color: Paper & Ink ---- */
+  --color-paper-0: #fbf8f2;
+  --color-paper-1: #f4eee2;
+  --color-paper-2: #fffefa;
+  --color-ink-900: #262016;
+  --color-ink-700: #4e4436;
+  /* Darkened from #7c7060 per Phase-3 03 §11 verification law (AMENDMENT A-007):
+     4.88:1 on paper-1, 5.31:1 on paper-0 — AA with sunlight margin. */
+  --color-ink-500: #716653;
+
+  /* ---- Color: Stone (material range — never for text) ---- */
+  --color-stone-sand: #e7dcc7;
+  --color-stone-ochre: #c9a96a;
+  --color-stone-clay: #a98253;
+  --color-stone-grey: #b5ac9c;
+
+  /* ---- Color: Accent (kiln ochre — <5% of any viewport) ---- */
+  --color-accent-600: #8a5a19;
+  --color-accent-700: #6e4712;
+
+  /* ---- Color: Functional (always paired with icon/label) ---- */
+  --color-ok-600: #3e6b3f;
+  --color-ok-100: #e4eddf;
+  --color-warn-600: #a16a0e;
+  /* Darker warn for text on warn-100 tints — 5.55:1 AA (AMENDMENT A-013). */
+  --color-warn-700: #7d520b;
+  --color-warn-100: #f3e7cb;
+  --color-danger-600: #96382b;
+  --color-danger-100: #f2ded8;
+
+  /* ---- Color: Night (the Beat-5 scene only — a scene, not a mode) ---- */
+  --color-night-0: #181209;
+  --color-night-1: #241b0f;
+  --color-night-ink: #f3ecdd;
+  --color-night-ink-soft: #b7aa92;
+  --color-chip-green: #7fbf7c;
+
+  /* ---- Color: Rules & lines ---- */
+  --color-line-100: #e8dfce;
+  --color-line-300: #c7b99f;
+
+  /* Disable default palette leakage: the site uses only the tokens above. */
+  --color-white: #fffefa;
+  --color-black: #262016;
+
+  /* ---- Type: families (wired to next/font variables in layout) ---- */
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-mukta-dev), var(--font-mukta), system-ui, sans-serif;
+  --font-mono: var(--font-jbmono), ui-monospace, monospace;
+
+  /* ---- Type: fluid scale (min→max across 360→1440px viewports) ---- */
+  --text-display-1: clamp(2.5rem, 1.55rem + 4.2vw, 4.75rem);
+  --text-display-1--line-height: 1.05;
+  --text-display-2: clamp(2rem, 1.47rem + 2.35vw, 3.25rem);
+  --text-display-2--line-height: 1.1;
+  --text-heading-1: clamp(1.625rem, 1.46rem + 0.74vw, 2.25rem);
+  --text-heading-1--line-height: 1.15;
+  --text-heading-2: clamp(1.375rem, 1.28rem + 0.44vw, 1.75rem);
+  --text-heading-2--line-height: 1.25;
+  --text-heading-3: clamp(1.125rem, 1.09rem + 0.15vw, 1.25rem);
+  --text-heading-3--line-height: 1.35;
+  --text-body-lg: clamp(1.125rem, 1.11rem + 0.07vw, 1.1875rem);
+  --text-body-lg--line-height: 1.65;
+  --text-body: 1.0625rem; /* 17px — the legibility floor for reading text */
+  --text-body--line-height: 1.6;
+  --text-body-sm: 0.9375rem;
+  --text-body-sm--line-height: 1.55;
+  --text-label: clamp(0.8125rem, 0.8rem + 0.08vw, 0.875rem);
+  --text-label--line-height: 1.4;
+  --text-data: clamp(0.875rem, 0.86rem + 0.08vw, 0.9375rem);
+  --text-data--line-height: 1.5;
+
+  /* ---- Motion tokens ---- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* ---- Radius: paper corners, not pills ---- */
+  --radius-paper: 6px;
+  --radius-paper-sm: 4px;
+
+  /* ---- Shadows: desk-soft, warm, short (Phase-3 02 §8) ---- */
+  --shadow-desk: 0 1px 2px 0 rgb(38 32 22 / 0.06);
+  --shadow-desk-2: 0 2px 8px -2px rgb(38 32 22 / 0.12);
+}
+
+/* Motion duration tokens as raw custom properties (used by transition utilities via duration-<n>) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --t-instant: 100ms;
+  --t-fast: 180ms;
+  --t-base: 240ms;
+  --t-slow: 400ms;
+  --t-narrative: 700ms;
+  /* Light theme always; UA must not force-darken (Phase-3 03 §8) */
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ---- Base ---- */
+html {
+  scroll-behavior: smooth;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper-0);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--color-paper-1) 60%, transparent);
+}
+
+/* Selection is on-palette (Phase-3 11 #36) */
+::selection {
+  background: var(--color-stone-sand);
+  color: var(--color-ink-900);
+}
+
+/* Focus: accent ring, 2px offset, never suppressed (Phase-3 05/07) */
+:focus-visible {
+  outline: 2px solid var(--color-accent-600);
+  outline-offset: 2px;
+  border-radius: var(--radius-paper-sm);
+}
+
+/* Body links: ochre, always underlined in prose (Phase-3 04 §12) */
+.prose-link,
+.prose a {
+  color: var(--color-accent-700);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-thickness var(--t-instant) var(--ease-standard);
+}
+.prose-link:hover,
+.prose a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Reveal primitive: rise+fade once. JS adds .is-revealed; reduced-motion renders final state. */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity var(--t-slow) var(--ease-standard),
+    transform var(--t-slow) var(--ease-standard);
+}
+.reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* prefers-contrast: promote hairlines and muted text (Phase-3 11 #273) */
+@media (prefers-contrast: more) {
+  .text-ink-500 {
+    color: var(--color-ink-700);
+  }
+  .border-line-100 {
+    border-color: var(--color-line-300);
+  }
+}
+
+/* Register (ledger table) base: horizontal hairlines only, no zebra, no cages (Phase-3 04 §7) */
+.register {
+  width: 100%;
+  border-collapse: collapse;
+}
+.register th {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-700);
+  text-align: left;
+  padding: 12px 16px 8px 0;
+  border-bottom: 1px solid var(--color-line-300);
+}
+.register td {
+  padding: 14px 16px 14px 0;
+  border-bottom: 1px solid var(--color-line-100);
+  vertical-align: top;
+}
+.register tr:hover > td {
+  background: var(--color-paper-1);
+  transition: background var(--t-instant) var(--ease-standard);
+}
+.register .num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Eyebrow label: the mono connective tissue (Phase-3 04 §9) */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-500);
+}
+
+/* ============================================================
+   Homepage choreography (phase-4/03 + 05). All effects are
+   transform/opacity (plus the two sanctioned draws: the typing
+   flourish and SVG stroke draws). Reduced-motion renders the
+   resolved end-state of every sequence.
+   ============================================================ */
+
+/* Overture (S0): headline settles, support+CTAs one stagger step. */
+@keyframes rise-fade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.overture-1 {
+  animation: rise-fade var(--t-slow) var(--ease-standard) both;
+}
+.overture-2 {
+  animation: rise-fade var(--t-slow) var(--ease-standard) 60ms both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .overture-1,
+  .overture-2 {
+    animation: none;
+  }
+}
+
+/* The one permitted parallax: S0 material at 0.9× (scroll-driven CSS only;
+   invisible absence where unsupported / reduced / coarse-pointer). */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) and (pointer: fine) {
+    .parallax-09 {
+      animation: parallax-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0vh 120vh;
+    }
+    @keyframes parallax-drift {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(12vh);
+      }
+    }
+  }
+}
+
+/* Stagger children of a revealed group (≤5, 40ms — Phase-3 07 §2). */
+.stagger > * {
+  transition-delay: 0ms;
+}
+.stagger > *:nth-child(2) {
+  transition-delay: 40ms;
+}
+.stagger > *:nth-child(3) {
+  transition-delay: 80ms;
+}
+.stagger > *:nth-child(4) {
+  transition-delay: 120ms;
+}
+.stagger > *:nth-child(5) {
+  transition-delay: 160ms;
+}
+
+/* S2: the baseline rule draws to full width, then persists into S3. */
+.rule-draw {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-slow) var(--ease-standard);
+}
+.is-revealed .rule-draw,
+.rule-draw.is-revealed {
+  transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rule-draw {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* S3: the typing flourish — the site's ONE typing moment (Phase-3 04 §11).
+   Clip-path steps + a caret that blinks twice then rests. */
+.s3-code {
+  clip-path: inset(0 100% 0 0);
+}
+.is-live .s3-code {
+  animation: type-in 500ms steps(9, end) 650ms forwards;
+}
+@keyframes type-in {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.s3-caret {
+  opacity: 0;
+}
+.is-live .s3-caret {
+  animation: caret-blink 500ms step-end 1150ms 2;
+}
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+/* S3: label settles onto the stone. */
+.s3-label {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+.is-live .s3-label {
+  animation: label-settle var(--t-slow) var(--ease-standard) forwards;
+}
+@keyframes label-settle {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* S3: leader lines draw (SVG stroke), annotations fade at completion. */
+.s3-leader {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+}
+.is-live .s3-leader {
+  animation: leader-draw var(--t-slow) var(--ease-standard) forwards;
+}
+.is-live .s3-leader:nth-of-type(2) {
+  animation-delay: 60ms;
+}
+.is-live .s3-leader:nth-of-type(3) {
+  animation-delay: 120ms;
+}
+@keyframes leader-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.s3-annot {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.is-live .s3-annot {
+  animation: rise-fade var(--t-base) var(--ease-standard) forwards;
+}
+.is-live .s3-annot:nth-of-type(1) {
+  animation-delay: 1000ms;
+}
+.is-live .s3-annot:nth-of-type(2) {
+  animation-delay: 1060ms;
+}
+.is-live .s3-annot:nth-of-type(3) {
+  animation-delay: 1120ms;
+}
+.s3-support {
+  opacity: 0;
+}
+.is-live .s3-support {
+  animation: rise-fade var(--t-base) var(--ease-standard) 1400ms forwards;
+}
+/* S3 delays for label */
+.is-live .s3-label {
+  animation-delay: 0ms;
+}
+/* Reduced motion / tap-through: everything resolved. */
+@media (prefers-reduced-motion: reduce) {
+  .s3-code {
+    clip-path: none;
+  }
+  .s3-label,
+  .s3-annot,
+  .s3-support {
+    opacity: 1;
+    transform: none;
+  }
+  .s3-leader {
+    stroke-dashoffset: 0;
+  }
+  .is-live .s3-code,
+  .is-live .s3-label,
+  .is-live .s3-caret,
+  .is-live .s3-leader,
+  .is-live .s3-annot,
+  .is-live .s3-support {
+    animation: none;
+  }
+}
+.is-done .s3-code {
+  clip-path: none;
+  animation: none;
+}
+.is-done .s3-label,
+.is-done .s3-annot,
+.is-done .s3-support {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+.is-done .s3-leader {
+  stroke-dashoffset: 0;
+  animation: none;
+}
+.is-done .s3-caret {
+  animation: none;
+  opacity: 0;
+}
+
+/* S4: station ink-in and the gate tick (SVG draw). */
+.s4-tick {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+}
+.s4-tick.is-revealed {
+  transition: stroke-dashoffset var(--t-base) var(--ease-standard);
+  stroke-dashoffset: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .s4-tick {
+    stroke-dashoffset: 0;
+    transition: none;
+  }
+}
+
+/* S5: the night scene — tokens re-scoped for one section only (a scene,
+   not a mode: Phase-3 03 §6). */
+.scene-night {
+  background: var(--color-night-0);
+  color: var(--color-night-ink);
+}
+.scene-night .eyebrow {
+  color: var(--color-night-ink-soft);
+}
+/* Header adapts while the night scene holds the viewport (phase-4/03 chrome). */
+html.at-night header {
+  background: var(--color-night-0);
+  border-color: var(--color-night-1);
+}
+html.at-night header a {
+  color: var(--color-night-ink);
+}
+html.at-night header nav a {
+  color: var(--color-night-ink-soft);
+}
+html.at-night header .bg-ink-900 {
+  background: var(--color-night-1);
+}
+
+/* S5: the chip's amber breath (the site's only loop; pauses offscreen via JS)
+   and the resolution tick. */
+@keyframes chip-breath {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.88;
+  }
+}
+.chip-waiting {
+  animation: chip-breath 2s ease-in-out infinite;
+}
+.chip-paused .chip-waiting {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip-waiting {
+    animation: none;
+  }
+}
+
+/* S6: the curtain-part — staging fields slide ±16px as the frame fades up. */
+.s6-stage-l,
+.s6-stage-r {
+  transition: transform var(--t-narrative) var(--ease-standard);
+}
+.s6-frame {
+  opacity: 0;
+  transition: opacity var(--t-narrative) var(--ease-standard);
+}
+.is-revealed .s6-stage-l {
+  transform: translateX(-16px);
+}
+.is-revealed .s6-stage-r {
+  transform: translateX(16px);
+}
+.is-revealed .s6-frame {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .s6-frame {
+    opacity: 1;
+    transition: none;
+  }
+  .s6-stage-l,
+  .s6-stage-r {
+    transition: none;
+  }
+}
+
+/* No-JS resilience: every choreographed state resolves to its end-state
+   (progressive enhancement is the architecture — phase-4/14 rule 21). */
+html.no-js .reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+html.no-js .rule-draw {
+  transform: none;
+}
+html.no-js .s3-code {
+  clip-path: none;
+}
+html.no-js .s3-label,
+html.no-js .s3-annot,
+html.no-js .s3-support {
+  opacity: 1;
+  transform: none;
+}
+html.no-js .s3-leader {
+  stroke-dashoffset: 0;
+}
+html.no-js .s6-frame {
+  opacity: 1;
+}
+html.no-js .s4-tick {
+  stroke-dashoffset: 0;
+}
+
+/* Below-fold scenes skip initial render work (A-007 perf follow-up):
+   content-visibility keeps first paint to S0 only. Intrinsic sizes approximate
+   real scene heights so scrollbar/anchor behavior stays sane. */
+.cv-scene {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+.cv-scene-tall {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1100px;
+}
+
+/* ---- SceneRunner state CSS (A-007: server-rendered dual states) ---- */
+
+/* Overture fix: the h1 is LCP text and must be present at first paint
+   (Phase-3 10 §2) — its settle is transform-only, never a fade. */
+@keyframes settle-rise {
+  from {
+    transform: translateY(12px);
+  }
+  to {
+    transform: none;
+  }
+}
+.overture-1 {
+  animation: settle-rise var(--t-slow) var(--ease-standard) both;
+}
+
+/* S4 gate: unpaid view by default; paid view + post-gate stations on .is-paid.
+   Post-gate content stays in the DOM for AT/no-JS/SEO always. */
+[data-s4] .s4-paid {
+  display: none;
+}
+[data-s4].is-paid .s4-unpaid {
+  display: none;
+}
+[data-s4].is-paid .s4-paid {
+  display: flex;
+}
+[data-s4] .s4-after {
+  opacity: 0;
+  transition: opacity var(--t-slow) var(--ease-standard);
+}
+[data-s4].is-paid .s4-after {
+  opacity: 1;
+}
+[data-s4].is-paid .s4-tick {
+  transition: stroke-dashoffset var(--t-base) var(--ease-standard);
+  stroke-dashoffset: 0;
+}
+/* Reduced-motion: the complete pipeline with the gate annotated (phase-4/05). */
+@media (prefers-reduced-motion: reduce) {
+  [data-s4] .s4-unpaid {
+    display: none;
+  }
+  [data-s4] .s4-paid {
+    display: flex;
+  }
+  [data-s4] .s4-after {
+    opacity: 1;
+    transition: none;
+  }
+}
+/* No-JS: same complete view. */
+html.no-js [data-s4] .s4-unpaid {
+  display: none;
+}
+html.no-js [data-s4] .s4-paid {
+  display: flex;
+}
+html.no-js [data-s4] .s4-after {
+  opacity: 1;
+}
+
+/* S5 night shed: waiting view by default; synced view on .is-synced.
+   The scene light warms one step on resolution. */
+[data-s5] .s5-sync {
+  display: none;
+}
+[data-s5].is-synced .s5-wait {
+  display: none;
+}
+[data-s5].is-synced .s5-sync {
+  display: inline-flex;
+}
+[data-s5].is-synced {
+  background: var(--color-night-1);
+  border-color: #3a2f1d;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-s5] .s5-wait {
+    display: none;
+  }
+  [data-s5] .s5-sync {
+    display: inline-flex;
+  }
+  [data-s5] {
+    background: var(--color-night-1);
+    border-color: #3a2f1d;
+  }
+}
+html.no-js [data-s5] .s5-wait {
+  display: none;
+}
+html.no-js [data-s5] .s5-sync {
+  display: inline-flex;
+}
+html.no-js [data-s5] {
+  background: var(--color-night-1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .overture-1 {
+    animation: none;
+  }
+}
+
+/* A-007 LCP safety: the S0 overture is transform-only for BOTH elements —
+   above-fold text is never opacity-animated (it would defer its LCP record
+   to animation end). Below-fold reveals keep rise+fade. */
+.overture-2 {
+  animation: settle-rise var(--t-slow) var(--ease-standard) 60ms both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .overture-2 {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Prose — documentation & guide body (phase-4/04 §7,§9; Phase-3 04 §10).
+   Ledger-consistent: light surfaces, hairline rules, mono code,
+   ochre underlined links. No dark code themes.
+   ============================================================ */
+.prose {
+  color: var(--color-ink-700);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  max-width: 68ch;
+}
+.prose > * + * {
+  margin-top: 1.1em;
+}
+.prose h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-1);
+  line-height: var(--text-heading-1--line-height);
+  font-weight: 500;
+  color: var(--color-ink-900);
+  margin-top: 2.2em;
+  scroll-margin-top: 6rem;
+}
+.prose h3 {
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-2);
+  line-height: var(--text-heading-2--line-height);
+  font-weight: 700;
+  color: var(--color-ink-900);
+  margin-top: 1.8em;
+  scroll-margin-top: 6rem;
+}
+.prose h4 {
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-3);
+  font-weight: 700;
+  color: var(--color-ink-900);
+  margin-top: 1.5em;
+  scroll-margin-top: 6rem;
+}
+.prose p {
+  color: var(--color-ink-700);
+}
+.prose strong {
+  color: var(--color-ink-900);
+  font-weight: 700;
+}
+.prose a {
+  color: var(--color-accent-700);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.prose a:hover {
+  text-decoration-thickness: 2px;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.5em;
+}
+.prose ul {
+  list-style: disc;
+}
+.prose ol {
+  list-style: decimal;
+}
+.prose li {
+  margin-top: 0.4em;
+  color: var(--color-ink-700);
+}
+.prose li::marker {
+  color: var(--color-ink-500);
+}
+.prose blockquote {
+  border-left: 2px solid var(--color-accent-600);
+  padding: 0.2em 0 0.2em 1.2em;
+  color: var(--color-ink-700);
+  background: var(--color-paper-1);
+  border-radius: 0 var(--radius-paper-sm) var(--radius-paper-sm) 0;
+}
+.prose blockquote > * + * {
+  margin-top: 0.6em;
+}
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.94em;
+  background: var(--color-paper-1);
+  padding: 0.12em 0.4em;
+  border-radius: var(--radius-paper-sm);
+  color: var(--color-ink-900);
+}
+.prose pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-data);
+  background: var(--color-paper-1);
+  border: 1px solid var(--color-line-100);
+  border-radius: var(--radius-paper);
+  padding: 1em 1.2em;
+  overflow-x: auto;
+}
+.prose pre code {
+  background: none;
+  padding: 0;
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-body-sm);
+  display: block;
+  overflow-x: auto;
+}
+.prose thead th {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: left;
+  color: var(--color-ink-700);
+  padding: 10px 14px 8px 0;
+  border-bottom: 1px solid var(--color-line-300);
+  white-space: nowrap;
+}
+.prose tbody td {
+  padding: 10px 14px 10px 0;
+  border-bottom: 1px solid var(--color-line-100);
+  vertical-align: top;
+  color: var(--color-ink-700);
+}
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--color-line-100);
+  margin: 2.4em 0;
+}
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-paper-sm);
+}
+
+/* Copy-link heading anchor (docs) */
+.heading-anchor {
+  opacity: 0;
+  margin-left: 0.4em;
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  color: var(--color-accent-700);
+  text-decoration: none;
+  transition: opacity var(--t-fast) var(--ease-standard);
+}
+h2:hover .heading-anchor,
+h3:hover .heading-anchor,
+.heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+/* Doorway QR motif (Phase-3 10 §6): each square strokes once. */
+.qr-draw {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: qr-stroke var(--t-base) var(--ease-standard) forwards;
+}
+@keyframes qr-stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qr-draw {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
 }

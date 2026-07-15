@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" fill="none" role="img" aria-label="ShilaTeq — The operating system for stone yards">
+  <title>ShilaTeq — The operating system for stone yards</title>
+
+  <defs>
+    <!-- Granite / stone base gradient (animated warm drift) -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#241d15">
+        <animate attributeName="stop-color" values="#241d15;#2c2318;#241d15" dur="9s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="0.55" stop-color="#33291c">
+        <animate attributeName="stop-color" values="#33291c;#3d3122;#33291c" dur="9s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="1" stop-color="#1c160f">
+        <animate attributeName="stop-color" values="#1c160f;#231b12;#1c160f" dur="9s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+
+    <!-- Warm brass glow behind the wordmark -->
+    <radialGradient id="glow" cx="0.28" cy="0.5" r="0.6">
+      <stop offset="0" stop-color="#d9b45a" stop-opacity="0.42"/>
+      <stop offset="0.5" stop-color="#a87b2e" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#a87b2e" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Brass wordmark fill -->
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6e4b0"/>
+      <stop offset="0.5" stop-color="#e0b85e"/>
+      <stop offset="1" stop-color="#b6862f"/>
+    </linearGradient>
+
+    <!-- Polished-marble shimmer sweep -->
+    <linearGradient id="shimmer" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#fff6df" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Stone block faces -->
+    <linearGradient id="blockTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#efe6d4"/>
+      <stop offset="1" stop-color="#d8caae"/>
+    </linearGradient>
+    <linearGradient id="blockFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9b993"/>
+      <stop offset="1" stop-color="#a08a5f"/>
+    </linearGradient>
+    <linearGradient id="blockSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8f7a52"/>
+      <stop offset="1" stop-color="#6f5c3a"/>
+    </linearGradient>
+
+    <clipPath id="round">
+      <rect x="0" y="0" width="1280" height="360" rx="20"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#round)">
+    <!-- Base -->
+    <rect width="1280" height="360" fill="url(#bg)"/>
+
+    <!-- Pulsing warm glow -->
+    <ellipse cx="360" cy="184" rx="470" ry="240" fill="url(#glow)">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="6s" repeatCount="indefinite"/>
+    </ellipse>
+
+    <!-- Flowing marble veins -->
+    <g stroke="#e9dcc2" stroke-width="1.4" fill="none" opacity="0.14" stroke-linecap="round">
+      <path d="M-40 70 C 220 30, 420 150, 720 96 S 1180 60, 1340 128" stroke-dasharray="10 14">
+        <animate attributeName="stroke-dashoffset" values="0;-240" dur="12s" repeatCount="indefinite"/>
+      </path>
+      <path d="M-40 300 C 260 260, 520 330, 780 286 S 1160 300, 1340 250" stroke-dasharray="8 16">
+        <animate attributeName="stroke-dashoffset" values="0;240" dur="15s" repeatCount="indefinite"/>
+      </path>
+      <path d="M-40 190 C 300 150, 560 240, 900 190 S 1220 170, 1340 210" stroke-dasharray="4 20">
+        <animate attributeName="stroke-dashoffset" values="0;-200" dur="18s" repeatCount="indefinite"/>
+      </path>
+    </g>
+
+    <!-- ============ Floating stone blocks with QR identity ============ -->
+    <g transform="translate(892 96)">
+      <animateTransform attributeName="transform" type="translate" additive="sum"
+        values="0 0; 0 -12; 0 0" dur="6s" repeatCount="indefinite"/>
+      <!-- isometric block -->
+      <polygon points="0,44 96,0 176,30 80,74" fill="url(#blockTop)"/>
+      <polygon points="0,44 80,74 80,168 0,138" fill="url(#blockSide)"/>
+      <polygon points="80,74 176,30 176,124 80,168" fill="url(#blockFront)"/>
+      <!-- QR tag -->
+      <g transform="translate(104 78)" fill="#241d15">
+        <rect x="-6" y="-6" width="52" height="52" rx="4" fill="#f3ece0" opacity="0.94"/>
+        <rect x="0" y="0" width="12" height="12"/><rect x="28" y="0" width="12" height="12"/>
+        <rect x="0" y="28" width="12" height="12"/><rect x="16" y="16" width="8" height="8"/>
+        <rect x="28" y="20" width="6" height="6"/><rect x="20" y="30" width="6" height="6"/>
+        <rect x="32" y="32" width="8" height="8"/>
+      </g>
+    </g>
+
+    <g transform="translate(1058 150)" opacity="0.96">
+      <animateTransform attributeName="transform" type="translate" additive="sum"
+        values="0 0; 0 -16; 0 0" dur="7.5s" begin="-2s" repeatCount="indefinite"/>
+      <polygon points="0,34 72,0 132,22 60,56" fill="url(#blockTop)"/>
+      <polygon points="0,34 60,56 60,128 0,106" fill="url(#blockSide)"/>
+      <polygon points="60,56 132,22 132,94 60,128" fill="url(#blockFront)"/>
+      <g transform="translate(78 58)" fill="#241d15">
+        <rect x="-5" y="-5" width="40" height="40" rx="3" fill="#f3ece0" opacity="0.94"/>
+        <rect x="0" y="0" width="9" height="9"/><rect x="21" y="0" width="9" height="9"/>
+        <rect x="0" y="21" width="9" height="9"/><rect x="13" y="13" width="6" height="6"/>
+        <rect x="22" y="22" width="7" height="7"/>
+      </g>
+    </g>
+
+    <g transform="translate(1150 62)" opacity="0.8">
+      <animateTransform attributeName="transform" type="translate" additive="sum"
+        values="0 0; 0 -9; 0 0" dur="5.5s" begin="-1s" repeatCount="indefinite"/>
+      <polygon points="0,26 54,0 100,16 46,42" fill="url(#blockTop)"/>
+      <polygon points="0,26 46,42 46,96 0,80" fill="url(#blockSide)"/>
+      <polygon points="46,42 100,16 100,70 46,96" fill="url(#blockFront)"/>
+    </g>
+
+    <!-- ============ Wordmark + tagline ============ -->
+    <g transform="translate(88 0)">
+      <animateTransform attributeName="transform" type="translate"
+        values="88 26; 88 0" dur="1s" begin="0s" fill="freeze" calcMode="spline" keySplines="0.2 0.7 0.2 1" keyTimes="0;1"/>
+      <text x="0" y="192" font-family="Georgia, 'Times New Roman', serif" font-size="104" font-weight="700"
+            fill="url(#brass)" letter-spacing="-1">
+        ShilaTeq
+        <animate attributeName="opacity" values="0;1" dur="0.9s" begin="0.1s" fill="freeze"/>
+      </text>
+
+      <!-- brass rule that draws in -->
+      <line x1="4" y1="224" x2="500" y2="224" stroke="#c9922e" stroke-width="3" stroke-linecap="round"
+            stroke-dasharray="500" stroke-dashoffset="500">
+        <animate attributeName="stroke-dashoffset" values="500;0" dur="1.1s" begin="0.6s" fill="freeze"/>
+      </line>
+
+      <!-- typewriter tagline -->
+      <clipPath id="type"><rect x="0" y="240" width="0" height="46">
+        <animate attributeName="width" values="0;560" dur="1.8s" begin="0.8s" fill="freeze"/>
+      </rect></clipPath>
+      <g clip-path="url(#type)">
+        <text x="4" y="272" font-family="Georgia, 'Times New Roman', serif" font-size="30"
+              fill="#ecdfc4" font-style="italic">The operating system for stone yards</text>
+      </g>
+      <rect x="4" y="248" width="3" height="28" fill="#d9b45a">
+        <animate attributeName="x" values="4;564" dur="1.8s" begin="0.8s" fill="freeze"/>
+        <animate attributeName="opacity" values="1;1;0;1;0;1" dur="1s" begin="2.6s" repeatCount="indefinite"/>
+      </rect>
+
+      <!-- capability chips -->
+      <g font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;1" dur="0.8s" begin="2.4s" fill="freeze"/>
+        <g fill="#eadfc6">
+          <rect x="4" y="300" width="120" height="30" rx="15" fill="#3a2f1e" stroke="#8f6f30" stroke-width="1"/>
+          <text x="22" y="320">📇 QR identity</text>
+          <rect x="136" y="300" width="120" height="30" rx="15" fill="#3a2f1e" stroke="#8f6f30" stroke-width="1"/>
+          <text x="154" y="320">📶 Offline-first</text>
+          <rect x="268" y="300" width="128" height="30" rx="15" fill="#3a2f1e" stroke="#8f6f30" stroke-width="1"/>
+          <text x="286" y="320">🇮🇳 GST-native</text>
+          <rect x="408" y="300" width="132" height="30" rx="15" fill="#3a2f1e" stroke="#8f6f30" stroke-width="1"/>
+          <text x="426" y="320">EN / हिंदी</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Polished shimmer sweep across the whole banner -->
+    <rect x="-400" y="-40" width="360" height="440" fill="url(#shimmer)" transform="skewX(-18)">
+      <animate attributeName="x" values="-500;1500" dur="5.5s" begin="1.5s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- Frame -->
+    <rect x="1" y="1" width="1278" height="358" rx="20" fill="none" stroke="#6f5c3a" stroke-width="1.5" opacity="0.5"/>
+  </g>
+</svg>
