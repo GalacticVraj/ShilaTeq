@@ -857,3 +857,32 @@ h3:hover .heading-anchor,
     animation: none;
   }
 }
+
+/* ============================================================
+   Comparison engine (COMPARISON_ENGINE_REDESIGN.md). On a tab switch the
+   ONLY thing that moves is the incumbent-dependent cell: a gentle rise+fade
+   replayed via keyed remount. Transform/opacity only; the StoneX column and
+   feature names never remount, so there is no layout shift. Reduced-motion
+   and no-JS resolve to the final state instantly.
+   ============================================================ */
+@keyframes cmp-swap {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.cmp-swap {
+  animation: cmp-swap var(--t-base) var(--ease-standard) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cmp-swap {
+    animation: none;
+  }
+}
+html.no-js .cmp-swap {
+  animation: none;
+}

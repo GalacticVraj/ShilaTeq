@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/config/site";
-import { comparisons } from "@/content/comparisons";
+import { compareRoutes } from "@/content/compare";
 import { industries } from "@/content/industries";
 import { guides } from "@/content/guides";
 import { docsIndex } from "@/content/docs-index";
@@ -39,7 +39,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   const dynamic = [
-    ...comparisons.map((c) => `/why/${c.slug}`),
+    ...compareRoutes.map((r) => `/why/${r.slug}`),
     ...industries.map((i) => `/industries/${i.slug}`),
     ...guides.map((g) => `/guides/${g.slug}`),
     ...docsIndex.map((d) => `/docs/${d.slug}`),
