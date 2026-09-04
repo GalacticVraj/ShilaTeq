@@ -4,18 +4,37 @@ import { DocumentCard } from "@/components/ui/DocumentCard";
 import { HonestyStrip } from "@/components/ui/HonestyStrip";
 
 export const metadata: Metadata = {
-  title: "Pricing — and what you'll never pay for",
+  title: "Pricing — Simple plans for every yard",
   description:
-    "ShilaTeq's cost shape: no hardware, no servers, no per-message fees, no payment-gateway cut, no lock-in. Ask on WhatsApp — an answer today.",
+    "ShilaTeq's pricing models for ERP SaaS. Starter, Growth, Professional, and Enterprise plans tailored for your yard's needs.",
 };
 
-/**
- * PRICING — the cost-shape page (phase-4/04 §6) and the system's designated
- * prototype (phase-4/12 M1): dense, honest, componentful — the guinea pig for
- * tokens, Register, Documents, HonestyStrip and the flipped DoorsBlock.
- * The number slot (§6.4) is ABSENT until [Founder B6] resolves — never
- * placeholdered (phase-4/14 rule 8).
- */
+const pricingTiers = [
+  {
+    name: "Starter",
+    monthly: "₹1,499/mo",
+    annually: "₹15,999/yr",
+    builtFor: "Small yards digitising inventory and cutting-yield tracking for the first time",
+  },
+  {
+    name: "Growth",
+    monthly: "₹2,999/mo",
+    annually: "₹31,999/yr",
+    builtFor: "Yards ready to run quotations, orders and GST billing digitally, and stop double-selling stock",
+  },
+  {
+    name: "Professional",
+    monthly: "₹4,499/mo",
+    annually: "₹47,999/yr",
+    builtFor: "Full-cycle yards wanting dispatch, returns, procurement and the public 3D showroom for online leads",
+  },
+  {
+    name: "Enterprise",
+    monthly: "₹5,499/mo",
+    annually: "₹65,988/yr",
+    builtFor: "Larger processors and traders wanting workforce, payroll, full financial ledgers and BI reporting, plus priority support",
+  },
+] as const;
 
 const costShape = [
   {
@@ -42,11 +61,6 @@ const costShape = [
 
 const honesty = [
   {
-    fact: "We haven't published a price list here yet.",
-    reason:
-      "Pricing depends on your yard. Ask on WhatsApp and you'll have a straight answer today — not a callback next week.",
-  },
-  {
     fact: "Payments are recorded, not collected.",
     reason:
       "No transaction fees and no compliance overhead. Online UPI collection is on the roadmap.",
@@ -66,14 +80,41 @@ export default function PricingPage() {
       <header className="max-w-2xl">
         <p className="eyebrow">Pricing</p>
         <h1 className="font-display text-display-2 text-ink-900 mt-3 font-medium tracking-tight">
-          What ShilaTeq costs — and what it never will.
+          Simple plans for every yard.
         </h1>
         <p className="text-body-lg text-ink-700 mt-5">
-          Pricing depends on your yard — how much stone, how many people. Ask us on WhatsApp and
-          you&rsquo;ll get an answer today. What we can tell you right now is the shape of the cost:
-          the list of things you will never pay for.
+          Whether you&rsquo;re just starting to digitise your inventory or running a full-cycle operation, we have a tier that fits your needs perfectly. No hidden costs.
         </p>
       </header>
+
+      {/* Pricing Tiers */}
+      <section aria-label="Pricing tiers" className="mt-14 max-w-5xl">
+        <h2 className="font-display text-heading-1 text-ink-900 font-medium">
+          Choose your plan
+        </h2>
+        <div className="mt-6 overflow-x-auto">
+          <table className="register w-full min-w-[800px]">
+            <thead>
+              <tr>
+                <th scope="col" className="w-1/4">Tier</th>
+                <th scope="col" className="w-1/6">Monthly</th>
+                <th scope="col" className="w-1/6">Billed Annually</th>
+                <th scope="col" className="w-5/12">Built For</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pricingTiers.map((tier) => (
+                <tr key={tier.name}>
+                  <td className="text-ink-900 font-bold">{tier.name}</td>
+                  <td className="text-ink-900">{tier.monthly}</td>
+                  <td className="text-ink-900 font-medium">{tier.annually}</td>
+                  <td className="text-ink-700">{tier.builtFor}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       {/* The cost-shape register */}
       <section aria-label="What you'll never pay for" className="mt-14 max-w-3xl">
@@ -126,16 +167,15 @@ export default function PricingPage() {
       {/* Doors — the one page where the order flips (phase-4/04 §6.7) */}
       <section aria-label="Talk to us" className="mt-14 max-w-3xl">
         <h2 className="font-display text-heading-1 text-ink-900 font-medium">
-          Get your number today
+          Ready to get started?
         </h2>
         <p className="text-body text-ink-700 mt-3">
-          Tell us roughly how many blocks and slabs your yard holds, and we&rsquo;ll give you a
-          straight price — usually within minutes.
+          Tell us which plan you&rsquo;re interested in, and we&rsquo;ll help you get set up.
         </p>
         <div className="mt-6">
           <DoorsBlock
             variant="pricing"
-            waPrefix="Mujhe pricing ke baare mein jaanna hai. Mere yard mein lagbhag ___ blocks hain."
+            waPrefix="Mujhe ShilaTeq plan ke baare mein baat karni hai."
           />
         </div>
       </section>
