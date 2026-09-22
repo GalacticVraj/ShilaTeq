@@ -1,44 +1,26 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { WhatsAppGlyph } from "@/components/ui/DoorsBlock";
-import { cn } from "@/lib/cn";
 
-/**
- * The ambient WhatsApp affordance (Phase-3 09 §13): a quiet, persistent door.
- * Shrinks to glyph-only while scrolling down, restores on scroll-up (11 #76).
- * Never bounces, pulses, or expands uninvited. Renders only when the number
- * is configured (AMENDMENTS A-004) — `href` is prebuilt server-side.
- */
-export function WhatsAppDock({ href }: { href: string }) {
-  const [compact, setCompact] = useState(false);
-  const lastY = useRef(0);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (Math.abs(y - lastY.current) > 12) {
-        setCompact(y > lastY.current && y > 120);
-        lastY.current = y;
-      }
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+export function WhatsAppDock({ href }: { href?: string | null }) {
+  const targetUrl =
+    href ||
+    "https://wa.me/917043765580?text=Namaste,%20I%20want%20to%20learn%20more%20about%20ShilaTeq.";
 
   return (
     <a
-      href={href}
+      href={targetUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className={cn(
-        "rounded-paper border-line-300 bg-paper-2 text-body text-ink-900 shadow-desk-2 ease-standard fixed right-4 z-30 flex min-h-12 items-center gap-2 border px-4 py-3 font-bold transition-[padding] duration-240",
-        "bottom-[max(1rem,env(safe-area-inset-bottom))]",
-        compact && "px-3",
-      )}
+      aria-label="Chat with ShilaTeq on WhatsApp"
+      className="group fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-full border border-emerald-500/40 bg-slate-950/90 px-4 py-3 text-xs font-bold text-white shadow-2xl shadow-emerald-500/25 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-emerald-400 hover:bg-slate-900"
     >
-      <WhatsAppGlyph className="text-ok-600 size-5" />
-      <span className={cn(compact && "sr-only")}>WhatsApp us</span>
+      <span className="relative flex h-3 w-3">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+        <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
+      </span>
+      <WhatsAppGlyph className="h-5 w-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+      <span className="hidden sm:inline">WhatsApp Help</span>
     </a>
   );
 }

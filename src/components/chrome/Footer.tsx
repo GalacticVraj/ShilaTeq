@@ -1,60 +1,73 @@
 import Link from "next/link";
-import { footerColumns, site } from "@/config/site";
+import { footerColumns } from "@/config/site";
 
-/**
- * Footer: a calm index, not a dumping ground (phase-4/03 S8). Carries the
- * category line as the closing signature and the live-showroom proof link.
- * No entrance motion, ever (phase-4/05).
- */
 export function Footer() {
   return (
-    <footer className="border-line-100 bg-paper-1 border-t">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <footer className="border-t border-slate-800/80 bg-slate-950 text-slate-400">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5">
+          {/* Brand Column */}
+          <div className="lg:col-span-2 space-y-4">
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 font-mono text-sm font-bold text-slate-950 shadow">
+                🪨
+              </div>
+              <span className="text-xl font-extrabold text-white">
+                Shila<span className="text-emerald-400">Teq</span>
+              </span>
+            </Link>
+            <p className="max-w-sm text-xs text-slate-400 leading-relaxed">
+              The modern ERP operating system for Indian stone yards, marble processors, and granite traders. Real-time QR identity, gangsaw yield recovery, and 1-tap WhatsApp GST invoicing.
+            </p>
+            <div className="flex items-center gap-3 text-xs text-slate-500 font-mono">
+              <span>🇮🇳 Built for Indian Stone Yards</span>
+              <span>•</span>
+              <span>100% Offline Capable</span>
+            </div>
+          </div>
+
+          {/* Nav Columns from site config */}
           {footerColumns.map((col) => (
-            <nav key={col.title} aria-label={col.title}>
-              <h2 className="eyebrow">{col.title}</h2>
-              <ul className="mt-4 space-y-2.5">
+            <div key={col.title}>
+              <h3 className="text-xs font-bold tracking-wider text-slate-200 uppercase font-mono">
+                {col.title}
+              </h3>
+              <ul className="mt-4 space-y-2.5 text-xs">
                 {col.links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
+                      className="text-slate-400 transition-colors hover:text-emerald-400"
                     >
                       {link.label}
                     </Link>
                   </li>
                 ))}
               </ul>
-            </nav>
+            </div>
           ))}
+
+          {/* Contact Direct Column */}
           <div>
-            <h2 className="eyebrow">Contact Sales</h2>
-            <ul className="mt-4 space-y-2.5">
+            <h3 className="text-xs font-bold tracking-wider text-slate-200 uppercase font-mono">
+              Direct Contact
+            </h3>
+            <ul className="mt-4 space-y-2.5 text-xs">
               <li>
-                <span className="text-body-sm text-ink-700 font-medium">Vraj:</span>{" "}
-                <a
-                  href="tel:7043765580"
-                  className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
-                >
-                  7043765580
+                <span className="text-slate-500">Sales (Vraj):</span>{" "}
+                <a href="tel:7043765580" className="text-slate-300 hover:text-emerald-400">
+                  +91 70437 65580
                 </a>
               </li>
               <li>
-                <span className="text-body-sm text-ink-700 font-medium">Lakshya:</span>{" "}
-                <a
-                  href="tel:+918078686994"
-                  className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
-                >
+                <span className="text-slate-500">Support (Lakshya):</span>{" "}
+                <a href="tel:+918078686994" className="text-slate-300 hover:text-emerald-400">
                   +91 8078 686 994
                 </a>
               </li>
               <li>
-                <span className="text-body-sm text-ink-700 font-medium">Email:</span>{" "}
-                <a
-                  href="mailto:shilateq@gmail.com"
-                  className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
-                >
+                <span className="text-slate-500">Email:</span>{" "}
+                <a href="mailto:shilateq@gmail.com" className="text-slate-300 hover:text-emerald-400">
                   shilateq@gmail.com
                 </a>
               </li>
@@ -63,58 +76,31 @@ export function Footer() {
                   href="https://www.linkedin.com/company/shilateq/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
+                  className="text-emerald-400 hover:text-emerald-300 font-semibold"
                 >
-                  LinkedIn ↗
+                  LinkedIn Page ↗
                 </a>
               </li>
             </ul>
           </div>
-          <div>
-            <h2 className="eyebrow">The yard</h2>
-            <ul className="mt-4 space-y-2.5">
-              {site.showroomUrl ? (
-                <li>
-                  <a
-                    href={site.showroomUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
-                  >
-                    See a live showroom ↗<span className="sr-only">(opens in new tab)</span>
-                  </a>
-                </li>
-              ) : null}
-              <li>
-                <Link
-                  href="/legal/privacy"
-                  className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
-                >
-                  Privacy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/legal/terms"
-                  className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
-                >
-                  Terms
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/legal/cookies"
-                  className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
-                >
-                  Cookies
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
-        <div className="border-line-100 mt-12 flex flex-col gap-2 border-t pt-6 sm:flex-row sm:items-baseline sm:justify-between">
-          <p className="eyebrow">{site.categoryLine}</p>
-          <p className="text-body-sm text-ink-500">© {new Date().getFullYear()} ShilaTeq</p>
+
+        {/* Bottom bar */}
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-900 pt-8 text-xs text-slate-500 sm:flex-row">
+          <div>
+            &copy; {new Date().getFullYear()} ShilaTeq Technologies Pvt. Ltd. All rights reserved.
+          </div>
+          <div className="flex items-center gap-6">
+            <Link href="/legal/privacy" className="hover:text-slate-400">
+              Privacy Policy
+            </Link>
+            <Link href="/legal/terms" className="hover:text-slate-400">
+              Terms of Service
+            </Link>
+            <Link href="/security" className="hover:text-slate-400">
+              Security
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
