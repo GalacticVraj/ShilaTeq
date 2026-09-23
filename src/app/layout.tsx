@@ -43,12 +43,12 @@ const jbMono = JetBrains_Mono({
 });
 
 export const viewport = {
-  colorScheme: "dark" as const,
+  colorScheme: "light" as const,
 };
 
 export const metadata: Metadata = {
   title: {
-    default: "ShilaTeq — The Modern SaaS Operating System for Stone Yards",
+    default: "ShilaTeq — The Modern Operating System for Stone Yards",
     template: "%s — ShilaTeq",
   },
   description:
@@ -66,12 +66,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${muktaLatin.variable} ${muktaDevanagari.variable} ${jbMono.variable} dark scroll-smooth h-full`}
+      className={`${fraunces.variable} ${muktaLatin.variable} ${muktaDevanagari.variable} ${jbMono.variable} scroll-smooth h-full`}
     >
-      <body className="bg-[#070b12] text-slate-100 flex min-h-full flex-col font-sans selection:bg-emerald-500 selection:text-slate-950 antialiased">
+      <body className="bg-[#f8fafc] text-slate-900 flex min-h-full flex-col font-sans selection:bg-emerald-500 selection:text-white antialiased">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-emerald-500 focus:px-4 focus:py-2 focus:text-slate-950 focus:font-bold"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-xl focus:bg-emerald-600 focus:px-4 focus:py-2 focus:text-white focus:font-bold focus:shadow-lg"
         >
           Skip to content
         </a>

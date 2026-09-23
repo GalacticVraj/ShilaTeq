@@ -6,32 +6,20 @@ export function RoiCalculator() {
   const [tonnage, setTonnage] = useState(1200);
   const [stoneType, setStoneType] = useState<"marble" | "granite" | "sandstone">("marble");
 
-  // Calculations based on industry benchmarks in Kishangarh & Ongole
   const avgSqFtPerTon = stoneType === "marble" ? 75 : stoneType === "granite" ? 65 : 85;
   const avgPricePerSqFt = stoneType === "marble" ? 220 : stoneType === "granite" ? 320 : 140;
 
-  // 12% yield improvement via ShilaTeq remnant tracking & gangsaw cut plans
   const monthlyWastageSaved = Math.round(
     tonnage * avgSqFtPerTon * 0.08 * avgPricePerSqFt * 0.4
   );
 
-  // 35 hours per week saved on searching blocks and manual registers
   const weeklyHoursSaved = Math.round(18 + (tonnage / 1200) * 16);
-
-  // Dead capital recovery: 15% reduction in dead stock over 90 days
   const deadCapitalRecovered = Math.round(monthlyWastageSaved * 1.8);
-
-  // Annual Net Advantage
   const annualSavings = monthlyWastageSaved * 12 + deadCapitalRecovered * 2;
 
-  // Format INR currency
   const formatInr = (val: number) => {
-    if (val >= 10000000) {
-      return `₹${(val / 10000000).toFixed(2)} Cr`;
-    }
-    if (val >= 100000) {
-      return `₹${(val / 100000).toFixed(2)} Lakhs`;
-    }
+    if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
+    if (val >= 100000) return `₹${(val / 100000).toFixed(2)} Lakhs`;
     return `₹${val.toLocaleString("en-IN")}`;
   };
 
@@ -39,45 +27,41 @@ export function RoiCalculator() {
     <section id="roi-calculator" className="relative py-20 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/60 px-3.5 py-1 text-xs font-semibold text-cyan-400">
-            ⚡ Financial Impact & Payback
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-3.5 py-1 text-xs font-bold text-teal-800">
+            ⚡ Instant Financial Payback
           </span>
-          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
-            How Much Money Does ShilaTeq{" "}
-            <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-amber-300 bg-clip-text text-transparent">
-              Save Your Yard Every Month?
-            </span>
+          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+            See Your Monthly Savings.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400 sm:text-lg">
-            Move the slider to match your yard&rsquo;s monthly intake. See your instant yield recovery, labor savings, and freed dead capital.
+          <p className="mx-auto mt-2 max-w-lg text-base text-slate-600">
+            Move the slider to calculate how much cutting wastage and lost hours ShilaTeq saves your yard.
           </p>
         </div>
 
-        <div className="mt-12 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/80 p-6 shadow-2xl backdrop-blur-xl sm:p-10">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+        <div className="mt-10 overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-10">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 text-left">
             {/* Input Controls */}
-            <div className="space-y-8 lg:col-span-6">
-              {/* Stone Material Switcher */}
+            <div className="space-y-6 lg:col-span-6">
               <div>
-                <label className="text-xs font-semibold tracking-wider text-slate-300 uppercase">
-                  1. Select Primary Material Processed
+                <label className="text-xs font-bold tracking-wider text-slate-700 uppercase">
+                  1. Primary Stone Material
                 </label>
                 <div className="mt-3 grid grid-cols-3 gap-2.5">
                   {[
                     { id: "marble", label: "Marble", icon: "🏛️" },
                     { id: "granite", label: "Granite", icon: "⬛" },
-                    { id: "sandstone", label: "Sandstone / Quartz", icon: "🟫" },
+                    { id: "sandstone", label: "Sandstone", icon: "🟫" },
                   ].map((item) => (
                     <button
                       key={item.id}
                       onClick={() => setStoneType(item.id as typeof stoneType)}
-                      className={`flex flex-col items-center justify-center rounded-xl border p-3 text-xs font-semibold transition-all ${
+                      className={`flex flex-col items-center justify-center rounded-2xl border p-3 text-xs font-bold transition-all ${
                         stoneType === item.id
-                          ? "border-emerald-500 bg-emerald-950/40 text-emerald-300 ring-1 ring-emerald-500/50"
-                          : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-white"
+                          ? "border-emerald-600 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-500/20 shadow-xs"
+                          : "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-white"
                       }`}
                     >
-                      <span className="text-lg">{item.icon}</span>
+                      <span className="text-xl">{item.icon}</span>
                       <span className="mt-1">{item.label}</span>
                     </button>
                   ))}
@@ -87,14 +71,14 @@ export function RoiCalculator() {
               {/* Tonnage Slider */}
               <div>
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold tracking-wider text-slate-300 uppercase">
+                  <label className="text-xs font-bold tracking-wider text-slate-700 uppercase">
                     2. Monthly Yard Volume (Tons)
                   </label>
-                  <span className="font-mono text-base font-bold text-emerald-400 sm:text-lg">
-                    {tonnage.toLocaleString()} Metric Tons / mo
+                  <span className="font-mono text-base font-extrabold text-emerald-700 sm:text-lg">
+                    {tonnage.toLocaleString()} Tons / mo
                   </span>
                 </div>
-                <div className="mt-4">
+                <div className="mt-3">
                   <input
                     type="range"
                     min="200"
@@ -102,106 +86,103 @@ export function RoiCalculator() {
                     step="100"
                     value={tonnage}
                     onChange={(e) => setTonnage(Number(e.target.value))}
-                    className="h-2.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-emerald-500"
+                    className="h-2.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-emerald-600"
                   />
-                  <div className="mt-2 flex justify-between font-mono text-[11px] text-slate-500">
-                    <span>200 Tons (Small Yard)</span>
+                  <div className="mt-1 flex justify-between font-mono text-[11px] text-slate-400">
+                    <span>200 Tons (Small)</span>
                     <span>1,500 Tons (Mid-Size)</span>
-                    <span>5,000 Tons (Mega Processor)</span>
+                    <span>5,000 Tons (Mega Yard)</span>
                   </div>
                 </div>
               </div>
 
-              {/* Fast Proof Points */}
-              <div className="space-y-3 rounded-xl border border-slate-800/80 bg-slate-900/40 p-4 text-xs text-slate-300">
+              {/* Guarantees */}
+              <div className="space-y-2 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-xs text-slate-600">
                 <div className="flex items-center gap-2">
-                  <span className="text-emerald-400">✓</span>
-                  <span><strong>Zero Hardware Investment:</strong> Works directly in phone browsers</span>
+                  <span className="text-emerald-600 font-bold">✓</span>
+                  <span><strong>Zero Hardware to Buy:</strong> Runs in phone browsers</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-emerald-400">✓</span>
-                  <span><strong>No WhatsApp Gateway Surcharges:</strong> Free direct click-to-chat dispatch</span>
+                  <span className="text-emerald-600 font-bold">✓</span>
+                  <span><strong>Zero Transaction Surcharges:</strong> Direct UPI payments</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-emerald-400">✓</span>
-                  <span><strong>Setup in 48 Hours:</strong> We help tag your first 50 blocks on-site</span>
+                  <span className="text-emerald-600 font-bold">✓</span>
+                  <span><strong>48-Hour Yard Setup:</strong> Live on day two</span>
                 </div>
               </div>
             </div>
 
             {/* Live Financial Savings Output */}
-            <div className="flex flex-col justify-between rounded-xl border border-emerald-500/30 bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950/20 p-6 lg:col-span-6">
+            <div className="flex flex-col justify-between rounded-2xl border border-emerald-200 bg-emerald-50/60 p-6 sm:p-8 lg:col-span-6">
               <div>
-                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                  <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
-                    Estimated Net Savings & Gains
+                <div className="flex items-center justify-between border-b border-emerald-200/80 pb-3">
+                  <span className="text-xs font-bold tracking-wider text-emerald-800 uppercase">
+                    Estimated Net Benefit
                   </span>
-                  <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 font-mono text-xs font-bold text-emerald-400">
-                    ~18x ShilaTeq ROI
+                  <span className="rounded-full bg-emerald-200/80 px-2.5 py-0.5 font-mono text-xs font-bold text-emerald-900">
+                    ~18x ROI
                   </span>
                 </div>
 
-                <div className="mt-6 space-y-5">
+                <div className="mt-5 space-y-4">
                   <div className="flex items-baseline justify-between">
                     <div>
-                      <h4 className="text-sm font-semibold text-white">Monthly Cutting Yield Recovery</h4>
-                      <p className="text-xs text-slate-400">From automated remnant indexing & reduced gangsaw wastage</p>
+                      <h4 className="text-sm font-bold text-slate-900">Monthly Wastage Salvaged</h4>
+                      <p className="text-xs text-slate-500">From remnant tracking & cut plans</p>
                     </div>
-                    <span className="font-mono text-xl font-bold text-emerald-400">
+                    <span className="font-mono text-xl font-extrabold text-emerald-700">
                       +{formatInr(monthlyWastageSaved)} / mo
                     </span>
                   </div>
 
-                  <div className="flex items-baseline justify-between border-t border-slate-800/60 pt-4">
+                  <div className="flex items-baseline justify-between border-t border-emerald-200/60 pt-3">
                     <div>
-                      <h4 className="text-sm font-semibold text-white">Shop-Floor & Yard Hours Saved</h4>
-                      <p className="text-xs text-slate-400">Eliminating block hunt, register matching & manual bills</p>
+                      <h4 className="text-sm font-bold text-slate-900">Yard Hours Saved</h4>
+                      <p className="text-xs text-slate-500">Zero physical searches & manual registers</p>
                     </div>
-                    <span className="font-mono text-xl font-bold text-cyan-400">
-                      ~{weeklyHoursSaved} hrs / week
+                    <span className="font-mono text-xl font-extrabold text-teal-700">
+                      ~{weeklyHoursSaved} hrs / wk
                     </span>
                   </div>
 
-                  <div className="flex items-baseline justify-between border-t border-slate-800/60 pt-4">
+                  <div className="flex items-baseline justify-between border-t border-emerald-200/60 pt-3">
                     <div>
-                      <h4 className="text-sm font-semibold text-white">Dead Capital Unlocked</h4>
-                      <p className="text-xs text-slate-400">Alerts on stones aging &gt;60 days before they lose value</p>
+                      <h4 className="text-sm font-bold text-slate-900">Dead Capital Unlocked</h4>
+                      <p className="text-xs text-slate-500">Alerts before blocks pass 60 days</p>
                     </div>
-                    <span className="font-mono text-xl font-bold text-amber-400">
+                    <span className="font-mono text-xl font-extrabold text-amber-700">
                       {formatInr(deadCapitalRecovered)}
                     </span>
                   </div>
                 </div>
 
                 {/* Big Total Box */}
-                <div className="mt-8 rounded-xl border border-emerald-500/40 bg-emerald-950/40 p-4 text-center">
-                  <span className="text-xs font-semibold tracking-wider text-emerald-300 uppercase">
+                <div className="mt-6 rounded-2xl border border-emerald-300 bg-white p-4 text-center shadow-xs">
+                  <span className="text-xs font-bold tracking-wider text-emerald-800 uppercase">
                     Estimated 1-Year Financial Advantage
                   </span>
-                  <div className="mt-1 font-mono text-3xl font-extrabold text-emerald-400 sm:text-4xl">
+                  <div className="mt-1 font-mono text-3xl font-extrabold text-emerald-700 sm:text-4xl">
                     {formatInr(annualSavings)}
                   </div>
-                  <p className="mt-1 text-[11px] text-slate-300">
-                    Versus typical monthly software fee of ₹2,999/mo (Growth Plan)
-                  </p>
                 </div>
               </div>
 
               {/* Conversion CTA */}
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <a
-                  href="/demo"
-                  className="flex-1 rounded-xl bg-emerald-500 py-3.5 text-center text-xs font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400 active:scale-95"
+                  href="#pricing"
+                  className="flex-1 rounded-xl bg-emerald-600 py-3.5 text-center text-xs font-bold text-white shadow-md shadow-emerald-600/25 transition-all hover:bg-emerald-500 active:scale-95"
                 >
-                  ⚡ Start 14-Day Free Trial
+                  ⚡ Choose Plan & Save
                 </a>
                 <a
-                  href={`https://wa.me/917043765580?text=Namaste,%20my%20yard%20handles%20about%20${tonnage}%20tons%20of%20${stoneType}%20per%20month.%20I%20want%20to%20see%20ShilaTeq%20savings%20in%20action.`}
+                  href={`https://wa.me/917043765580?text=Namaste,%20my%20yard%20handles%20${tonnage}%20tons%20of%20${stoneType}%20per%20month.%20I%20want%20to%20see%20ShilaTeq%20savings.`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/90 px-4 py-3.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-700"
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors"
                 >
-                  💬 Talk with Yard Specialist
+                  💬 Chat on WhatsApp
                 </a>
               </div>
             </div>

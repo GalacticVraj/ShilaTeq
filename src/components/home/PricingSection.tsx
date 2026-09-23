@@ -9,7 +9,7 @@ export function PricingSection() {
     {
       name: "Starter",
       badge: "Small Yards",
-      desc: "For yards digitizing raw blocks, gangsaw yields, and QR tags for the first time.",
+      desc: "For yards digitizing raw blocks, gangsaw yields, and QR tags.",
       monthlyPrice: 1499,
       annualMonthlyEquiv: 1199,
       annualTotal: "₹14,388 / year",
@@ -19,16 +19,16 @@ export function PricingSection() {
         "Gangsaw cut & wastage tracking",
         "Offline worker logging",
         "Excel & CSV data exports",
-        "Standard email & WhatsApp support",
+        "WhatsApp & email support",
       ],
       popular: false,
       ctaText: "Start Starter Plan",
-      ctaHref: "/demo?plan=starter",
+      ctaHref: "#demo",
     },
     {
       name: "Growth",
       badge: "⭐ Most Popular",
-      desc: "For yards ready to run quotes, WhatsApp billing, and eliminate double-selling.",
+      desc: "For yards ready to run quotes, WhatsApp billing, and stop double-selling.",
       monthlyPrice: 2999,
       annualMonthlyEquiv: 2399,
       annualTotal: "₹28,788 / year",
@@ -37,12 +37,12 @@ export function PricingSection() {
         "Instant WhatsApp GST tax invoices",
         "Zero double-selling atomic locking",
         "Hindi + English offline worker app",
-        "Real-time dead capital & aging alerts",
-        "Assisted onboarding & initial 50 block tagging",
+        "Dead capital & aging alerts",
+        "Assisted setup & first 50 block tags",
       ],
       popular: true,
       ctaText: "⚡ Start 14-Day Free Trial",
-      ctaHref: "/demo?plan=growth",
+      ctaHref: "#demo",
     },
     {
       name: "Professional",
@@ -61,7 +61,7 @@ export function PricingSection() {
       ],
       popular: false,
       ctaText: "Start Professional",
-      ctaHref: "/demo?plan=pro",
+      ctaHref: "#demo",
     },
     {
       name: "Enterprise",
@@ -88,37 +88,34 @@ export function PricingSection() {
     <section id="pricing" className="relative py-20 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-950/60 px-3.5 py-1 text-xs font-semibold text-emerald-400">
-            Simple, Transparent Pricing
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1 text-xs font-bold text-emerald-800">
+            Simple Pricing
           </span>
-          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
-            Choose the Plan That Pays for Itself <br className="hidden sm:block" />
-            <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-amber-300 bg-clip-text text-transparent">
-              In Your First 30 Days.
-            </span>
+          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+            Plans That Pay for Themselves.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400 sm:text-lg">
-            No expensive handheld scanners to purchase. No gateway commission on your stone sales. Cancel anytime.
+          <p className="mx-auto mt-2 max-w-lg text-base text-slate-600">
+            No expensive scanners to buy. No gateway cuts from your stone sales. Cancel anytime.
           </p>
 
           {/* Monthly / Annual Toggle */}
-          <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-slate-800 bg-slate-900/80 p-1.5 backdrop-blur-md">
+          <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white p-1.5 shadow-xs">
             <button
               onClick={() => setIsAnnual(false)}
-              className={`rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+              className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
                 !isAnnual
-                  ? "bg-slate-800 text-white shadow"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-slate-900 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               Billed Monthly
             </button>
             <button
               onClick={() => setIsAnnual(true)}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all ${
                 isAnnual
-                  ? "bg-emerald-600 text-white shadow"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <span>Billed Annually</span>
@@ -130,64 +127,64 @@ export function PricingSection() {
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 text-left">
           {tiers.map((tier) => {
             const price = isAnnual ? tier.annualMonthlyEquiv : tier.monthlyPrice;
             return (
               <div
                 key={tier.name}
-                className={`relative flex flex-col justify-between rounded-2xl border p-6 transition-all duration-300 ${
+                className={`relative flex flex-col justify-between rounded-3xl border p-6 transition-all duration-300 ${
                   tier.popular
-                    ? "border-emerald-500 bg-slate-900/90 shadow-2xl shadow-emerald-500/10 ring-2 ring-emerald-500/40"
-                    : "border-slate-800 bg-slate-950/70 hover:border-slate-700"
+                    ? "border-emerald-600 bg-white shadow-xl shadow-emerald-600/10 ring-2 ring-emerald-500/30"
+                    : "border-slate-200 bg-white shadow-md shadow-slate-100 hover:border-slate-300"
                 }`}
               >
                 {tier.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 px-3 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-950 shadow">
-                    Most Popular Choice
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-3.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm">
+                    Most Popular
                   </div>
                 )}
 
                 <div>
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-white">{tier.name}</h3>
-                    <span className="rounded bg-slate-800 px-2 py-0.5 font-mono text-[10px] text-slate-300">
+                    <h3 className="text-lg font-bold text-slate-900">{tier.name}</h3>
+                    <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-[10px] font-bold text-slate-600">
                       {tier.badge}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs text-slate-400 leading-relaxed">{tier.desc}</p>
+                  <p className="mt-2 text-xs text-slate-500 leading-relaxed">{tier.desc}</p>
 
-                  <div className="mt-5 border-t border-slate-800/80 pt-5">
+                  <div className="mt-5 border-t border-slate-100 pt-5">
                     <div className="flex items-baseline gap-1">
-                      <span className="font-mono text-3xl font-extrabold text-white">
+                      <span className="font-mono text-3xl font-extrabold text-slate-900">
                         ₹{price.toLocaleString()}
                       </span>
-                      <span className="text-xs text-slate-400">/ month</span>
+                      <span className="text-xs text-slate-500">/ mo</span>
                     </div>
                     {isAnnual && (
-                      <p className="mt-1 font-mono text-[11px] text-emerald-400">
+                      <p className="mt-1 font-mono text-[11px] text-emerald-700 font-bold">
                         {tier.annualTotal} (billed annually)
                       </p>
                     )}
                   </div>
 
-                  <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
+                  <ul className="mt-6 space-y-2.5 text-xs text-slate-700">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2">
-                        <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                        <span className="text-emerald-600 font-bold shrink-0">✓</span>
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="mt-8 border-t border-slate-800/80 pt-5">
+                <div className="mt-8 border-t border-slate-100 pt-5">
                   <a
                     href={tier.ctaHref}
-                    className={`block w-full rounded-xl py-3 text-center text-xs font-bold transition-all ${
+                    className={`block w-full rounded-2xl py-3 text-center text-xs font-bold transition-all ${
                       tier.popular
-                        ? "bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 active:scale-95"
-                        : "border border-slate-700 bg-slate-800 text-white hover:bg-slate-700"
+                        ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25 hover:bg-emerald-500 active:scale-95"
+                        : "border border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100"
                     }`}
                   >
                     {tier.ctaText}
@@ -199,24 +196,24 @@ export function PricingSection() {
         </div>
 
         {/* Reassurance Guarantee Footer */}
-        <div className="mt-12 rounded-2xl border border-slate-800 bg-slate-950/40 p-6 text-center text-xs text-slate-400 sm:flex sm:items-center sm:justify-between sm:text-left">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <span className="font-semibold text-slate-200">
+        <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 text-center text-xs text-slate-600 sm:flex sm:items-center sm:justify-between sm:text-left shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <span className="font-bold text-slate-900">
               🛡️ The ShilaTeq Transparency Guarantee:
             </span>
             <span>Zero Payment Gateway Cut</span>
             <span>•</span>
             <span>Zero Messaging Fees</span>
             <span>•</span>
-            <span>Full Data Export to Excel Anytime</span>
+            <span>Export to Excel Anytime</span>
           </div>
           <a
             href="https://wa.me/917043765580?text=Namaste,%20I%20have%20questions%20about%20ShilaTeq%20pricing."
             target="_blank"
             rel="noreferrer"
-            className="mt-3 sm:mt-0 font-semibold text-emerald-400 hover:text-emerald-300"
+            className="mt-2 sm:mt-0 font-bold text-emerald-700 hover:text-emerald-800"
           >
-            Have questions? Chat on WhatsApp &rarr;
+            Questions? Chat on WhatsApp &rarr;
           </a>
         </div>
       </div>
