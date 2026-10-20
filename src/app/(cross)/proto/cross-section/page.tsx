@@ -107,13 +107,15 @@ const steps: Step[] = [
 ];
 
 export default async function CrossSectionPrototype() {
-  // One photograph, used by both halves of the cut (same URL, one download).
+  // One photograph behind both sides of the cut. Desktop draws it larger than
+  // its box (a vein-focused zoom), so it asks for more pixels; on phones most of
+  // it sits under shade, so a viewport-width file is enough (and keeps LCP down).
   const { props: stone } = getImageProps({
     src: "/stone/statuarietto.jpg",
     width: 2400,
     height: 2214,
     alt: "",
-    sizes: "(min-width: 64rem) 55vw, 100vw",
+    sizes: "(min-width: 64rem) 82vw, 100vw",
     fetchPriority: "high",
     loading: "eager",
   });
@@ -161,11 +163,14 @@ export default async function CrossSectionPrototype() {
       </header>
 
       <main id="main">
+        {/* The cut divides the hero: the stone and the promise above it, the
+            record and the product message below it (on phones and desktop). */}
         <section className="x-hero" aria-labelledby="hero-title">
           <div className="x-wrap x-hero__grid">
-            <div className="x-hero__copy">
+            <div className="x-hero__above">
               <p className="x-hero__eyebrow x-label">
-                StoneX ERP + StoneVision · for marble, granite and stone yards
+                <span className="x-hero__products">StoneX ERP + StoneVision</span> · for marble,
+                granite and stone yards
               </p>
               <h1 id="hero-title" className="x-hero__title x-display">
                 <span className="x-line">
@@ -175,6 +180,9 @@ export default async function CrossSectionPrototype() {
                   <span style={{ "--i": 1 } as CSSProperties}>Sell every slab.</span>
                 </span>
               </h1>
+            </div>
+
+            <div className="x-hero__below">
               <p className="x-hero__lede">
                 <strong>StoneX ERP</strong> puts a QR code on every block and slab and follows it
                 from arrival to cutting, sale, dispatch and payment. <strong>StoneVision</strong>{" "}
@@ -201,57 +209,54 @@ export default async function CrossSectionPrototype() {
               </p>
             </div>
 
-            <div className="x-stone">
-              <div className="x-stone__slab" aria-hidden="true">
-                {/* next/image's optimised srcset as plain <img>s: two clipped layers, one download. */}
-                <div className="x-stone__layer x-stone__layer--upper">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img {...stone} alt="" />
-                </div>
-                <div className="x-stone__layer x-stone__layer--lower">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img {...stone} alt="" fetchPriority="auto" />
-                </div>
-                <div className="x-kerf" />
-              </div>
-
-              <article className="x-record" aria-label="Sample block record (fictional)">
-                <div className="x-record__head">
-                  <div>
-                    <p className="x-record__tag x-label">Sample · fictional yard</p>
-                    <p className="x-record__code">SY-B0021</p>
-                    <p className="x-record__name">Statuarietto · Marble</p>
-                  </div>
-                  <div
-                    className="x-record__qr"
-                    role="img"
-                    aria-label="QR tag for SY-B0021"
-                    dangerouslySetInnerHTML={{ __html: qr }}
-                  />
-                </div>
-                <dl className="x-record__fields">
-                  <div>
-                    <dt className="x-label">Size</dt>
-                    <dd>11 × 5.4 ft</dd>
-                  </div>
-                  <div>
-                    <dt className="x-label">Grade</dt>
-                    <dd>A</dd>
-                  </div>
-                  <div>
-                    <dt className="x-label">In the yard</dt>
-                    <dd>Zone A · Row 2</dd>
-                  </div>
-                  <div>
-                    <dt className="x-label">Status</dt>
-                    <dd className="x-chip">Available</dd>
-                  </div>
-                </dl>
-                <p className="x-record__note">
-                  Cost, supplier and price never appear when someone outside the yard scans a tag.
-                </p>
-              </article>
+            {/* One photograph spanning the rows above, across and just below the
+                cut (subgrid), so the cut can sit wherever the headline ends. */}
+            <div className="x-stone" aria-hidden="true">
+              {/* next/image's optimised srcset as a plain server-rendered <img>. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img {...stone} alt="" className="x-stone__img" />
+              <div className="x-stone__shade x-stone__shade--upper" />
+              <div className="x-stone__gap" />
+              <div className="x-stone__shade x-stone__shade--lower" />
             </div>
+            <div className="x-kerf" aria-hidden="true" />
+
+            <article className="x-record" aria-label="Sample block record (fictional)">
+              <div className="x-record__head">
+                <div>
+                  <p className="x-record__tag x-label">Sample · fictional yard</p>
+                  <p className="x-record__code">SY-B0021</p>
+                  <p className="x-record__name">Statuarietto · Marble</p>
+                </div>
+                <div
+                  className="x-record__qr"
+                  role="img"
+                  aria-label="QR tag for SY-B0021"
+                  dangerouslySetInnerHTML={{ __html: qr }}
+                />
+              </div>
+              <dl className="x-record__fields">
+                <div>
+                  <dt className="x-label">Size</dt>
+                  <dd>11 × 5.4 ft</dd>
+                </div>
+                <div>
+                  <dt className="x-label">Grade</dt>
+                  <dd>A</dd>
+                </div>
+                <div>
+                  <dt className="x-label">In the yard</dt>
+                  <dd>Zone A · Row 2</dd>
+                </div>
+                <div>
+                  <dt className="x-label">Status</dt>
+                  <dd className="x-chip">Available</dd>
+                </div>
+              </dl>
+              <p className="x-record__note">
+                Cost, supplier and price never appear when someone outside the yard scans a tag.
+              </p>
+            </article>
           </div>
         </section>
 
@@ -264,7 +269,7 @@ export default async function CrossSectionPrototype() {
             <header className="x-evidence__head">
               <p className="x-evidence__eyebrow x-label">StoneX ERP</p>
               <h2 id="stonex-title" className="x-evidence__title x-display">
-                The questions your yard asks every day.
+                The questions your yard asks <span className="x-accent">every day.</span>
               </h2>
               <p className="x-evidence__intro">
                 Four everyday questions, answered from one record per block. The screens are StoneX

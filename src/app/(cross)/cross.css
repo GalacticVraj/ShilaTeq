@@ -88,9 +88,10 @@
 
 /* ---------- Shared ---------- */
 .x-wrap {
+  --gutter: clamp(1rem, 4vw, 3rem);
   max-width: 90rem;
   margin-inline: auto;
-  padding-inline: clamp(1rem, 4vw, 3rem);
+  padding-inline: var(--gutter);
 }
 .x-skip {
   position: absolute;
@@ -184,12 +185,12 @@
   display: flex;
   align-items: center;
   gap: clamp(1rem, 3vw, 2.5rem);
-  height: 4rem;
+  height: 3.5rem;
 }
 .x-wordmark {
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   letter-spacing: -0.035em;
   line-height: 1;
   color: var(--color-bone);
@@ -224,19 +225,51 @@
 .x-nav > span {
   cursor: default;
 }
-.x-header__cta {
+/* Phones: outlined, so the hero's filled button stays the one primary action
+   in the first screen; still a 44px target. */
+.x-header .x-header__cta {
   margin-left: auto;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.875rem;
+  background: transparent;
+  color: var(--color-bone);
+  box-shadow: inset 0 0 0 1.5px var(--color-signal);
+}
+.x-header .x-header__cta:hover {
+  background: rgb(255 82 56 / 0.14);
 }
 @media (min-width: 56rem) {
+  .x-header__inner {
+    height: 4rem;
+  }
+  .x-wordmark {
+    font-size: 1.4rem;
+  }
   .x-nav {
     display: flex;
   }
-  .x-header__cta {
+  .x-header .x-header__cta {
     margin-left: 0;
+    min-height: 2.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9375rem;
+    background: var(--color-signal);
+    color: var(--color-obsidian);
+    box-shadow: none;
+  }
+  .x-header .x-header__cta:hover {
+    background: #ff6a54;
   }
 }
 
 /* ---------- Hero: "The Cut" ---------- */
+/* One grid, two compositions. The cut is a row of its own, so it falls wherever
+   the headline ends: the stone and the promise above it, the record and the
+   product message below it. The stone spans the rows above, across and just
+   below the cut.
+   Phones:  [stone + eyebrow + headline] [cut] [stone edge] [lede + CTAs] [record]
+   Desktop: [eyebrow + headline | stone] [cut, full width] [lede + CTAs | record] */
 .x-hero {
   position: relative;
   overflow: hidden;
@@ -244,14 +277,34 @@
   view-timeline: --hero block;
 }
 .x-hero__grid {
+  --gap: 1rem;
   display: grid;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto var(--gap) 2rem auto auto;
 }
+.x-hero__above {
+  grid-row: 1;
+  grid-column: 1;
+  position: relative;
+  z-index: 2;
+  /* Leaves the top of the stone clear; the headline sits on its darkened foot.
+     27svh keeps the hero's primary CTA inside a 390 × 844 first screen. */
+  padding-block: clamp(8.5rem, 27svh, 15rem) 1.5rem;
+}
+.x-hero__below {
+  grid-row: 4;
+  grid-column: 1;
+  padding-block: 1.75rem 2.5rem;
+}
+/* Over the stone on phones: bone, not lichen (lichen drops below 4.5:1 there). */
 .x-hero__eyebrow {
-  color: var(--color-lichen);
+  color: var(--color-bone);
+}
+.x-hero__products {
+  color: var(--color-acid);
 }
 .x-hero__title {
-  margin-top: 1.25rem;
+  margin-top: 0.85rem;
   font-size: var(--text-hero);
   line-height: var(--text-hero--line-height);
   color: var(--color-bone);
@@ -267,7 +320,6 @@
   display: block;
 }
 .x-hero__lede {
-  margin-top: 1.5rem;
   max-width: 34rem;
   font-size: var(--text-lead);
   line-height: var(--text-lead--line-height);
@@ -281,11 +333,16 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem 1.75rem;
-  margin-top: 2rem;
+  gap: 0.5rem 1.75rem;
+  margin-top: 1.5rem;
+}
+/* Phones: one full-width primary action, the secondary link beneath it. */
+.x-hero__actions .x-btn {
+  flex: 1 1 100%;
+  justify-content: center;
 }
 .x-hero__credit {
-  margin-top: 2.5rem;
+  margin-top: 1.75rem;
   max-width: 34rem;
   font-size: 0.8125rem;
   line-height: 1.5;
@@ -296,92 +353,92 @@
   text-underline-offset: 2px;
 }
 
-/* The stone: one photograph, two layers, parted by the kerf. On phones the
-   wrapper dissolves (display: contents) so the slab can lead and the record can
-   follow the copy; on desktop the record hangs from the cut. */
+/* The stone: one photograph behind a subgrid of the three rows it spans. The
+   gap row hides a kerf's width of stone, as a saw removes it. */
 .x-stone {
-  --cut: 60%;
-  --gap: 1rem;
-  /* The sawn piece settles slightly off-line, as cut stone does. */
-  --shift: -0.4rem;
-  display: contents;
-}
-.x-stone__slab {
+  grid-row: 1 / 4;
+  grid-column: 1;
+  display: grid;
+  grid-template-rows: subgrid;
   position: relative;
-  isolation: isolate;
   overflow: hidden;
-  order: -1;
-  height: 28svh;
-  min-height: 13rem;
-  margin-inline: calc(-1 * clamp(1rem, 4vw, 3rem));
+  isolation: isolate;
+  margin-inline: calc(-1 * var(--gutter));
 }
-.x-stone__layer {
-  position: absolute;
-  inset: 0;
-}
-.x-stone__layer img {
+.x-stone__img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  max-width: none;
   object-fit: cover;
-  object-position: 42% 40%;
+  object-position: 28% 45%;
 }
-/* Raking light from the upper left, falling off into obsidian (and into the
-   copy column on desktop). */
-.x-stone__layer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      115deg,
-      rgb(255 255 255 / 0.06) 0%,
-      transparent 28%,
-      rgb(17 23 21 / 0.42) 62%,
-      rgb(17 23 21 / 0.84) 100%
-    ),
-    linear-gradient(to right, rgb(17 23 21 / 0.5), transparent 16%);
+.x-stone__shade,
+.x-stone__gap {
+  position: relative;
 }
-/* The sawn faces: shadow under the upper piece, light on the lower piece's edge. */
-.x-stone__layer::before {
+/* Phones: the marble falls into darkness where the eyebrow and headline sit.
+   At 0.9 obsidian over pure white marble, bone text keeps ≥ 4.5:1. */
+.x-stone__shade--upper {
+  grid-row: 1;
+  /* Clear marble, then a short, steep fall (no grey haze in between). */
+  background: linear-gradient(
+    to bottom,
+    rgb(17 23 21 / 0) 0%,
+    rgb(17 23 21 / 0.08) 24%,
+    rgb(17 23 21 / 0.82) 38%,
+    rgb(17 23 21 / 0.93) 46%,
+    rgb(17 23 21 / 0.95) 100%
+  );
+}
+.x-stone__gap {
+  grid-row: 2;
+  z-index: 1;
+  background: var(--color-obsidian);
+}
+/* The sawn faces: a shadow at the upper piece's foot, a lit edge on the lower piece. */
+.x-stone__gap::before,
+.x-stone__gap::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
-  z-index: 1;
 }
-.x-stone__layer--upper::before {
-  top: calc(var(--cut) - 0.75rem);
+.x-stone__gap::before {
+  bottom: 100%;
   height: 0.75rem;
   background: linear-gradient(to bottom, transparent, rgb(0 0 0 / 0.5));
 }
-.x-stone__layer--lower::before {
-  top: var(--cut);
+.x-stone__gap::after {
+  top: 100%;
   height: 1px;
-  background: rgb(255 255 255 / 0.6);
+  background: rgb(255 255 255 / 0.55);
 }
-.x-stone__layer--upper {
-  clip-path: inset(0 0 calc(100% - var(--cut)) 0);
+.x-stone__shade--lower {
+  grid-row: 3;
+  background: rgb(17 23 21 / 0.3);
 }
-.x-stone__layer--lower {
-  clip-path: inset(var(--cut) 0 0 0);
-  transform: translate(var(--shift), var(--gap));
-}
+/* The cut runs edge to edge (the hero clips the bleed). */
 .x-kerf {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(var(--cut) + var(--gap) / 2 - 1px);
+  grid-row: 2;
+  grid-column: 1 / -1;
+  align-self: center;
+  z-index: 3;
   height: 2px;
+  margin-inline: calc(50% - 50vw);
   background: var(--color-signal);
   transform-origin: left center;
 }
 
 /* The record the cut exposes (styled after a StoneX record; sample data). */
 .x-record {
+  grid-row: 5;
+  grid-column: 1;
   position: relative;
+  z-index: 2;
   width: min(100%, 23rem);
+  margin-bottom: 3rem;
   background: var(--color-bone);
   color: var(--color-obsidian);
   border-top: 2px solid var(--color-signal);
@@ -457,65 +514,103 @@
   color: var(--color-slate);
 }
 
-@media (min-width: 64rem) {
-  .x-hero__grid {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 0 clamp(1rem, 2.5vw, 2.5rem);
-    min-height: calc(100svh - 4rem - 2rem);
-  }
-  .x-hero__copy {
-    grid-column: 1 / 7;
-    align-self: center;
-    padding-block: 4rem 3rem;
-    position: relative;
-    z-index: 2;
-  }
-  .x-stone {
-    /* High enough that the hanging record (~20rem) always fits below the cut. */
-    --cut: min(54%, calc(100% - 22rem));
-    --gap: 1.25rem;
-    --shift: -0.6rem;
-    display: block;
-    position: relative;
-    grid-column: 7 / 13;
-    margin-right: calc(-1 * clamp(1rem, 4vw, 3rem));
-  }
-  .x-stone__slab {
-    position: absolute;
-    inset: 0;
-    height: auto;
-    min-height: 0;
-    margin-inline: 0;
-  }
-  /* On desktop the record hangs from the cut, over the lower half of the stone. */
-  .x-record {
-    position: absolute;
-    left: clamp(1.25rem, 3vw, 2.75rem);
-    top: calc(var(--cut) + var(--gap));
-    z-index: 2;
+@media (min-width: 40rem) {
+  .x-hero__actions .x-btn {
+    flex: 0 0 auto;
   }
 }
-@media (max-width: 63.99rem) {
-  /* Phones: the stone leads, but headline, lede and the primary CTA must still
-     land in the first screen (checked at 390 × 844). */
+/* Tablet portrait: below the cut, the message and the record share the row. */
+@media (min-width: 44rem) and (max-width: 63.99rem) {
   .x-hero__grid {
-    gap: 1.25rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 21rem);
+    column-gap: 2rem;
   }
-  .x-hero__copy {
-    padding-block: 0.25rem 1rem;
+  .x-hero__above,
+  .x-stone {
+    grid-column: 1 / -1;
   }
-  .x-hero__title {
-    margin-top: 0.85rem;
-  }
-  .x-hero__lede {
-    margin-top: 1.1rem;
-  }
-  .x-hero__actions {
-    margin-top: 1.4rem;
+  .x-hero__below {
+    grid-column: 1;
   }
   .x-record {
-    order: 1;
-    margin-block: 0.5rem 3rem;
+    grid-row: 4;
+    grid-column: 2;
+    align-self: start;
+    margin-top: 1.75rem;
+  }
+}
+@media (min-width: 64rem) {
+  /* The row below the cut is tall enough for the hanging record (~20rem). */
+  .x-hero__grid {
+    --gap: 1.25rem;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: 1fr var(--gap) minmax(22rem, auto);
+    column-gap: clamp(1rem, 2.5vw, 2.5rem);
+    min-height: calc(100svh - 4rem - 2rem);
+  }
+  .x-hero__above {
+    grid-column: 1 / 7;
+    align-self: end;
+    padding-block: 3rem 2rem;
+  }
+  .x-hero__eyebrow {
+    color: var(--color-lichen);
+  }
+  .x-hero__title {
+    margin-top: 1.25rem;
+  }
+  .x-hero__below {
+    grid-column: 1 / 7;
+    grid-row: 3;
+    align-self: start;
+    padding-block: 2rem 3rem;
+  }
+  .x-hero__actions {
+    margin-top: 2rem;
+  }
+  .x-hero__credit {
+    margin-top: 2.5rem;
+  }
+  /* A standing slab: set down from the header, bleeding off the right edge. */
+  .x-stone {
+    grid-column: 7 / 13;
+    margin: 2.5rem calc(-1 * var(--gutter)) 0 0;
+  }
+  /* Closer on the vein network than a plain cover crop. */
+  .x-stone__img {
+    object-position: 30% 40%;
+    transform: scale(1.3);
+    transform-origin: 26% 42%;
+  }
+  /* Raking light from the upper left, falling off into obsidian and the copy column. */
+  .x-stone__shade--upper {
+    background:
+      linear-gradient(
+        115deg,
+        rgb(255 255 255 / 0.05) 0%,
+        transparent 28%,
+        rgb(17 23 21 / 0.45) 62%,
+        rgb(17 23 21 / 0.86) 100%
+      ),
+      linear-gradient(to right, rgb(17 23 21 / 0.55), transparent 18%);
+  }
+  .x-stone__shade--lower {
+    background:
+      linear-gradient(
+        115deg,
+        rgb(17 23 21 / 0.25) 0%,
+        rgb(17 23 21 / 0.55) 55%,
+        rgb(17 23 21 / 0.88) 100%
+      ),
+      linear-gradient(to right, rgb(17 23 21 / 0.55), transparent 18%);
+  }
+  /* The record hangs from the cut, over the lower piece of stone. */
+  .x-record {
+    grid-column: 7 / 13;
+    grid-row: 3;
+    align-self: start;
+    justify-self: start;
+    margin: 0 0 0 clamp(1.25rem, 3vw, 2.75rem);
   }
 }
 
@@ -551,8 +646,10 @@
 .x-evidence__head {
   padding-block: clamp(3.5rem, 8vw, 6.5rem) clamp(2rem, 4vw, 3.5rem);
 }
-.x-evidence__eyebrow {
-  color: var(--color-slate);
+/* Malachite carries the brand on the light chapter (8.0:1 on mist). */
+.x-evidence__eyebrow,
+.x-accent {
+  color: var(--color-malachite);
 }
 .x-evidence__title {
   margin-top: 1rem;
@@ -577,16 +674,24 @@
 }
 .x-step {
   position: relative;
-  padding-block: 2rem;
+  padding-block: 2.5rem;
   border-top: 1px solid var(--color-rule-light);
 }
 .x-step__num {
   display: flex;
-  gap: 0.9rem;
+  align-items: center;
+  gap: 0.75rem;
   color: var(--color-slate);
 }
+/* Phones: each question opens with a short cut (desktop marks the active one). */
+.x-step__num::before {
+  content: "";
+  width: 1.5rem;
+  height: 2px;
+  background: var(--color-signal);
+}
 .x-step__num b {
-  color: var(--color-obsidian);
+  color: var(--color-malachite);
   font-weight: 600;
 }
 .x-step__q {
@@ -602,8 +707,37 @@
   max-width: 34rem;
   color: var(--color-slate);
 }
+/* The frame's padding sits in the gutter, so the screen aligns with the text. */
 .x-step__inline {
-  margin-top: 1.5rem;
+  margin: 1.5rem -0.6rem 0;
+}
+/* Inline frames carry two crops: tight on phones, the wider stage crop from 44rem. */
+.x-step__inline .x-frame__view {
+  --aspect: var(--aspect-phone);
+}
+.x-step__inline .x-frame__img {
+  --s: var(--s-phone);
+  --tx: var(--tx-phone);
+  --ty: var(--ty-phone);
+}
+.x-only-wide {
+  display: none;
+}
+@media (min-width: 44rem) {
+  .x-step__inline .x-frame__view {
+    --aspect: var(--aspect-wide);
+  }
+  .x-step__inline .x-frame__img {
+    --s: var(--s-wide);
+    --tx: var(--tx-wide);
+    --ty: var(--ty-wide);
+  }
+  .x-only-phone {
+    display: none;
+  }
+  .x-only-wide {
+    display: block;
+  }
 }
 
 /* A product screen: never recoloured, never tilted; measured, not floated. */
@@ -652,7 +786,7 @@
   place-items: center;
   width: 1.35rem;
   height: 1.35rem;
-  background: var(--color-obsidian);
+  background: var(--color-malachite);
   color: var(--color-bone);
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -695,6 +829,9 @@
     flex-direction: column;
     justify-content: center;
     padding-left: 1.5rem;
+  }
+  .x-step__num::before {
+    display: none;
   }
   /* The active question is marked by the cut (with weight, not colour alone). */
   .x-step::before {
@@ -771,39 +908,29 @@
 
 /* ---------- Motion (decoration only; final state is the default) ---------- */
 @media (prefers-reduced-motion: no-preference) {
+  /* The stone appears whole; the line is cut across it; then the kerf opens. */
   .x-kerf {
     animation: x-kerf-draw 700ms var(--ease-cut) 200ms both;
   }
-  .x-stone__layer--lower {
-    animation: x-part 650ms var(--ease-settle) 600ms both;
+  .x-stone__gap {
+    animation: x-gap-open 600ms var(--ease-settle) 700ms both;
   }
   .x-record {
-    animation: x-record-out 600ms var(--ease-settle) 850ms both;
+    animation: x-record-out 600ms var(--ease-settle) 950ms both;
   }
   .x-line > span {
     animation: x-rise 700ms var(--ease-settle) both;
     animation-delay: calc(80ms + var(--i, 0) * 90ms);
   }
 
-  /* Scroll-driven, where supported: the cut keeps opening as the hero leaves,
-     and runs out across the page as section 2 arrives. */
+  /* Scroll-driven, where supported: the kerf keeps opening as the hero leaves,
+     and the cut runs out across the page as section 2 arrives. */
   @supports (animation-timeline: view()) {
-    .x-stone__layer--lower {
-      animation-name: x-part, x-open;
-      animation-duration: 650ms, auto;
-      animation-delay: 600ms, 0ms;
+    .x-stone__gap {
+      animation-name: x-gap-open, x-gap-widen;
+      animation-duration: 600ms, auto;
+      animation-delay: 700ms, 0ms;
       animation-timing-function: var(--ease-settle), linear;
-      animation-fill-mode: both;
-      animation-timeline: auto, --hero;
-      animation-range:
-        normal,
-        exit 0% exit 80%;
-    }
-    .x-kerf {
-      animation-name: x-kerf-draw, x-kerf-open;
-      animation-duration: 700ms, auto;
-      animation-delay: 200ms, 0ms;
-      animation-timing-function: var(--ease-cut), linear;
       animation-fill-mode: both;
       animation-timeline: auto, --hero;
       animation-range:
@@ -822,9 +949,9 @@
     transform: scaleX(0);
   }
 }
-@keyframes x-part {
+@keyframes x-gap-open {
   from {
-    transform: translate(0, 0);
+    transform: scaleY(0);
   }
 }
 @keyframes x-record-out {
@@ -841,17 +968,11 @@
     transform: translateY(105%);
   }
 }
-/* Scroll keyframes use `translate`/`scale` so they compose with the load
-   animations on `transform`. */
-@keyframes x-open {
+/* Scroll keyframes use `scale` so they compose with the load animation on
+   `transform`; the gap widens about its centre, where the line runs. */
+@keyframes x-gap-widen {
   to {
-    translate: 0 3rem;
-  }
-}
-/* The line stays centred in the widening gap (half of x-open). */
-@keyframes x-kerf-open {
-  to {
-    translate: 0 1.5rem;
+    scale: 1 3;
   }
 }
 @keyframes x-runout {

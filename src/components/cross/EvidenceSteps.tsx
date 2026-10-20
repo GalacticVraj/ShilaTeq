@@ -35,12 +35,13 @@ export type Step = {
 const STAGE_ASPECT = 16 / 10;
 const PHONE_ASPECT = 4 / 3;
 
-function cropStyle(shot: ShotId, { x, y, w }: Crop): CSSProperties {
+/** Crop variables; with a suffix (`-phone`, `-wide`) CSS picks one set per breakpoint. */
+function cropStyle(shot: ShotId, { x, y, w }: Crop, suffix = ""): CSSProperties {
   const s = SHOTS[shot];
   return {
-    "--s": s.w / w,
-    "--tx": `${(-x / s.w) * 100}%`,
-    "--ty": `${(-y / s.h) * 100}%`,
+    [`--s${suffix}`]: s.w / w,
+    [`--tx${suffix}`]: `${(-x / s.w) * 100}%`,
+    [`--ty${suffix}`]: `${(-y / s.h) * 100}%`,
   } as CSSProperties;
 }
 
@@ -89,7 +90,7 @@ function Legend({ pins }: { pins: Pin[] }) {
 }
 
 function caption(shot: ShotId) {
-  return `StoneX · fictional demo yard · ${SHOTS[shot].name}`;
+  return `Fictional demo yard · ${SHOTS[shot].name}`;
 }
 
 export function EvidenceSteps({ steps }: { steps: Step[] }) {
@@ -136,10 +137,17 @@ export function EvidenceSteps({ steps }: { steps: Step[] }) {
             </p>
             <h3 className="x-step__q">{step.question}</h3>
             <p className="x-step__a">{step.answer}</p>
+            {/* Phones get the tight crop; tablet portrait (no sticky stage yet)
+                gets the wider stage crop, its marks and its legend. */}
             <figure className="x-step__inline x-frame">
               <div
                 className="x-frame__view"
-                style={{ "--aspect": `${PHONE_ASPECT}` } as CSSProperties}
+                style={
+                  {
+                    "--aspect-phone": `${PHONE_ASPECT}`,
+                    "--aspect-wide": `${STAGE_ASPECT}`,
+                  } as CSSProperties
+                }
               >
                 <Image
                   src={SHOTS[step.shot].src}
@@ -148,11 +156,24 @@ export function EvidenceSteps({ steps }: { steps: Step[] }) {
                   sizes="(min-width: 64rem) 1px, 250vw"
                   alt={step.alt}
                   className="x-frame__img"
-                  style={cropStyle(step.shot, step.phone.crop)}
+                  style={{
+                    ...cropStyle(step.shot, step.phone.crop, "-phone"),
+                    ...cropStyle(step.shot, step.stage.crop, "-wide"),
+                  }}
                 />
-                <Pins crop={step.phone.crop} aspect={PHONE_ASPECT} pins={step.phone.pins} />
+                <div className="x-only-phone">
+                  <Pins crop={step.phone.crop} aspect={PHONE_ASPECT} pins={step.phone.pins} />
+                </div>
+                <div className="x-only-wide">
+                  <Pins crop={step.stage.crop} aspect={STAGE_ASPECT} pins={step.stage.pins} />
+                </div>
               </div>
-              <Legend pins={step.phone.pins} />
+              <div className="x-only-phone">
+                <Legend pins={step.phone.pins} />
+              </div>
+              <div className="x-only-wide">
+                <Legend pins={step.stage.pins} />
+              </div>
               <figcaption className="x-frame__cap x-label">{caption(step.shot)}</figcaption>
             </figure>
           </li>
