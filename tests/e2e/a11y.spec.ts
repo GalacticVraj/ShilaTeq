@@ -22,6 +22,10 @@ const routes = [
   "/demo?step=4",
 ];
 
+// Audit the settled page: .reveal sections fade in on load, and a mid-fade frame
+// reads as low contrast. Reduced motion renders their final state immediately.
+test.use({ contextOptions: { reducedMotion: "reduce" } });
+
 for (const route of routes) {
   test(`no serious/critical axe violations: ${route}`, async ({ page }) => {
     await page.goto(route);

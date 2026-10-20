@@ -94,7 +94,7 @@ export default function PricingPage() {
       {/* Pricing Tiers */}
       <section aria-label="Pricing tiers" className="mt-14 max-w-5xl">
         <h2 className="font-display text-heading-1 text-ink-900 font-medium">Choose your plan</h2>
-        <div className="mt-6 overflow-x-auto">
+        <div className="mt-6 overflow-x-auto" tabIndex={0} role="region" aria-label="Pricing table">
           <table className="register w-full min-w-[800px]">
             <thead>
               <tr>
