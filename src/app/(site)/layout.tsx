@@ -6,7 +6,7 @@ import { Footer } from "@/components/chrome/Footer";
 import { WhatsAppDock } from "@/components/chrome/WhatsAppDock";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import { site, waLink, waDefaultPrefill } from "@/config/site";
-import "./globals.css";
+import "../globals.css";
 
 /**
  * Type system (Phase-3 04): Fraunces = the editorial voice (axes locked stern —

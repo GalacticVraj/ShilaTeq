@@ -24,6 +24,7 @@ export type AnalyticsEvent =
   | "industry_visit"
   | "pricing_visit"
   | "showroom_powered_by_visit"
+  | "register_crumpled"
   | "not_found";
 
 let instance: PostHog | null = null;

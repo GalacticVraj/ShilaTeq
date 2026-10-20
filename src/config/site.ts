@@ -48,6 +48,15 @@ export const site = {
   securityEmail: process.env.NEXT_PUBLIC_SECURITY_EMAIL ?? null,
 } as const;
 
+/** Sales contacts as published in the live footer (f25b40b). Shared by both footers. */
+export const salesContacts = [
+  { label: "Vraj", display: "7043765580", href: "tel:7043765580" },
+  { label: "Lakshya", display: "+91 8078 686 994", href: "tel:+918078686994" },
+  { label: "Email", display: "shilateq@gmail.com", href: "mailto:shilateq@gmail.com" },
+] as const;
+
+export const linkedInUrl = "https://www.linkedin.com/company/shilateq/";
+
 /** Build a wa.me deep link with a prefilled, page-contextual opener (Phase-4 06 §1). */
 export function waLink(prefill: string): string | null {
   if (!site.whatsappNumber) return null;

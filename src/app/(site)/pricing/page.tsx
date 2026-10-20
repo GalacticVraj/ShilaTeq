@@ -20,19 +20,22 @@ const pricingTiers = [
     name: "Growth",
     monthly: "₹2,999/mo",
     annually: "₹31,999/yr",
-    builtFor: "Yards ready to run quotations, orders and GST billing digitally, and stop double-selling stock",
+    builtFor:
+      "Yards ready to run quotations, orders and GST billing digitally, and stop double-selling stock",
   },
   {
     name: "Professional",
     monthly: "₹4,499/mo",
     annually: "₹47,999/yr",
-    builtFor: "Full-cycle yards wanting dispatch, returns, procurement and the public 3D showroom for online leads",
+    builtFor:
+      "Full-cycle yards wanting dispatch, returns, procurement and the public 3D showroom for online leads",
   },
   {
     name: "Enterprise",
     monthly: "₹5,499/mo",
     annually: "₹65,988/yr",
-    builtFor: "Larger processors and traders wanting workforce, payroll, full financial ledgers and BI reporting, plus priority support",
+    builtFor:
+      "Larger processors and traders wanting workforce, payroll, full financial ledgers and BI reporting, plus priority support",
   },
 ] as const;
 
@@ -83,23 +86,30 @@ export default function PricingPage() {
           Simple plans for every yard.
         </h1>
         <p className="text-body-lg text-ink-700 mt-5">
-          Whether you&rsquo;re just starting to digitise your inventory or running a full-cycle operation, we have a tier that fits your needs perfectly. No hidden costs.
+          Whether you&rsquo;re just starting to digitise your inventory or running a full-cycle
+          operation, we have a tier that fits your needs perfectly. No hidden costs.
         </p>
       </header>
 
       {/* Pricing Tiers */}
       <section aria-label="Pricing tiers" className="mt-14 max-w-5xl">
-        <h2 className="font-display text-heading-1 text-ink-900 font-medium">
-          Choose your plan
-        </h2>
+        <h2 className="font-display text-heading-1 text-ink-900 font-medium">Choose your plan</h2>
         <div className="mt-6 overflow-x-auto">
           <table className="register w-full min-w-[800px]">
             <thead>
               <tr>
-                <th scope="col" className="w-1/4">Tier</th>
-                <th scope="col" className="w-1/6">Monthly</th>
-                <th scope="col" className="w-1/6">Billed Annually</th>
-                <th scope="col" className="w-5/12">Built For</th>
+                <th scope="col" className="w-1/4">
+                  Tier
+                </th>
+                <th scope="col" className="w-1/6">
+                  Monthly
+                </th>
+                <th scope="col" className="w-1/6">
+                  Billed Annually
+                </th>
+                <th scope="col" className="w-5/12">
+                  Built For
+                </th>
               </tr>
             </thead>
             <tbody>

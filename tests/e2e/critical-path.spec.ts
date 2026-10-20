@@ -1,21 +1,38 @@
 import { test, expect } from "@playwright/test";
 
-/** Critical paths: the homepage → demo funnel, and the contact form's
- *  accessible validation (RHF + Zod). */
+/** Critical paths: the homepage register (paper → stone → identity), the
+ *  simulated StoneX preview, and the contact form's accessible validation. */
 
-test("homepage demo CTA reaches the demo", async ({ page }) => {
+test("the register button replaces the paper with a block identity, and back", async ({ page }) => {
   await page.goto("/");
-  await page
-    .getByRole("link", { name: /Try the full demo/i })
-    .first()
-    .click();
-  await expect(page).toHaveURL(/\/demo/);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(/A full yard/i);
+  await page.getByRole("button", { name: "Crumple the register" }).click();
+  // Gesture path (~2s) or reduced-motion/no-WebGL swap: either way, the identity arrives.
+  await expect(page.getByText(/now lives on as KSH-B0001/)).toBeVisible({ timeout: 6000 });
+  const scan = page.getByRole("link", { name: "See what a scan shows" });
+  await expect(scan).toHaveAttribute("href", "/b/ksh-b0001");
+  await page.getByRole("button", { name: "Restore the register" }).click();
+  await expect(page.getByRole("button", { name: "Crumple the register" })).toBeVisible();
 });
 
-test("homepage honesty section is present and plain", async ({ page }) => {
+test("the QR target is a real sample block card", async ({ page }) => {
+  const res = await page.goto("/b/ksh-b0001");
+  expect(res?.status()).toBe(200);
+  await expect(page.getByText(/Sample · what a scanned StoneX label opens/i)).toBeVisible();
+  // Safe fields only: never the price the yard paid.
+  await expect(page.getByText(/₹/)).toHaveCount(0);
+});
+
+test("simulated StoneX search forgives typos and matches codes exactly", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /doesn.t do\. Yet/i })).toBeVisible();
+  const search = page.getByLabel("Find a block");
+  const rows = page.getByRole("list", { name: "Sample stock" }).getByRole("button");
+  await search.fill("makrna");
+  await expect(rows.filter({ hasText: "KSH-B0001" })).toHaveCount(1);
+  await search.fill("marbel");
+  await expect(rows).toHaveCount(3);
+  await search.fill("b0019");
+  await expect(rows).toHaveCount(1);
+  await expect(page.getByText(/Simulated · sample data · not live/i)).toBeVisible();
 });
 
 test("contact form validates required fields (Zod)", async ({ page }) => {
@@ -30,6 +47,17 @@ test("contact form validates required fields (Zod)", async ({ page }) => {
 
 test("comparison page concedes rows honestly", async ({ page }) => {
   await page.goto("/why");
-  await expect(page.getByText(/concessions included/i)).toBeVisible();
-  await expect(page.getByText(/Keep your accounting software/i)).toBeVisible();
+  // Desktop grid and mobile cards both render the rows; check whichever is visible.
+  await expect(
+    page
+      .getByText(/honestly wins/i)
+      .filter({ visible: true })
+      .first(),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByText(/Keep your accountant/i)
+      .filter({ visible: true })
+      .first(),
+  ).toBeVisible();
 });

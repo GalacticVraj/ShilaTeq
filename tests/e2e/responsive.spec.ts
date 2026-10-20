@@ -2,13 +2,23 @@ import { test, expect } from "@playwright/test";
 
 /** Responsive: the mobile drawer works, and no page overflows horizontally. */
 
-test("mobile nav drawer opens and navigates", async ({ page }, testInfo) => {
+test("mobile nav drawer opens and navigates (legacy pages)", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "mobile only");
-  await page.goto("/");
+  await page.goto("/product");
   await page.getByRole("button", { name: /open menu/i }).click();
   const drawer = page.locator("#mobile-drawer");
   await expect(drawer).toBeVisible();
   await drawer.getByRole("link", { name: "Pricing", exact: true }).click();
+  await expect(page).toHaveURL(/\/pricing$/);
+});
+
+test("mobile menu opens and navigates (homepage)", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "mobile only");
+  await page.goto("/");
+  await page.getByText("Menu", { exact: true }).click();
+  const menu = page.getByRole("navigation", { name: "Primary mobile" });
+  await expect(menu).toBeVisible();
+  await menu.getByRole("link", { name: "Pricing", exact: true }).click();
   await expect(page).toHaveURL(/\/pricing$/);
 });
 

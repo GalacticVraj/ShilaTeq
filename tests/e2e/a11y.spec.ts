@@ -6,6 +6,7 @@ import AxeBuilder from "@axe-core/playwright";
 
 const routes = [
   "/",
+  "/b/ksh-b0001",
   "/product/inventory-qr",
   "/why/vs-paper",
   "/industries/marble",

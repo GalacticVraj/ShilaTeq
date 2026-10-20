@@ -1,0 +1,468 @@
+@import "tailwindcss";
+
+/*
+  KERF — "the cut that tells the truth". Tokens for the redesigned routes only
+  (this file is imported by the (kerf) root layout; legacy routes never load it).
+  Canvas: warm mineral ivory. Brand: forest. Contrast: charcoal. One restrained
+  mineral accent, oxide, reserved for cuts, pen marks and focus.
+*/
+@theme {
+  --color-*: initial;
+  --color-transparent: transparent;
+
+  --color-ivory-50: #f4f1ea;
+  --color-ivory-100: #ebe6db;
+  --color-ivory-200: #dcd5c7;
+  --color-ivory-300: #c9c0ae;
+
+  --color-charcoal-950: #121311;
+  --color-charcoal-900: #1b1c1a;
+  --color-charcoal-700: #393a36;
+  /* 5.6:1 on ivory-50 */
+  --color-charcoal-500: #5f605a;
+
+  --color-forest-950: #0f241b;
+  --color-forest-800: #1d3a2d;
+  --color-forest-700: #264b3a;
+  --color-forest-600: #2f5c47;
+  --color-forest-100: #dde6dc;
+
+  /* 4.7:1 on ivory-50 — usable for text, lines and focus */
+  --color-oxide-600: #b2461e;
+  --color-oxide-700: #923716;
+  --color-oxide-100: #f2dccf;
+
+  /* Ageing bands (always paired with a text label) */
+  --color-age-fresh: #3d6a35;
+  --color-age-amber: #8a5a00;
+  --color-age-red: #a12a1c;
+
+  /* The paper register */
+  --color-paper: #f7f2e4;
+  --color-paper-shade: #ebe0c6;
+  --color-ink-blue: #233a8c;
+  --color-rule-blue: #a4b5d2;
+  --color-rule-red: #d69c8b;
+  --color-label: #ffffff;
+
+  --font-sans: var(--font-archivo), system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display:
+    var(--font-archivo-narrow), "Avenir Next Condensed", Bahnschrift, "Arial Narrow",
+    sans-serif-condensed, "Roboto Condensed", sans-serif;
+  --font-mono: var(--font-plex), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-hand: var(--font-kalam), "Segoe Print", cursive;
+
+  --text-hero: clamp(3.1rem, 1.35rem + 7.4vw, 8.5rem);
+  --text-hero--line-height: 0.86;
+  --text-display: clamp(2.3rem, 1.3rem + 4vw, 5.25rem);
+  --text-display--line-height: 0.92;
+  --text-lead: clamp(1.125rem, 1.04rem + 0.38vw, 1.375rem);
+  --text-lead--line-height: 1.45;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.6;
+  --text-small: 0.9375rem;
+  --text-small--line-height: 1.5;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.3;
+
+  --ease-cut: cubic-bezier(0.65, 0, 0.15, 1);
+  --ease-settle: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer base {
+  html {
+    background: var(--color-ivory-50);
+    color-scheme: light;
+  }
+  body {
+    background: var(--color-ivory-50);
+    color: var(--color-charcoal-900);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-oxide-600);
+    outline-offset: 3px;
+  }
+  ::selection {
+    background: var(--color-forest-100);
+    color: var(--color-charcoal-950);
+  }
+}
+
+/* Progressive enhancement: html carries .no-js until the inline script runs. */
+.no-js .js-only {
+  display: none !important;
+}
+.nojs-only {
+  display: none;
+}
+.no-js .nojs-only {
+  display: block;
+}
+
+/* Below-the-fold sections skip layout and paint until they approach the
+   viewport (they stay in the accessibility tree and find-in-page). */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1100px;
+}
+.cv-auto-sm {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 480px;
+}
+
+/* ---------- Typography helpers ---------- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-charcoal-500);
+}
+.display-cut {
+  /* Archivo Narrow 700 (static). If it misses its `display: optional` window,
+     fall back to a condensed system face (Apple, Windows, Android), not a wide one. */
+  font-family: var(--font-display);
+  font-stretch: condensed;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- The kerf: the site's one graphic device ---------- */
+.kerf-line {
+  background: var(--color-oxide-600);
+  transform-origin: top;
+  animation: kerf-draw 900ms var(--ease-cut) 150ms both;
+}
+@keyframes kerf-draw {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* ---------- Stage: block face, register, identity ---------- */
+.stage {
+  background: #e6e1d7; /* the stone's mid tone, before the face paints */
+  /* Layout, paint and style stay inside the stage: font swaps and animations
+     here never relayout the rest of the page. */
+  contain: layout paint style;
+}
+
+/* The stone "wets" as the paper leaves (CSS only; no WebGL). */
+.marble {
+  transition: filter 900ms var(--ease-settle);
+}
+.is-wet .marble {
+  filter: brightness(0.94) saturate(1.18) contrast(1.06);
+}
+.sweep {
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgb(255 253 248 / 0.28) 50%,
+    transparent 62%
+  );
+  transform: translateX(-110%);
+  opacity: 0;
+}
+.is-wet .sweep {
+  animation: sweep 1500ms var(--ease-settle) 150ms both;
+}
+@keyframes sweep {
+  0% {
+    transform: translateX(-110%);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+}
+
+/* WebGL draws only the paper, and only while it owns it. */
+.stage-canvas {
+  visibility: hidden;
+}
+.paper-in-gl .stage-canvas {
+  visibility: visible;
+}
+
+.ledger-wrap {
+  /* box-shadow, not filter: drop-shadow — far cheaper to paint on a rotated layer */
+  box-shadow:
+    0 1px 1px rgb(30 25 15 / 0.16),
+    0 14px 24px -6px rgb(30 25 15 / 0.24);
+  transform: rotate(var(--ledger-rot, -2.4deg));
+  transition:
+    transform 160ms var(--ease-settle),
+    box-shadow 160ms var(--ease-settle);
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  contain: layout style;
+}
+/* Immediate feedback on press, before (or without) WebGL. */
+.is-lifted .ledger-wrap {
+  transform: rotate(var(--ledger-rot, -2.4deg)) translateY(-4px);
+  box-shadow:
+    0 2px 2px rgb(30 25 15 / 0.14),
+    0 22px 34px -8px rgb(30 25 15 / 0.3);
+}
+.is-grabbing .ledger-wrap {
+  cursor: grabbing;
+}
+/* The entry that lifts off the page flies to the label outside the paper's clip. */
+.ink-fly {
+  position: absolute;
+  margin: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  transform-origin: center;
+}
+/* When WebGL owns the paper, the HTML ledger hides — except the lifted entry. */
+.paper-in-gl .ledger-wrap {
+  visibility: hidden;
+  box-shadow: none;
+}
+.paper-in-gl [data-hero-row] .ink-lift {
+  visibility: visible;
+}
+
+.ledger {
+  container-type: inline-size;
+  background: radial-gradient(
+    130% 100% at 50% 38%,
+    var(--color-paper) 58%,
+    var(--color-paper-shade) 100%
+  );
+  font-family: var(--font-hand);
+  color: var(--color-ink-blue);
+  --hand: clamp(8px, 3.05cqi, 17px);
+}
+.ledger-printed {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #4d5f86;
+  font-size: clamp(7px, 1.9cqi, 11px);
+  line-height: 1;
+}
+/* Ruled rows: CSS grid with fixed column shares (no table layout algorithm). */
+.ledger-row {
+  display: grid;
+  grid-template-columns: 8% 13% 11% 22% 13% 33%;
+}
+.ledger-row > * {
+  display: flex;
+  align-items: flex-end;
+  height: 8.2cqi;
+  padding: 0 0 0.9cqi 1.2cqi;
+  border-bottom: 1px solid var(--color-rule-blue);
+  border-right: 1px solid var(--color-rule-blue);
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: var(--hand);
+  line-height: 1;
+}
+.ledger-row > :last-child {
+  border-right: 0;
+}
+.ledger-row > .ledger-no {
+  border-right-color: var(--color-rule-red);
+}
+.ledger-head > * {
+  height: auto;
+  font-size: inherit;
+  border-bottom-width: 2px;
+}
+.ledger-note {
+  color: var(--color-oxide-600);
+  font-size: calc(var(--hand) * 0.86);
+}
+.ledger-mark {
+  position: relative;
+  display: inline-block;
+}
+.ledger-mark > svg {
+  position: absolute;
+  inset: -0.55em -0.45em -0.4em -0.45em;
+  width: calc(100% + 0.9em);
+  height: calc(100% + 0.95em);
+  overflow: visible;
+  pointer-events: none;
+}
+@container (max-width: 380px) {
+  .ledger {
+    --hand: 3.9cqi;
+  }
+  .ledger .col-opt {
+    display: none;
+  }
+  .ledger-row {
+    grid-template-columns: 15% 13% 32% 40%;
+  }
+  .ledger-row > * {
+    height: 10cqi;
+  }
+  .ledger-head > * {
+    height: auto;
+  }
+}
+
+.ink-lift {
+  display: inline-block;
+  transition:
+    transform 180ms var(--ease-settle),
+    text-shadow 180ms var(--ease-settle);
+}
+.is-lifted [data-hero-row] .ink-lift {
+  transform: translateY(-3px);
+  text-shadow: 0 6px 6px rgb(20 20 40 / 0.18);
+}
+
+/* The printed identity label and its leader lines (hidden until identified). */
+.identity {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 450ms var(--ease-settle),
+    visibility 0s linear 450ms;
+}
+.is-identified .identity {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 450ms var(--ease-settle),
+    visibility 0s;
+}
+.label-card {
+  transform: rotate(1.4deg) translateY(10px);
+  transition: transform 700ms var(--ease-settle);
+}
+.is-identified .label-card {
+  transform: rotate(1.4deg);
+}
+.code-type {
+  clip-path: inset(0 100% 0 0);
+}
+.is-identified .code-type {
+  animation: type-in 560ms steps(9, end) 520ms forwards;
+}
+@keyframes type-in {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.leader {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+.is-identified .leader {
+  transition: stroke-dashoffset 700ms var(--ease-cut);
+  stroke-dashoffset: 0;
+}
+.is-identified .leader:nth-of-type(2) {
+  transition-delay: 80ms;
+}
+.is-identified .leader:nth-of-type(3) {
+  transition-delay: 160ms;
+}
+.attr {
+  opacity: 0;
+  transform: translateX(-8px);
+  transition:
+    opacity 400ms var(--ease-settle),
+    transform 400ms var(--ease-settle);
+}
+.is-identified .attr {
+  opacity: 1;
+  transform: none;
+  transition-delay: 700ms;
+}
+.is-identified .attr:nth-child(2) {
+  transition-delay: 780ms;
+}
+.is-identified .attr:nth-child(3) {
+  transition-delay: 860ms;
+}
+
+/* Crossfade path (no WebGL): the ledger simply fades away. */
+.is-identified.paper-faded .ledger-wrap {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 500ms var(--ease-settle),
+    visibility 0s linear 500ms;
+}
+
+@media (pointer: coarse) {
+  .hint-fine {
+    display: none;
+  }
+}
+@media (pointer: fine) {
+  .hint-coarse {
+    display: none;
+  }
+}
+
+/* Static fallback without JS: the "after" state is shown below the stage. */
+.no-js .identity-overlay {
+  display: none;
+}
+.no-js .identity-list {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+.no-js .code-type {
+  clip-path: none;
+}
+.no-js .attr {
+  opacity: 1;
+  transform: none;
+}
+.no-js .leader {
+  stroke-dashoffset: 0;
+}
+.no-js .ledger-wrap {
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kerf-line,
+  .is-identified .code-type,
+  .is-wet .sweep {
+    animation: none;
+  }
+  .code-type {
+    clip-path: none;
+  }
+  .label-card,
+  .identity,
+  .attr,
+  .ink-lift,
+  .marble,
+  .ledger-wrap,
+  .is-identified .leader,
+  .is-identified.paper-faded .ledger-wrap {
+    transition: none;
+  }
+  .leader {
+    stroke-dashoffset: 0;
+  }
+}

@@ -3,13 +3,14 @@ import { test, expect } from "@playwright/test";
 /** Navigation: the primary paths resolve and render their h1. */
 
 const pages = [
-  { path: "/", h1: /whole yard/i },
+  { path: "/", h1: /runs on this page/i },
+  { path: "/b/ksh-b0001", h1: /KSH-B0001/ },
   { path: "/product", h1: /one system/i },
   { path: "/product/worker-app", h1: /workers/i },
   { path: "/why", h1: /why not/i },
   { path: "/why/vs-tally-accounting", h1: /Tally keeps your books/i },
   { path: "/industries/granite", h1: /gangsaw/i },
-  { path: "/pricing", h1: /what ShilaTeq costs/i },
+  { path: "/pricing", h1: /Simple plans for every yard/i },
   { path: "/resources", h1: /Learn the trade/i },
   { path: "/guides", h1: /Run your yard better/i },
   { path: "/guides/gangsaw-recovery", h1: /maths of cutting/i },

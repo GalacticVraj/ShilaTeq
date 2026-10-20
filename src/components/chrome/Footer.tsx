@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { footerColumns, site } from "@/config/site";
+import { footerColumns, linkedInUrl, salesContacts, site } from "@/config/site";
 
 /**
  * Footer: a calm index, not a dumping ground (phase-4/03 S8). Carries the
@@ -31,36 +31,20 @@ export function Footer() {
           <div>
             <h2 className="eyebrow">Contact Sales</h2>
             <ul className="mt-4 space-y-2.5">
-              <li>
-                <span className="text-body-sm text-ink-700 font-medium">Vraj:</span>{" "}
-                <a
-                  href="tel:7043765580"
-                  className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
-                >
-                  7043765580
-                </a>
-              </li>
-              <li>
-                <span className="text-body-sm text-ink-700 font-medium">Lakshya:</span>{" "}
-                <a
-                  href="tel:+918078686994"
-                  className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
-                >
-                  +91 8078 686 994
-                </a>
-              </li>
-              <li>
-                <span className="text-body-sm text-ink-700 font-medium">Email:</span>{" "}
-                <a
-                  href="mailto:shilateq@gmail.com"
-                  className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
-                >
-                  shilateq@gmail.com
-                </a>
-              </li>
+              {salesContacts.map((c) => (
+                <li key={c.href}>
+                  <span className="text-body-sm text-ink-700 font-medium">{c.label}:</span>{" "}
+                  <a
+                    href={c.href}
+                    className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"
+                  >
+                    {c.display}
+                  </a>
+                </li>
+              ))}
               <li>
                 <a
-                  href="https://www.linkedin.com/company/shilateq/"
+                  href={linkedInUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-body-sm text-ink-700 hover:underline hover:underline-offset-2"

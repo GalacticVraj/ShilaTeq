@@ -13,6 +13,10 @@
 # testing
 /coverage
 
+# lighthouse ci (reports stay local; never public storage)
+/.lighthouseci/
+/lighthouse-reports/
+
 # playwright
 /test-results/
 /playwright-report/
