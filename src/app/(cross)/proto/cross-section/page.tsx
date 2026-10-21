@@ -2,6 +2,8 @@ import type { CSSProperties } from "react";
 import { getImageProps } from "next/image";
 import QR from "qrcode";
 import { EvidenceSteps, type Step } from "@/components/cross/EvidenceSteps";
+import { SampleYardLazy } from "@/components/cross/SampleYardLazy";
+import { YARD_STEPS } from "@/components/cross/sampleYardData";
 
 /**
  * Cross-Section prototype — C1 "The Cut" hero and section 2 only, for review.
@@ -280,10 +282,46 @@ export default async function CrossSectionPrototype() {
           </div>
         </section>
 
+        {/* Quiet strata from the light chapter back into obsidian (no signal run-out here). */}
+        <div className="x-strata x-strata--quiet" aria-hidden="true" />
+
+        <section id="sample-yard" className="x-yard" aria-labelledby="sample-yard-title">
+          <div className="x-wrap">
+            <header className="x-yard__head">
+              <p className="x-label x-yard__eyebrow">
+                <span className="x-yard__flag">Sample yard</span> · fictional data, real StoneX
+                record formats
+              </p>
+              <h2 id="sample-yard-title" className="x-yard__h2 x-display">
+                Follow one block.
+              </h2>
+              <p className="x-yard__intro">
+                SY-B0021 arrives as a block and leaves as paid-for slabs. Each step is a record
+                StoneX keeps. The yard, the buyer and every number here are fictional.
+              </p>
+            </header>
+            <SampleYardLazy qr={qr} />
+            {/* The island streams in behind JS; without JS the journey is still told in order. */}
+            <noscript>
+              <ol className="x-yard__static">
+                {YARD_STEPS.map((step, i) => (
+                  <li key={step.title}>
+                    <p className="x-label x-yard__count">
+                      Step {i + 1} of {YARD_STEPS.length}
+                    </p>
+                    <h3 className="x-yard__title x-display">{step.title}</h3>
+                    <p className="x-label x-yard__status">Record · {step.status}</p>
+                    <p className="x-yard__static-copy">{step.copy}</p>
+                  </li>
+                ))}
+              </ol>
+            </noscript>
+          </div>
+        </section>
+
         <footer className="x-end">
           <div className="x-wrap x-label">
-            End of prototype · sections 3–6 (sample yard, StoneVision, founders, demo booking) are
-            not built.
+            End of prototype · sections 4–6 (StoneVision, founders, demo booking) are not built.
           </div>
         </footer>
       </main>

@@ -899,6 +899,576 @@
   min-height: 0;
 }
 
+/* Mist back into obsidian: hairline strata, no signal run-out (kept for chapter moments). */
+.x-strata--quiet {
+  height: 1.25rem;
+  background: linear-gradient(
+    to bottom,
+    var(--color-mist) 0 0.35rem,
+    var(--color-rule-light) 0.35rem 0.45rem,
+    var(--color-mist) 0.45rem 0.7rem,
+    var(--color-malachite) 0.7rem 0.85rem,
+    var(--color-obsidian) 0.85rem
+  );
+}
+
+/* ---------- Section 3: Follow one block (sample yard) ---------- */
+/* Visitor-driven steps (tabs + Back/Next), unlike section 2's scroll-driven frame.
+   Without JS every step is shown in order. */
+.x-yard {
+  background: var(--color-obsidian);
+  color: var(--color-bone);
+  padding-block: clamp(3.5rem, 8vw, 6.5rem) clamp(4rem, 9vw, 7rem);
+}
+.x-yard__eyebrow {
+  color: var(--color-lichen);
+}
+.x-yard__flag {
+  color: var(--color-acid);
+}
+.x-yard__h2 {
+  margin-top: 1rem;
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+}
+.x-yard__intro {
+  margin-top: 1.25rem;
+  max-width: 36rem;
+  font-size: var(--text-lead);
+  line-height: var(--text-lead--line-height);
+  color: var(--color-lichen);
+}
+.x-yard__stage {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+  scroll-margin-top: 4.5rem;
+}
+
+/* The rail. Phones: five numbered cuts; the current one is signal. */
+.x-yard__rail {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.x-yard__tab {
+  display: grid;
+  place-items: center;
+  min-height: 2.75rem;
+  padding: 0.55rem 0 0;
+  border-top: 2px solid var(--color-rule-dark);
+  color: var(--color-lichen);
+  cursor: pointer;
+}
+.x-yard__tab-title,
+.x-yard__tab-status {
+  display: none;
+}
+.x-yard__tab:hover,
+.x-yard__tab[data-state="done"],
+.x-yard__tab[data-state="active"] {
+  color: var(--color-bone);
+}
+.x-yard__tab[data-state="done"] {
+  border-color: var(--color-lichen);
+}
+.x-yard__tab[data-state="active"] {
+  border-color: var(--color-signal);
+}
+
+/* The panel */
+.x-yard__count {
+  color: var(--color-lichen);
+}
+.x-yard__title {
+  margin-top: 0.6rem;
+  font-size: clamp(1.625rem, 1.1rem + 1.6vw, 2.5rem);
+  line-height: 1.05;
+}
+.x-yard__status {
+  margin-top: 0.75rem;
+  color: var(--color-acid);
+}
+.x-yard__body {
+  margin-top: 1.25rem;
+}
+.x-yard__body > p {
+  max-width: 38rem;
+  color: var(--color-lichen);
+}
+.x-yard__object {
+  margin-top: 1.5rem;
+}
+/* Light record cards sit on obsidian: their controls take an obsidian focus ring. */
+.x-order :focus-visible {
+  outline-color: var(--color-obsidian);
+}
+
+/* Step 1: the QR tag, and what a scan does and doesn't show */
+.x-tagset {
+  display: grid;
+  gap: 1.25rem;
+}
+.x-tag,
+.x-order {
+  background: var(--color-bone);
+  color: var(--color-obsidian);
+  border-top: 2px solid var(--color-signal);
+}
+.x-tag {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 26rem;
+  padding: 1.1rem 1.15rem;
+}
+.x-tag__yard,
+.x-tag__meta,
+.x-order__head {
+  color: var(--color-slate);
+}
+.x-tag__code {
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.x-tag__stone {
+  margin-top: 0.15rem;
+}
+.x-tag__meta {
+  margin-top: 0.6rem;
+}
+.x-tag__qr {
+  flex: none;
+  width: 5rem;
+  height: 5rem;
+}
+.x-tag__qr svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.x-scan {
+  display: grid;
+  gap: 1rem;
+}
+.x-scan__head,
+.x-show__label,
+.x-lead__kind {
+  color: var(--color-acid);
+}
+.x-scan ul {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.x-scan li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--color-rule-dark);
+}
+
+/* Step 2: lineage, the slab rack (Flip Card), the remnant */
+.x-lineage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  color: var(--color-lichen);
+}
+.x-lineage span:first-child {
+  color: var(--color-acid);
+}
+.x-rack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.x-rack__cell {
+  aspect-ratio: 3 / 4;
+}
+.x-slab {
+  position: relative;
+  height: 100%;
+}
+.x-slab__img {
+  object-fit: cover;
+}
+.x-slab__mark {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  padding: 0.2rem 0.4rem;
+  background: var(--color-obsidian);
+  color: var(--color-bone);
+}
+.x-slab--record {
+  display: flex;
+  flex-direction: column;
+  padding: 0.8rem;
+}
+.x-slab__kind {
+  color: var(--color-slate);
+}
+.x-slab__code {
+  margin-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.x-fields {
+  margin-top: 0.5rem;
+}
+.x-fields > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.28rem 0;
+  border-top: 1px solid var(--color-rule-light);
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+.x-fields dt {
+  color: var(--color-slate);
+}
+.x-fields dd {
+  font-weight: 600;
+  text-align: right;
+}
+.x-yard__hint,
+.x-show__note {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--color-lichen);
+}
+.x-remnant {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--color-lichen);
+  color: var(--color-lichen);
+}
+.x-remnant__code {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-bone);
+}
+
+/* Step 3: the price switch (Rubber Segment), the buyer's view, the lead */
+.x-show {
+  display: grid;
+  gap: 1.5rem;
+}
+.x-show__label {
+  margin-bottom: 0.6rem;
+}
+.x-buyer {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 1rem;
+  max-width: 28rem;
+  margin: 0;
+  padding: 0.85rem;
+  background: var(--color-bone);
+  color: var(--color-obsidian);
+}
+.x-buyer__photo {
+  position: relative;
+  aspect-ratio: 3 / 4;
+}
+.x-buyer__name {
+  font-weight: 600;
+}
+.x-buyer__meta {
+  margin-top: 0.2rem;
+  font-size: 0.9375rem;
+  color: var(--color-slate);
+}
+.x-buyer__price {
+  margin-top: 0.8rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+.x-buyer__cap {
+  grid-column: 1 / -1;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--color-rule-light);
+  color: var(--color-slate);
+}
+.x-lead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.8rem;
+  max-width: 28rem;
+  padding: 0.75rem 1rem;
+  border-left: 2px solid var(--color-acid);
+  background: #1b2320;
+}
+
+/* Steps 4–5: order and dispatch records (Status Mark) */
+.x-order {
+  max-width: 34rem;
+  padding: 1.1rem 1.15rem;
+}
+.x-slabchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.x-slabchips li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--color-rule-light);
+  font-size: 0.875rem;
+}
+.x-slabchips li[data-reserved] {
+  background: var(--color-obsidian);
+  border-color: var(--color-obsidian);
+  color: var(--color-bone);
+}
+.x-track {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.x-yard__try {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  min-height: 2.75rem;
+  margin-top: 1.1rem;
+  padding: 0.6rem 0.9rem;
+  border: 1.5px solid var(--color-obsidian);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.x-yard__try:hover {
+  background: rgb(17 23 21 / 0.06);
+}
+.x-closed {
+  margin-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-rule-light);
+}
+.x-closed__sold {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+
+/* The end of the journey leads to a demo. */
+.x-yard__end {
+  margin-top: 2.25rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--color-signal);
+}
+.x-yard__end-title {
+  max-width: 24ch;
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 800;
+  font-size: clamp(1.4rem, 1rem + 1.4vw, 2rem);
+  line-height: 1.1;
+}
+.x-yard__end-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.75rem;
+  margin-top: 1.25rem;
+}
+
+/* Product evidence: placeholders until real StoneX captures exist. Hatched and dashed so
+   they can never be mistaken for a screenshot. */
+.x-yard__evidence {
+  margin-top: 2.25rem;
+}
+.x-yard__evidence-head,
+.x-pending figcaption {
+  color: var(--color-lichen);
+}
+.x-yard__evidence-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+.x-pending {
+  margin: 0;
+}
+.x-pending[data-device="Phone"] {
+  max-width: 15rem;
+}
+.x-pending__view {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  aspect-ratio: 16 / 10;
+  padding: 1rem;
+  border: 1px dashed var(--color-lichen);
+  background: repeating-linear-gradient(135deg, #18201d 0 10px, var(--color-obsidian) 10px 20px);
+}
+.x-pending[data-device="Phone"] .x-pending__view {
+  aspect-ratio: 9 / 16;
+}
+.x-pending__tag {
+  color: var(--color-acid);
+}
+.x-pending__title {
+  font-weight: 600;
+}
+.x-pending__shows {
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  color: var(--color-lichen);
+}
+.x-pending figcaption {
+  margin-top: 0.5rem;
+}
+
+/* Back / Next. Phones: Next first and full width. */
+.x-yard__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-rule-dark);
+}
+.x-yard__back,
+.x-yard__next {
+  min-height: 2.75rem;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.x-yard__back {
+  color: var(--color-lichen);
+}
+.x-yard__back:hover {
+  color: var(--color-bone);
+}
+.x-yard__next {
+  flex: 1 1 100%;
+  order: -1;
+  border: 1.5px solid var(--color-bone);
+  color: var(--color-bone);
+}
+.x-yard__next:hover {
+  border-color: var(--color-acid);
+  color: var(--color-acid);
+}
+
+@media (min-width: 40rem) {
+  .x-scan {
+    grid-template-columns: 1fr 1fr;
+  }
+  .x-rack {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .x-yard__evidence-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+  .x-yard__next {
+    flex: 0 0 auto;
+    order: 0;
+    margin-left: auto;
+  }
+}
+@media (min-width: 64rem) {
+  .x-yard__stage {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(1rem, 2.5vw, 2.5rem);
+  }
+  /* Desktop: a sticky vertical rail whose left edge is the block's lineage line. */
+  .x-yard__rail {
+    grid-column: 1 / 5;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    align-self: start;
+    position: sticky;
+    top: 6rem;
+  }
+  .x-yard__tab {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    place-items: start;
+    column-gap: 0.75rem;
+    min-height: 0;
+    padding: 0.95rem 0 0.95rem 1.1rem;
+    border-top: 0;
+    border-left: 2px solid var(--color-rule-dark);
+    text-align: left;
+  }
+  .x-yard__tab-num {
+    grid-row: 1 / 3;
+    padding-top: 0.2rem;
+  }
+  .x-yard__tab-title {
+    display: block;
+    font-weight: 600;
+  }
+  .x-yard__tab-status {
+    display: block;
+    grid-column: 2;
+    margin-top: 0.25rem;
+    color: var(--color-lichen);
+  }
+  .x-yard__tab[data-state="active"] .x-yard__tab-status {
+    color: var(--color-acid);
+  }
+  .x-yard__panels {
+    grid-column: 5 / 13;
+  }
+  .x-show {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+  .x-lead {
+    grid-column: 1 / -1;
+  }
+}
+/* Without JS the island never streams in; a <noscript> list tells the journey in order. */
+.x-yard__static {
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.x-yard__static li + li {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-rule-dark);
+}
+.x-yard__static-copy {
+  margin-top: 1rem;
+  max-width: 38rem;
+  color: var(--color-lichen);
+}
+
 /* ---------- Prototype end ---------- */
 .x-end {
   padding-block: 2.5rem;
