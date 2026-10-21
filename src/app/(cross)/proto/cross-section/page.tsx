@@ -1,14 +1,11 @@
 import type { CSSProperties } from "react";
 import { getImageProps } from "next/image";
 import QR from "qrcode";
-import { EvidenceSteps, type Step } from "@/components/cross/EvidenceSteps";
-import { SampleYardLazy } from "@/components/cross/SampleYardLazy";
-import { YARD_STEPS } from "@/components/cross/sampleYardData";
 
 /**
- * Cross-Section prototype — C1 "The Cut" hero and section 2 only, for review.
- * Every product statement here maps to verified StoneX code (Phase 0 audit);
- * the block record and both screenshots are fictional sample data.
+ * Cross-Section prototype — C1 "The Cut" hero and section 2 (the StoneX reveal)
+ * only, for review. Every product statement here maps to verified StoneX code
+ * (Phase 0 audit); the block record and the screenshot are fictional sample data.
  */
 
 const DEMO_MAIL = "mailto:shilateq@gmail.com?subject=" + encodeURIComponent("StoneX demo request");
@@ -18,95 +15,38 @@ const DEMO_MAIL = "mailto:shilateq@gmail.com?subject=" + encodeURIComponent("Sto
 const STONE_SOURCE =
   "https://commons.wikimedia.org/wiki/File:Statuarietto_White_Marble_(Apuan_Marble_Formation,_Tertiary_metamorphism_of_Jurassic_limestones;_Carrara_region,_Italy)_2_(41756462202).jpg";
 
-const steps: Step[] = [
-  {
-    tag: "Inventory & QR",
-    question: "Where is that block, and is it still available?",
-    answer:
-      "Every block and slab carries its own QR tag. StoneX shows where it sits in the yard, whether it is available, reserved or sold, and how many days it has been there.",
-    shot: "inventory",
-    alt: "StoneX inventory for a fictional demo yard: blocks listed with size, yard zone, status and age.",
-    // Marks sit in the whitespace just before the cell they explain.
-    stage: {
-      crop: { x: 560, y: 615, w: 1760 },
-      pins: [
-        { x: 1584, y: 818, label: "Where it sits in the yard" },
-        { x: 1800, y: 1233, label: "Available, reserved or sold" },
-      ],
-    },
-    phone: {
-      crop: { x: 1530, y: 665, w: 780 },
-      pins: [
-        { x: 1575, y: 818, label: "Where it sits" },
-        { x: 1810, y: 1094, label: "Available or not" },
-      ],
-    },
-  },
-  {
-    tag: "Cutting",
-    question: "What did this block turn into?",
-    answer:
-      "When a block is cut, the cut is recorded on a phone. Each slab carries the block's code and a share of its cost, and a leftover piece becomes a block of its own.",
-    shot: "inventory",
-    alt: "StoneX inventory for a fictional demo yard: blocks and slabs counted separately, each block with its own code.",
-    stage: {
-      crop: { x: 547, y: 158, w: 1382 },
-      pins: [
-        { x: 1410, y: 325, label: "Cut blocks are counted as slabs" },
-        { x: 830, y: 798, label: "Every block has its own code" },
-      ],
-    },
-    phone: {
-      crop: { x: 559, y: 245, w: 900 },
-      pins: [
-        { x: 1420, y: 325, label: "Slabs from cut blocks" },
-        { x: 880, y: 798, label: "Block code" },
-      ],
-    },
-  },
-  {
-    tag: "Orders & dispatch",
-    question: "Can I promise these slabs to this buyer?",
-    answer:
-      "Turning a quote into an order reserves those exact slabs, so they cannot be sold twice. Nothing is dispatched until a payment is recorded.",
-    shot: "dashboard",
-    alt: "StoneX dashboard for a fictional demo yard: orders reserved, processing and ready to dispatch, and deliveries.",
-    stage: {
-      crop: { x: 559, y: 763, w: 1500 },
-      pins: [
-        { x: 979, y: 1430, label: "Slabs reserved for orders" },
-        { x: 1627, y: 1319, label: "Deliveries" },
-      ],
-    },
-    phone: {
-      crop: { x: 559, y: 1160, w: 740 },
-      pins: [{ x: 979, y: 1430, label: "Reserved for orders" }],
-    },
-  },
-  {
-    tag: "Payments",
-    question: "Who still owes us money?",
-    answer:
-      "The dashboard shows what is owed to you, what is overdue and what you owe, with every part-payment recorded.",
-    shot: "dashboard",
-    alt: "StoneX dashboard for a fictional demo yard: amounts to collect and to pay, and an overdue payment.",
-    stage: {
-      crop: { x: 559, y: 268, w: 1140 },
-      pins: [
-        { x: 936, y: 508, label: "Owed to you" },
-        { x: 1454, y: 508, label: "What you owe" },
-        { x: 1008, y: 806, label: "Overdue" },
-      ],
-    },
-    phone: {
-      crop: { x: 575, y: 380, w: 760 },
-      pins: [
-        { x: 936, y: 508, label: "Owed to you" },
-        { x: 1008, y: 806, label: "Overdue" },
-      ],
-    },
-  },
-];
+// A real StoneX screen in mock mode (fictional "Demo Stone Yard"), captured at 2×.
+const SHOT = { src: "/product/stonex/inventory-demo.png", w: 2880, h: 1716 };
+
+/**
+ * The camera move as CSS variables, for one frame shape (`name`). At rest the
+ * crop (screenshot pixels; its height follows from the frame's aspect) fills the
+ * frame. In motion the screen starts whole, fitted to the frame's width and
+ * centred, and only `scale` changes: about the one point that sits in the same
+ * place in both framings, so the camera pushes straight in.
+ */
+function pushIn(name: string, aspect: number, crop: { x: number; y: number; w: number }) {
+  const s = SHOT.w / crop.w;
+  // The whole screen's vertical offset, in its own heights (0 when the frame has its shape).
+  const ty = (SHOT.w / SHOT.h / aspect - 1) / 2;
+  const pct = (n: number) => `${+(n * 100).toFixed(3)}%`;
+  return {
+    [`--aspect-${name}`]: aspect,
+    [`--s-${name}`]: +s.toFixed(4),
+    [`--ty-${name}`]: pct(ty),
+    [`--fx-${name}`]: pct(((crop.x / SHOT.w) * s) / (s - 1)),
+    [`--fy-${name}`]: pct((ty + (crop.y / SHOT.h) * s) / (s - 1)),
+    // The frame's top and bottom margins around the whole screen, in frame heights.
+    [`--open-${name}`]: pct((1 - (aspect * SHOT.h) / SHOT.w) / 2),
+  };
+}
+
+const reveal = {
+  // Phones: a tall frame; the push-in lands on the block column, readable at 320px.
+  ...pushIn("phone", 4 / 5, { x: 641, y: 665, w: 626 }),
+  // From 44rem: the screen's own shape; it lands on block, size, place and status.
+  ...pushIn("wide", SHOT.w / SHOT.h, { x: 634, y: 665, w: 1532 }),
+} as CSSProperties;
 
 export default async function CrossSectionPrototype() {
   // One photograph behind both sides of the cut. Desktop draws it larger than
@@ -120,6 +60,15 @@ export default async function CrossSectionPrototype() {
     sizes: "(min-width: 64rem) 82vw, 100vw",
     fetchPriority: "high",
     loading: "eager",
+  });
+
+  // Drawn at up to ~1.9× its box (wide) and ~4.6× (phones): the full-size file.
+  const { props: shot } = getImageProps({
+    src: SHOT.src,
+    width: SHOT.w,
+    height: SHOT.h,
+    alt: "StoneX inventory for a fictional demo yard: each block listed with its code, stone, size, place in the yard, status, age and price per square foot.",
+    sizes: "(min-width: 44rem) 190vw, 460vw",
   });
 
   // A real QR, but it only carries text: the sample record has no page to open.
@@ -151,7 +100,7 @@ export default async function CrossSectionPrototype() {
           <nav aria-label="Primary" className="x-nav">
             <a href="#stonex">StoneX ERP</a>
             {/* Not built in this prototype: shown for layout only, deliberately not links. */}
-            {["StoneVision", "Sample yard", "About"].map((item) => (
+            {["StoneVision", "About"].map((item) => (
               <span key={item}>
                 {item}
                 <span className="sr-only"> (not built in this prototype)</span>
@@ -266,62 +215,56 @@ export default async function CrossSectionPrototype() {
           <div className="x-strata__cut" />
         </div>
 
-        <section id="stonex" className="x-evidence on-light" aria-labelledby="stonex-title">
-          <div className="x-wrap">
-            <header className="x-evidence__head">
-              <p className="x-evidence__eyebrow x-label">StoneX ERP</p>
-              <h2 id="stonex-title" className="x-evidence__title x-display">
-                The questions your yard asks <span className="x-accent">every day.</span>
-              </h2>
-              <p className="x-evidence__intro">
-                Four everyday questions, answered from one record per block. The screens are StoneX
-                itself, running a fictional demo yard.
-              </p>
-            </header>
-            <EvidenceSteps steps={steps} />
+        {/* One real screen, one camera move. Pure CSS: the resting state is the
+            readable crop; where scroll timelines exist the move plays on scroll. */}
+        <section
+          id="stonex"
+          className="x-reveal on-light"
+          aria-labelledby="stonex-title"
+          style={reveal}
+        >
+          <div className="x-wrap x-reveal__head">
+            <p className="x-reveal__eyebrow x-label">StoneX ERP</p>
+            <h2 id="stonex-title" className="x-reveal__title x-display">
+              Your yard, <span className="x-accent">on one screen.</span>
+            </h2>
+            <p className="x-reveal__line">
+              Stock, cutting, orders, dispatch and payments. Every block and slab on record.
+            </p>
           </div>
+          <div className="x-reveal__track">
+            <div className="x-wrap x-reveal__stage">
+              <figure className="x-reveal__fit">
+                <div className="x-reveal__view">
+                  {/* The cut opens on this layer; the frame (above) opens on phones. */}
+                  <div className="x-reveal__cut">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img {...shot} alt={shot.alt} className="x-reveal__img" />
+                  </div>
+                </div>
+                <figcaption className="x-reveal__cap x-label">
+                  StoneX · Inventory · fictional demo yard
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+          <p className="x-wrap">
+            {/* The StoneX page is not built in this prototype: shown for layout only. */}
+            <span className="x-reveal__fit x-reveal__next">
+              <span className="x-link-cut">
+                Explore StoneX <span aria-hidden="true">→</span>
+              </span>
+              <span className="sr-only"> (page not built in this prototype)</span>
+            </span>
+          </p>
         </section>
 
         {/* Quiet strata from the light chapter back into obsidian (no signal run-out here). */}
         <div className="x-strata x-strata--quiet" aria-hidden="true" />
 
-        <section id="sample-yard" className="x-yard" aria-labelledby="sample-yard-title">
-          <div className="x-wrap">
-            <header className="x-yard__head">
-              <p className="x-label x-yard__eyebrow">
-                <span className="x-yard__flag">Sample yard</span> · fictional data, real StoneX
-                record formats
-              </p>
-              <h2 id="sample-yard-title" className="x-yard__h2 x-display">
-                Follow one block.
-              </h2>
-              <p className="x-yard__intro">
-                SY-B0021 arrives as a block and leaves as paid-for slabs. Each step is a record
-                StoneX keeps. The yard, the buyer and every number here are fictional.
-              </p>
-            </header>
-            <SampleYardLazy qr={qr} />
-            {/* The island streams in behind JS; without JS the journey is still told in order. */}
-            <noscript>
-              <ol className="x-yard__static">
-                {YARD_STEPS.map((step, i) => (
-                  <li key={step.title}>
-                    <p className="x-label x-yard__count">
-                      Step {i + 1} of {YARD_STEPS.length}
-                    </p>
-                    <h3 className="x-yard__title x-display">{step.title}</h3>
-                    <p className="x-label x-yard__status">Record · {step.status}</p>
-                    <p className="x-yard__static-copy">{step.copy}</p>
-                  </li>
-                ))}
-              </ol>
-            </noscript>
-          </div>
-        </section>
-
         <footer className="x-end">
           <div className="x-wrap x-label">
-            End of prototype · sections 4–6 (StoneVision, founders, demo booking) are not built.
+            End of prototype · Showroom, StoneVision and Book a demo are not built yet.
           </div>
         </footer>
       </main>

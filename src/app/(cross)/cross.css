@@ -52,6 +52,8 @@
 
   --ease-cut: cubic-bezier(0.65, 0, 0.15, 1);
   --ease-settle: cubic-bezier(0.2, 0, 0, 1);
+  /* Scroll-scrubbed moves: gentle at both ends, so a camera move lands. */
+  --ease-move: cubic-bezier(0.45, 0, 0.55, 1);
 }
 
 @layer base {
@@ -637,266 +639,115 @@
   transform-origin: right center;
 }
 
-/* ---------- Section 2: the questions your yard asks every day ---------- */
-.x-evidence {
+/* ---------- Section 2: the StoneX reveal ---------- */
+/* One real screen, one camera move. The resting state is the end of the move: a
+   crop readable at every width. The motion block at the end of this file plays
+   the move on scroll (CSS scroll timelines; no script, no scroll hijacking). */
+.x-reveal {
+  /* Picked per frame shape; the values come from pushIn() in the page. */
+  --aspect: var(--aspect-phone);
+  --s: var(--s-phone);
+  --ty: var(--ty-phone);
+  --fx: var(--fx-phone);
+  --fy: var(--fy-phone);
+  --open: var(--open-phone);
   background: var(--color-mist);
   color: var(--color-obsidian);
   padding-bottom: clamp(4rem, 9vw, 8rem);
 }
-.x-evidence__head {
-  padding-block: clamp(3.5rem, 8vw, 6.5rem) clamp(2rem, 4vw, 3.5rem);
+@media (min-width: 44rem) {
+  .x-reveal {
+    --aspect: var(--aspect-wide);
+    --s: var(--s-wide);
+    --ty: var(--ty-wide);
+    --fx: var(--fx-wide);
+    --fy: var(--fy-wide);
+    --open: var(--open-wide);
+  }
+}
+.x-reveal__head {
+  padding-block: clamp(3.5rem, 8vw, 6.5rem) clamp(2rem, 4vw, 3rem);
 }
 /* Malachite carries the brand on the light chapter (8.0:1 on mist). */
-.x-evidence__eyebrow,
+.x-reveal__eyebrow,
 .x-accent {
   color: var(--color-malachite);
 }
-.x-evidence__title {
+.x-reveal__title {
   margin-top: 1rem;
-  max-width: 13ch;
   font-size: var(--text-display);
   line-height: var(--text-display--line-height);
 }
-.x-evidence__intro {
+/* "on one screen." keeps together on its own line. */
+.x-reveal__title .x-accent {
+  display: block;
+}
+.x-reveal__line {
   margin-top: 1.25rem;
-  max-width: 36rem;
+  max-width: 30rem;
   color: var(--color-slate);
 }
-
-.x-steps {
-  display: grid;
-  gap: 0 clamp(1rem, 2.5vw, 2.5rem);
-}
-.x-steps__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.x-step {
-  position: relative;
-  padding-block: 2.5rem;
-  border-top: 1px solid var(--color-rule-light);
-}
-.x-step__num {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--color-slate);
-}
-/* Phones: each question opens with a short cut (desktop marks the active one). */
-.x-step__num::before {
-  content: "";
-  width: 1.5rem;
-  height: 2px;
-  background: var(--color-signal);
-}
-.x-step__num b {
-  color: var(--color-malachite);
-  font-weight: 600;
-}
-.x-step__q {
-  margin-top: 0.75rem;
-  font-size: var(--text-question);
-  line-height: var(--text-question--line-height);
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  max-width: 24ch;
-}
-.x-step__a {
-  margin-top: 0.75rem;
-  max-width: 34rem;
-  color: var(--color-slate);
-}
-/* The frame's padding sits in the gutter, so the screen aligns with the text. */
-.x-step__inline {
-  margin: 1.5rem -0.6rem 0;
-}
-/* Inline frames carry two crops: tight on phones, the wider stage crop from 44rem. */
-.x-step__inline .x-frame__view {
-  --aspect: var(--aspect-phone);
-}
-.x-step__inline .x-frame__img {
-  --s: var(--s-phone);
-  --tx: var(--tx-phone);
-  --ty: var(--ty-phone);
-}
-.x-only-wide {
-  display: none;
-}
-@media (min-width: 44rem) {
-  .x-step__inline .x-frame__view {
-    --aspect: var(--aspect-wide);
+@media (min-width: 64rem) {
+  .x-reveal__head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(1rem, 2.5vw, 2.5rem);
+    align-items: end;
   }
-  .x-step__inline .x-frame__img {
-    --s: var(--s-wide);
-    --tx: var(--tx-wide);
-    --ty: var(--ty-wide);
+  .x-reveal__head > * {
+    grid-column: 1 / 8;
   }
-  .x-only-phone {
-    display: none;
-  }
-  .x-only-wide {
-    display: block;
+  .x-reveal__head > .x-reveal__line {
+    grid-column: 9 / 13;
+    grid-row: 2;
+    margin-top: 0;
   }
 }
 
-/* A product screen: never recoloured, never tilted; measured, not floated. */
-.x-frame {
-  --tick: 0.9rem;
-  --ink: var(--color-obsidian);
-  padding: 0.6rem;
-  background:
-    linear-gradient(var(--ink), var(--ink)) top left / var(--tick) 1px no-repeat,
-    linear-gradient(var(--ink), var(--ink)) top left / 1px var(--tick) no-repeat,
-    linear-gradient(var(--ink), var(--ink)) top right / var(--tick) 1px no-repeat,
-    linear-gradient(var(--ink), var(--ink)) top right / 1px var(--tick) no-repeat,
-    linear-gradient(var(--ink), var(--ink)) bottom left / var(--tick) 1px no-repeat,
-    linear-gradient(var(--ink), var(--ink)) bottom left / 1px var(--tick) no-repeat,
-    linear-gradient(var(--ink), var(--ink)) bottom right / var(--tick) 1px no-repeat,
-    linear-gradient(var(--ink), var(--ink)) bottom right / 1px var(--tick) no-repeat;
+/* The frame never outgrows the screen below the header (with room for its caption). */
+.x-reveal__fit {
+  display: block;
+  width: min(100%, (100svh - 9.25rem) * var(--aspect));
+  margin-inline: auto;
 }
-.x-frame__view {
+/* A product screen: never recoloured or tilted, only cropped and scaled. */
+.x-reveal__view {
   position: relative;
   overflow: hidden;
-  aspect-ratio: var(--aspect, 4 / 3);
-  background: var(--color-bone);
-  outline: 1px solid var(--color-rule-light);
+  aspect-ratio: var(--aspect);
 }
-/* Crop by transform: --s = image width / crop width; --tx/--ty = crop origin in %. */
-.x-frame__img {
+.x-reveal__cut {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bone);
+}
+.x-reveal__cut::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--color-rule-light);
+  pointer-events: none;
+}
+.x-reveal__img {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: auto;
   max-width: none;
-  transform-origin: 0 0;
-  transform: scale(var(--s)) translate(var(--tx), var(--ty));
+  transform-origin: var(--fx) var(--fy);
+  translate: 0 var(--ty);
+  scale: var(--s);
 }
-.x-frame__cap {
+.x-reveal__cap {
   margin-top: 0.75rem;
   color: var(--color-slate);
 }
-
-/* Numbered marks placed in the screen's whitespace (never over the evidence),
-   explained by a legend under the frame, as on a technical drawing. */
-.x-pin,
-.x-legend b {
-  display: grid;
-  place-items: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  background: var(--color-malachite);
-  color: var(--color-bone);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
+.x-reveal__next {
+  margin-top: 1rem;
 }
-.x-pin {
-  position: absolute;
-  left: var(--px);
-  top: var(--py);
-  margin: -0.675rem 0 0 -0.675rem;
-  box-shadow: 0 0 0 2px var(--color-bone);
-  pointer-events: none;
-}
-.x-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  margin: 0.9rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-.x-legend li {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  font-size: 0.9375rem;
-  line-height: 1.3;
-}
-
-@media (min-width: 64rem) {
-  .x-steps {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-  .x-steps__list {
-    grid-column: 1 / 6;
-  }
-  .x-step {
-    min-height: 68svh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-left: 1.5rem;
-  }
-  .x-step__num::before {
-    display: none;
-  }
-  /* The active question is marked by the cut (with weight, not colour alone). */
-  .x-step::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 2px;
-    height: 0;
-    background: var(--color-signal);
-    transform: translateY(-50%);
-    transition: height 400ms var(--ease-settle);
-  }
-  .x-step[data-active]::before {
-    height: 7rem;
-  }
-  .x-step:not([data-active]) .x-step__q {
-    color: var(--color-slate);
-  }
-  .x-step__inline {
-    display: none;
-  }
-  .x-steps__stage {
-    grid-column: 6 / 13;
-    position: sticky;
-    top: 6rem;
-    align-self: start;
-    margin-top: 4rem;
-  }
-  .x-stage__shot {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity 360ms var(--ease-settle);
-  }
-  .x-stage__shot[data-on] {
-    opacity: 1;
-  }
-  .x-stage__shot .x-frame__img {
-    transition: transform 900ms var(--ease-cut);
-  }
-  .x-stage__pins .x-pin {
-    opacity: 0;
-    transition: opacity 240ms var(--ease-settle);
-  }
-  /* Marks appear once the re-framing has settled. */
-  .x-stage__pins .x-pin[data-on] {
-    opacity: 1;
-    transition-delay: 650ms;
-  }
-}
-@media (max-width: 63.99rem) {
-  .x-steps__stage {
-    display: none;
-  }
-}
-/* Without JS there is no scroll-linked stage: every question shows its own screen. */
-.no-js .x-steps__stage {
-  display: none;
-}
-.no-js .x-step__inline {
-  display: block;
-}
-.no-js .x-step {
-  min-height: 0;
+.x-reveal__next .x-link-cut {
+  cursor: default;
 }
 
 /* Mist back into obsidian: hairline strata, no signal run-out (kept for chapter moments). */
@@ -1470,7 +1321,10 @@
 }
 
 /* ---------- Prototype end ---------- */
+/* Tall, standing in for the sections still to come, so the reveal can finish
+   its move on tall screens. */
 .x-end {
+  min-height: 45svh;
   padding-block: 2.5rem;
   color: var(--color-lichen);
   border-top: 2px solid var(--color-signal);
@@ -1512,6 +1366,57 @@
       animation-timeline: view();
       animation-range: entry 0% entry 100%;
     }
+
+    /* The StoneX reveal. Phones and tablets: no pin. As the frame rises, a cut
+       opens on the whole screen; once it is in view the camera pushes in while
+       the frame opens to its full height, landing as the frame reaches the
+       middle. Ranges follow the frame, so every phone height sees the same move. */
+    .x-reveal__view {
+      view-timeline: --shot block;
+      view-timeline-inset: 3.5rem 0;
+      animation: x-reveal-frame var(--ease-move) both;
+      animation-timeline: --shot;
+      animation-range: entry 75% contain 50%;
+    }
+    /* Backwards only: once open, the cut hands over to the frame's own opening. */
+    .x-reveal__cut {
+      animation: x-reveal-cut var(--ease-move) backwards;
+      animation-timeline: --shot;
+      animation-range: entry 40% entry 72%;
+    }
+    .x-reveal__img {
+      animation: x-reveal-zoom var(--ease-move) both;
+      animation-timeline: --shot;
+      animation-range: entry 75% contain 50%;
+    }
+    /* Wide screens: the frame fills the screen, so it is pinned (sticky) for one
+       more screen of scrolling while the camera pushes in, then rests and lets go. */
+    @media (min-width: 64rem) {
+      .x-reveal__track {
+        --travel: 90svh;
+        height: calc(100svh - 4rem + var(--travel));
+        view-timeline: --reveal block;
+        view-timeline-inset: 4rem 0;
+      }
+      .x-reveal__stage {
+        position: sticky;
+        top: 4rem;
+        height: calc(100svh - 4rem);
+        display: grid;
+        align-content: center;
+      }
+      .x-reveal__view {
+        animation: none;
+      }
+      .x-reveal__cut {
+        animation-timeline: --reveal;
+        animation-range: entry 50% entry 100%;
+      }
+      .x-reveal__img {
+        animation-timeline: --reveal;
+        animation-range: contain 0% contain 80%;
+      }
+    }
   }
 }
 @keyframes x-kerf-draw {
@@ -1548,5 +1453,30 @@
 @keyframes x-runout {
   from {
     scale: 0.45 1;
+  }
+}
+/* The cut opens from a hairline to the whole screen (on phones, the screen's band
+   in the middle of a taller frame). */
+@keyframes x-reveal-cut {
+  from {
+    clip-path: inset(49.5% 0);
+  }
+  to {
+    clip-path: inset(var(--open) 0);
+  }
+}
+@keyframes x-reveal-zoom {
+  from {
+    scale: 1;
+  }
+}
+/* A frame taller than the screen it holds (phones) opens to its full height in
+   step with the zoom; the growing image always covers the opening. */
+@keyframes x-reveal-frame {
+  from {
+    clip-path: inset(var(--open) 0);
+  }
+  to {
+    clip-path: inset(0);
   }
 }
