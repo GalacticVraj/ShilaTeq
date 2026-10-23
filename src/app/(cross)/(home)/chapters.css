@@ -16,13 +16,6 @@
   overflow-x: clip;
 }
 
-/* ---------- Top bar: the site's own (SiteHeader, site-header.css) ---------- */
-/* Pages change under it with a cross-page view transition (its look: erp.css). */
-@media (prefers-reduced-motion: no-preference) {
-  @view-transition {
-    navigation: auto;
-  }
-}
 
 /* ---------- Intro: see intro.css (first entry only) ---------- */
 .c-page {
@@ -701,10 +694,6 @@
   line-height: 1.04;
   color: var(--color-bone);
 }
-.c-v__small {
-  margin-top: 0.8rem;
-  color: var(--color-lichen);
-}
 .c-v__room {
   position: absolute;
   inset: 0;
@@ -857,9 +846,6 @@
   font-weight: 800;
   font-size: clamp(1.4rem, 3vw, 2.7rem);
   line-height: 1.05;
-}
-.c-s__small {
-  max-width: 30rem;
 }
 .c-s__hall {
   --sw: clamp(8rem, 16.5vw, 19rem); /* slab width */

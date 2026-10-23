@@ -574,10 +574,6 @@ export default function ChaptersPrototype() {
             </h2>
             <div className="c-v__copy">
               <p className="c-v__line">Your real slab, on their floor.</p>
-              <p className="c-v__small">
-                A buyer photographs their room; your real slabs lie on its floor. Opened from StoneX
-                too: “Visualize in your space”.
-              </p>
               <a href="/stonevision" className="x-link-cut c-more">
                 Try StoneVision <span aria-hidden="true">→</span>
               </a>
@@ -593,7 +589,6 @@ export default function ChaptersPrototype() {
               Showroom
             </h2>
             <p className="c-s__line">Your available stone, online.</p>
-            <p className="c-s__small">Buyers browse and enquire. Enquiries land in StoneX leads.</p>
             <a href="/showroom" className="x-link-cut c-more">
               See the Showroom <span aria-hidden="true">→</span>
             </a>

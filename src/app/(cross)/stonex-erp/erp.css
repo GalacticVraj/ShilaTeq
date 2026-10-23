@@ -482,20 +482,6 @@
   font-weight: 600;
   text-align: center;
 }
-.e-loop__back {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 2.5rem;
-  padding: 1rem 1.25rem;
-  border-radius: 12px;
-  background: rgb(17 23 21 / 0.05);
-  font-weight: 600;
-}
-.e-loop__back span {
-  font-size: 1.5rem;
-  color: var(--red-on-light);
-}
 @media (min-width: 40rem) {
   .e-loop__steps {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -922,11 +908,6 @@
   font-size: clamp(1.1rem, 1rem + 0.4vw, 1.35rem);
   line-height: 1.1;
 }
-.e-mod__what {
-  color: var(--color-slate);
-  font-size: 0.9375rem;
-  line-height: 1.45;
-}
 .e-mod__gain {
   margin-top: auto;
   padding-top: 0.35rem;
@@ -1103,13 +1084,6 @@ td.e-vs__us svg {
 .e-faq__lead .e-head__title {
   max-width: 12ch;
 }
-.e-faq__text {
-  max-width: 26rem;
-  margin-top: 1rem;
-  color: var(--color-slate);
-  font-size: var(--text-lead);
-  line-height: 1.5;
-}
 .e-faq__ctas {
   margin-top: 1.75rem;
 }
@@ -1237,25 +1211,6 @@ td.e-vs__us svg {
 
 /* ---------- Motion ---------- */
 @media (prefers-reduced-motion: no-preference) {
-  /* Arriving from the home page: the page closes to the red cut and opens on this
-     one, on the same paper; the site's bar (site-header) holds still above it. */
-  @view-transition {
-    navigation: auto;
-  }
-  ::view-transition {
-    background: #ebe9e2;
-  }
-  ::view-transition-group(root) {
-    background: #ff5238;
-    animation: e-vt-cut 900ms cubic-bezier(0.65, 0, 0.15, 1) both;
-  }
-  ::view-transition-old(root) {
-    animation: e-vt-old 900ms linear both;
-  }
-  ::view-transition-new(root) {
-    animation: e-vt-new 900ms linear both;
-  }
-
   /* The hero: the copy settles, the screen rises, its tiles are named in turn. */
   .e-hero__copy > * {
     animation: e-in 700ms var(--ease-settle) both;
@@ -1337,38 +1292,6 @@ td.e-vs__us svg {
   }
 }
 
-@keyframes e-vt-cut {
-  0% {
-    clip-path: inset(0);
-  }
-  42%,
-  58% {
-    clip-path: inset(calc(50% - 1px) 0);
-  }
-  100% {
-    clip-path: inset(0);
-  }
-}
-@keyframes e-vt-old {
-  0%,
-  30% {
-    opacity: 1;
-  }
-  42%,
-  100% {
-    opacity: 0;
-  }
-}
-@keyframes e-vt-new {
-  0%,
-  58% {
-    opacity: 0;
-  }
-  70%,
-  100% {
-    opacity: 1;
-  }
-}
 @keyframes e-in {
   from {
     opacity: 0;

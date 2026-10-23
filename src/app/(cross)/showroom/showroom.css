@@ -292,12 +292,6 @@
   }
 }
 
-/* ---------- Control ---------- */
-@media (min-width: 64rem) {
-  .s-control {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
 
 /* ---------- Motion: rows and frames settle in as they arrive ---------- */
 @media (prefers-reduced-motion: no-preference) {

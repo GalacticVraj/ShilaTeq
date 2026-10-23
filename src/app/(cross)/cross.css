@@ -1898,3 +1898,92 @@
     clip-path: inset(0);
   }
 }
+
+/* ---------- Page transitions: the slab cut ----------
+   Between any two pages: a red cut is drawn across the old page, then the new page
+   opens out of it like a slab split along the cut, its two edges riding apart, while
+   the old page falls back into the dark. The site's bar holds still above it. The
+   edges are two half-screen panels (top, bottom) added only while a transition runs
+   (the layout's pagereveal script), so each edge moves exactly with the opening. */
+.x-vtcut {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 50%;
+  pointer-events: none;
+}
+.x-vtcut--a {
+  top: 0;
+  border-bottom: 2px solid var(--color-signal);
+  view-transition-name: x-cut-a;
+}
+.x-vtcut--b {
+  bottom: 0;
+  border-top: 2px solid var(--color-signal);
+  view-transition-name: x-cut-b;
+}
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition {
+    background: #090c0b;
+  }
+  ::view-transition-old(root) {
+    animation: x-vt-back 640ms cubic-bezier(0.7, 0, 0.2, 1) 260ms both;
+  }
+  ::view-transition-new(root) {
+    animation: x-vt-open 640ms cubic-bezier(0.7, 0, 0.2, 1) 260ms both;
+  }
+  ::view-transition-group(x-cut-a),
+  ::view-transition-group(x-cut-b) {
+    animation: none;
+  }
+  ::view-transition-new(x-cut-a),
+  ::view-transition-new(x-cut-b) {
+    transform-origin: 0 50%;
+    filter: drop-shadow(0 0 6px rgb(255 82 56 / 0.85));
+    animation:
+      x-vt-draw 300ms cubic-bezier(0.65, 0, 0.15, 1) both,
+      x-vt-up 640ms cubic-bezier(0.7, 0, 0.2, 1) 260ms both,
+      x-vt-fade 160ms linear 760ms both;
+  }
+  ::view-transition-new(x-cut-b) {
+    animation-name: x-vt-draw, x-vt-down, x-vt-fade;
+  }
+}
+@keyframes x-vt-draw {
+  from {
+    scale: 0 1;
+  }
+}
+@keyframes x-vt-up {
+  to {
+    translate: 0 -100%;
+  }
+}
+@keyframes x-vt-down {
+  to {
+    translate: 0 100%;
+  }
+}
+@keyframes x-vt-fade {
+  to {
+    opacity: 0;
+  }
+}
+/* Both ends as inset(), so the opening interpolates (inset() to `none` would jump). */
+@keyframes x-vt-open {
+  from {
+    clip-path: inset(50% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+@keyframes x-vt-back {
+  to {
+    scale: 0.92;
+    filter: brightness(0.3);
+  }
+}

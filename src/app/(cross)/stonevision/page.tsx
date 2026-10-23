@@ -36,8 +36,6 @@ const GETS: [string, string, ReactNode][] = [
   ["The real slab", "Its own photo, never a texture.", <path key="i" d="M4 5h16v14H4zM4 15l5-4 4 3 3-2 4 3" />],
   ["The room’s own light", "Shadows stay on the stone.", <path key="i" d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4M8 12a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z" />],
   ["Floor found for them", "Or marked with one tap.", <path key="i" d="M3 17 12 9l9 8M6.5 14 3 21h18l-3.5-7" />],
-  ["Before and after", "Drag to compare.", <path key="i" d="M12 4v16M4 6h5v12H4zM15 6h5v12h-5z" />],
-  ["Another stone, same photo", "Only the stone changes.", <path key="i" d="M4 7h11l-3-3M20 17H9l3 3" />],
   ["Private by design", "The photo stays on their phone.", <path key="i" d="M6 11V8a6 6 0 0 1 12 0v3M5 11h14v10H5zM12 15v2" />],
 ];
 
@@ -133,8 +131,7 @@ export default function StoneVisionPage() {
               <span>Your slab, on their floor.</span> <span>Before they visit.</span>
             </h1>
             <p className="v-hero__lede">
-              Buyers add a room photo and see your real slab on their floor. Their enquiry comes
-              back to you.
+              Buyers try your real slab on a photo of their room.
             </p>
             <div className="v-hero__ctas">
               <a href={DEMO_MAIL} className="x-btn x-btn--signal v-cta">
@@ -196,7 +193,6 @@ export default function StoneVisionPage() {
               </div>
               <p className="x-label v-step__no">1 · You</p>
               <h3 className="v-step__title">Pick the slab</h3>
-              <p>From your Showroom, or straight from your stock.</p>
             </li>
             <li className="v-step" style={{ "--i": 1 } as CSSProperties}>
               <div className="v-step__pic">
@@ -208,7 +204,6 @@ export default function StoneVisionPage() {
               </div>
               <p className="x-label v-step__no">2 · Your buyer</p>
               <h3 className="v-step__title">Adds their room</h3>
-              <p>A photo that never leaves their phone.</p>
             </li>
             <li className="v-step" style={{ "--i": 2 } as CSSProperties}>
               <div className="v-step__pic">
@@ -224,7 +219,6 @@ export default function StoneVisionPage() {
               </div>
               <p className="x-label v-step__no">3 · StoneVision</p>
               <h3 className="v-step__title">Lays it on their floor</h3>
-              <p>In the room’s own light and perspective.</p>
             </li>
           </ol>
           </div>
@@ -297,7 +291,6 @@ export default function StoneVisionPage() {
             <h2 id="v-faq" className="v-head__title">
               Let buyers see it at home.
             </h2>
-            <p className="v-faq__text">Book a demo and we’ll show StoneVision on your own slabs.</p>
             <a href={DEMO_MAIL} className="x-btn x-btn--signal v-cta">
               Book a demo <span aria-hidden="true">→</span>
             </a>

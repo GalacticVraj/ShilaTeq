@@ -57,7 +57,12 @@ export default function CrossLayout({ children }: Readonly<{ children: React.Rea
             // Comparison only: ?hero=daylight | sandstone picks a light hero variant.
             __html:
               "var d=document.documentElement;d.classList.remove('no-js');" +
-              "var h=new URLSearchParams(location.search).get('hero');if(h)d.dataset.hero=h",
+              "var h=new URLSearchParams(location.search).get('hero');if(h)d.dataset.hero=h;" +
+              // Page transitions (cross.css): the two edges of the red cut, only while one runs.
+              "addEventListener('pagereveal',function(e){var t=e.viewTransition;if(!t)return;" +
+              "var c=['a','b'].map(function(s){var l=document.createElement('div');" +
+              "l.className='x-vtcut x-vtcut--'+s;l.setAttribute('aria-hidden','true');document.body.append(l);return l});" +
+              "t.finished.finally(function(){c.forEach(function(l){l.remove()})})})",
           }}
         />
         <a href="#main" className="x-skip">

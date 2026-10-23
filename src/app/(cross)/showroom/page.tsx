@@ -101,21 +101,17 @@ function Phone({ img, alt, className = "", children }: { img: ReturnType<typeof 
 }
 
 const CONTROL: [string, string, ReactNode][] = [
-  ["Only what’s available", "Sold stone leaves by itself.", <path key="i" d="M4 7h16M4 12h16M4 17h10M18 15l2 2 3-4" />],
   ["Prices only where you choose", "Off until you publish them.", <path key="i" d="M3 12V4h8l10 10-8 8L3 12ZM7.5 7.5h.01" />],
   ["Your own photos", "Never a stock picture.", <path key="i" d="M4 5h16v14H4zM4 15l5-4 4 3 3-2 4 3" />],
   ["Your link, everywhere", "On every quote and invoice.", <path key="i" d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />],
-  ["No sign-up for buyers", "Name and phone are enough.", <path key="i" d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" />],
   ["The way to your yard", "Directions in Google Maps.", <path key="i" d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12ZM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />],
 ];
 
 const FAQ: [string, string][] = [
-  ["Do buyers need to sign up?", "No. They ask for a quote with their name and phone number, and it lands in your StoneX Leads."],
   [
     "Will sold stone still show?",
     "Only available stock is listed. When you sell or reserve a stone in StoneX, it leaves the showroom by itself.",
   ],
-  ["Can I keep prices private?", "Yes. Prices are off until you publish them, block by block. Other stones show “Price on request”."],
   [
     "How do buyers find my showroom?",
     "Your showroom link goes out with your quotes, invoices and dispatch messages on WhatsApp, and as a QR code on printed invoices and quotations. Share it anywhere else too.",
@@ -172,8 +168,7 @@ export default function ShowroomPage() {
               <span>Your stock, online.</span> <span>Every enquiry, to you.</span>
             </h1>
             <p className="v-hero__lede">
-              Your available stone, online, fed from StoneX. Buyers browse, search and ask you for a
-              quote.
+              Buyers browse your available stone and ask you for a quote.
             </p>
             <div className="v-hero__ctas">
               <a href={DEMO_MAIL} className="x-btn x-btn--signal v-cta">
@@ -202,7 +197,7 @@ export default function ShowroomPage() {
               alt="The same Showroom on a phone."
               className="s-hero__phone"
             />
-            <figcaption className="x-label">StoneX’s Showroom · fictional demo yard, sample stone photos</figcaption>
+            <figcaption className="x-label">Fictional demo yard · sample photos</figcaption>
           </figure>
         </section>
 
@@ -381,7 +376,7 @@ export default function ShowroomPage() {
               <p>Reply on WhatsApp in one tap.</p>
             </li>
           </ol>
-          <p className="s-flow__cap x-label">StoneX’s Showroom and Leads · fictional demo yard and buyer</p>
+          <p className="s-flow__cap x-label">Fictional demo yard and buyer</p>
         </section>
 
         {/* ---------- Control ---------- */}
@@ -392,7 +387,7 @@ export default function ShowroomPage() {
               It shows what you decide.
             </h2>
           </div>
-          <ul className="v-gets s-control">
+          <ul className="v-gets">
             {CONTROL.map(([title, text, icon]) => (
               <li key={title}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -412,7 +407,6 @@ export default function ShowroomPage() {
             <h2 id="s-faq" className="v-head__title">
               Open your yard online.
             </h2>
-            <p className="v-faq__text">Book a demo and we’ll show the Showroom on your own stock.</p>
             <a href={DEMO_MAIL} className="x-btn x-btn--signal v-cta">
               Book a demo <span aria-hidden="true">→</span>
             </a>

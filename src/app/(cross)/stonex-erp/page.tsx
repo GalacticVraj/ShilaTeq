@@ -96,15 +96,15 @@ const SHOWROOM = [
   ["tan-brown", "Tan Brown"],
 ] as const;
 
-const MODULES: [string, string, string, ReactNode][] = [
-  ["Stock & QR", "Every block and slab, coded and tagged.", "Find any piece fast.", <path key="i" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2" />],
-  ["Cutting", "Block to slabs, wastage recorded.", "Know each slab’s real cost.", <path key="i" d="M3 5h18v14H3zM9 5v14M15 5v14" />],
-  ["Sales", "Quote, order, GST invoice.", "Every sale on record.", <path key="i" d="M6 3h9l3 3v15H6zM9 10h6M9 14h6M9 18h3" />],
-  ["Dispatch", "Gate pass and a QR for the driver.", "Know what left the gate.", <path key="i" d="M2 6h12v10H2zM14 9h4l3 3.5V16h-7M5.5 19.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM17.5 19.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />],
-  ["Payments", "Cash, UPI, card or bank, per order.", "Know who owes you.", <path key="i" d="M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2" />],
-  ["Workers", "Attendance, wages, advances, tasks.", "In Hindi, works offline.", <path key="i" d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11a2.5 2.5 0 1 0 0-5M17 14c2.5.4 4 2.7 4 6" />],
-  ["Purchases", "Orders to suppliers, stock received.", "Stock in without typing twice.", <path key="i" d="M3 4h2.5l2 11h11l2-8H6.2M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM17 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />],
-  ["Reports", "P&L, margin, stock ageing.", "Export to Excel or PDF.", <path key="i" d="M4 20V11M10 20V5M16 20v-6M3 20h18" />],
+const MODULES: [string, string, ReactNode][] = [
+  ["Stock & QR", "Find any piece fast.", <path key="i" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2" />],
+  ["Cutting", "Know each slab’s real cost.", <path key="i" d="M3 5h18v14H3zM9 5v14M15 5v14" />],
+  ["Sales", "Quote, order, GST invoice.", <path key="i" d="M6 3h9l3 3v15H6zM9 10h6M9 14h6M9 18h3" />],
+  ["Dispatch", "Know what left the gate.", <path key="i" d="M2 6h12v10H2zM14 9h4l3 3.5V16h-7M5.5 19.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM17.5 19.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />],
+  ["Payments", "Know who owes you.", <path key="i" d="M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2" />],
+  ["Workers", "In Hindi, works offline.", <path key="i" d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11a2.5 2.5 0 1 0 0-5M17 14c2.5.4 4 2.7 4 6" />],
+  ["Purchases", "Stock in without typing twice.", <path key="i" d="M3 4h2.5l2 11h11l2-8H6.2M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM17 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />],
+  ["Reports", "P&L and margin, to Excel or PDF.", <path key="i" d="M4 20V11M10 20V5M16 20v-6M3 20h18" />],
 ];
 
 // The usual way of running a yard, against StoneX. StoneX: checked in its code.
@@ -245,7 +245,7 @@ export default function StonexErpPage() {
               <span>Run your stone yard.</span> <span>Reach more buyers.</span>
             </h1>
             <p className="e-hero__lede">
-              Stock, cutting, sales and payments in one system. And your stock online, for buyers.
+              Stock, sales and payments in one system, with your stock online for buyers.
             </p>
             <div className="e-hero__ctas">
               <a href={DEMO_MAIL} className="x-btn x-btn--signal e-cta">
@@ -345,10 +345,7 @@ export default function StonexErpPage() {
               <p>With the stone they chose.</p>
             </li>
           </ol>
-          <p className="e-loop__back">
-            <span aria-hidden="true">↺</span> Then quote, order and invoice, all in StoneX.
-          </p>
-          <p className="e-cap x-label">Yard: fictional demo · the rest drawn to explain</p>
+          <p className="e-cap x-label">Yard: demo screen · the rest drawn to explain</p>
         </section>
 
         {/* ---------- Tour: the real screen ---------- */}
@@ -376,7 +373,6 @@ export default function StonexErpPage() {
                 <li key={m.label}>{m.label}</li>
               ))}
             </ul>
-            <figcaption className="x-label">StoneX inventory · fictional demo yard</figcaption>
           </figure>
         </section>
 
@@ -390,9 +386,7 @@ export default function StonexErpPage() {
             <p className="e-head__text">Spelling mistakes are fine.</p>
           </div>
           <YardSearch />
-          <p className="e-cap e-asksec__note x-label">
-            Live demo: StoneX’s own search on a sample yard of 22 blocks
-          </p>
+          <p className="e-cap e-asksec__note x-label">Live · StoneX’s own search, sample yard</p>
         </section>
 
         {/* ---------- Modules ---------- */}
@@ -404,13 +398,12 @@ export default function StonexErpPage() {
             </h2>
           </div>
           <ul className="e-mods">
-            {MODULES.map(([name, what, gain, icon], i) => (
+            {MODULES.map(([name, gain, icon], i) => (
               <li key={name} className="e-mod" style={{ "--i": i } as CSSProperties}>
                 <svg viewBox="0 0 24 24" className="e-mod__icon" aria-hidden="true">
                   {icon}
                 </svg>
                 <h3 className="e-mod__name">{name}</h3>
-                <p className="e-mod__what">{what}</p>
                 <p className="e-mod__gain">{gain}</p>
               </li>
             ))}
@@ -478,7 +471,6 @@ export default function StonexErpPage() {
             <h2 id="e-faq-title" className="e-head__title">
               See it on your own stock.
             </h2>
-            <p className="e-faq__text">Book a demo and we’ll walk you through StoneX.</p>
             <div className="e-faq__ctas">
               <a href={DEMO_MAIL} className="x-btn x-btn--signal e-cta">
                 Book a demo <span aria-hidden="true">→</span>
