@@ -370,11 +370,6 @@
 .v-sec--light .v-head__text {
   color: var(--color-slate);
 }
-.v-cap {
-  margin-top: 1.25rem;
-  color: var(--color-slate);
-}
-
 /* ---------- How it works: three pictures ---------- */
 .v-steps {
   display: grid;
@@ -452,86 +447,6 @@
 /* ---------- Live demo section ---------- */
 .v-try .v-head {
   max-width: 44rem;
-}
-
-/* ---------- Compare: one room, two stones ---------- */
-.v-pair {
-  display: grid;
-  gap: 1rem;
-}
-.v-pair figure {
-  position: relative;
-  margin: 0;
-  overflow: hidden;
-  border-radius: 14px;
-  box-shadow: 0 1.5rem 3rem -1.5rem rgb(17 23 21 / 0.45);
-}
-.v-pair img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-}
-.v-pair figcaption {
-  position: absolute;
-  left: 0.75rem;
-  bottom: 0.75rem;
-  padding: 0.35rem 0.7rem;
-  border-radius: 6px;
-  background: var(--color-signal);
-  color: var(--color-obsidian);
-  font-size: 0.875rem;
-}
-@media (min-width: 48rem) {
-  .v-pair {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* ---------- What buyers get ---------- */
-.v-gets {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  overflow: hidden;
-  border-radius: 16px;
-  background: var(--color-rule-light);
-  box-shadow: 0 0 0 1px var(--color-rule-light);
-  list-style: none;
-}
-.v-gets li {
-  display: grid;
-  align-content: start;
-  gap: 0.4rem;
-  padding: clamp(1.1rem, 2.5vw, 1.75rem);
-  background: var(--color-bone);
-}
-.v-gets svg {
-  width: 2rem;
-  height: 2rem;
-  margin-bottom: 0.4rem;
-  fill: none;
-  stroke: var(--color-obsidian);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.v-gets h3 {
-  font-family: var(--font-display);
-  font-stretch: 112%;
-  font-weight: 700;
-  font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.3rem);
-  line-height: 1.1;
-}
-.v-gets p {
-  color: var(--color-slate);
-  font-size: 0.9375rem;
-  line-height: 1.45;
-}
-@media (min-width: 64rem) {
-  .v-gets {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
 }
 
 /* ---------- FAQ, as a conversation, beside the call ---------- */
@@ -699,8 +614,7 @@
       animation-timeline: view();
       animation-range: entry 5% entry 70%;
     }
-    .v-step,
-    .v-gets li {
+    .v-step {
       animation: v-in linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 55%;

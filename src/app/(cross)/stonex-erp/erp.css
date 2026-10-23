@@ -283,11 +283,6 @@
   align-content: start;
   gap: 0.45rem;
 }
-.e-loop__step > p:last-child {
-  max-width: 22rem;
-  color: var(--color-slate);
-  line-height: 1.5;
-}
 .e-loop__no {
   margin-top: 0.85rem;
   color: var(--red-on-light);
@@ -482,9 +477,19 @@
   font-weight: 600;
   text-align: center;
 }
-@media (min-width: 40rem) {
+/* Two by two from phones up: the pictures carry it (their drawings scale with them). */
+.e-loop__steps {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (width < 40rem) {
   .e-loop__steps {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 0.75rem;
+  }
+  .e-loop__no {
+    margin-top: 0.5rem;
+  }
+  .e-loop__title {
+    font-size: 1.05rem;
   }
 }
 @media (min-width: 72rem) {
@@ -921,161 +926,6 @@
   }
 }
 
-/* ---------- Compare: the usual way, and StoneX on a strip of marble ---------- */
-.e-vssec {
-  background:
-    radial-gradient(50% 60% at 70% 45%, rgb(22 75 61 / 0.4), transparent 70%), var(--ink);
-}
-.e-vs {
-  --what: 24%;
-  --old: 36%;
-  position: relative;
-  max-width: 70rem;
-}
-.e-vs__stone {
-  position: absolute;
-  top: -0.9rem;
-  bottom: -0.9rem;
-  left: calc(var(--what) + var(--old));
-  right: 0;
-  overflow: hidden;
-  border-radius: 16px;
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.25),
-    0 2.5rem 4rem -1.5rem rgb(0 0 0 / 0.9);
-}
-.e-vs__stone img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-/* Honed for reading, and the light that runs down the slab. */
-.e-vs__stone::before,
-.e-vs__stone::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-.e-vs__stone::before {
-  background: rgb(255 255 255 / 0.5);
-}
-.e-vs__stone::after {
-  background: linear-gradient(170deg, transparent 35%, rgb(255 255 255 / 0.6) 48%, transparent 60%);
-  background-size: 100% 300%;
-  background-position: 0 100%;
-  mix-blend-mode: soft-light;
-}
-.e-vs table {
-  position: relative;
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-}
-.e-vs__what {
-  width: var(--what);
-}
-.e-vs__old {
-  width: var(--old);
-}
-.e-vs th,
-.e-vs td {
-  padding: 1.05rem 1.1rem;
-  text-align: left;
-  border-bottom: 1px solid rgb(243 246 242 / 0.1);
-}
-.e-vs tbody tr:last-child > * {
-  border-bottom: 0;
-}
-.e-vs thead th {
-  padding-block: 0.9rem 1.1rem;
-  font-weight: 500;
-  font-size: 0.9375rem;
-  color: rgb(243 246 242 / 0.7);
-}
-.e-vs thead .e-vs__us {
-  color: var(--color-obsidian);
-  font-family: var(--font-display);
-  font-stretch: 112%;
-  font-weight: 700;
-  font-size: 1.25rem;
-}
-.e-vs tbody th {
-  padding-left: 0;
-  font-weight: 600;
-  color: var(--color-bone);
-}
-.e-vs td {
-  vertical-align: middle;
-  line-height: 1.35;
-}
-.e-vs svg {
-  display: inline-block;
-  width: 1.1rem;
-  height: 1.1rem;
-  margin-right: 0.55rem;
-  vertical-align: -0.2em;
-  fill: none;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.e-vs__then {
-  color: rgb(243 246 242 / 0.62);
-}
-.e-vs__then svg {
-  stroke: #ff6a52;
-}
-td.e-vs__us {
-  color: var(--color-obsidian);
-  font-weight: 600;
-  border-bottom-color: rgb(17 23 21 / 0.12);
-}
-td.e-vs__us svg {
-  stroke: var(--deep);
-}
-@media (width < 48rem) {
-  .e-vs__stone,
-  .e-vs thead {
-    display: none;
-  }
-  .e-vs table,
-  .e-vs tbody,
-  .e-vs tr,
-  .e-vs th,
-  .e-vs td {
-    display: block;
-    width: auto;
-  }
-  .e-vs tr {
-    padding-block: 1.1rem;
-    border-bottom: 1px solid rgb(243 246 242 / 0.1);
-  }
-  .e-vs th,
-  .e-vs td {
-    padding: 0;
-    border: 0;
-  }
-  .e-vs tbody th {
-    margin-bottom: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: var(--text-label);
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-lichen);
-  }
-  .e-vs__then {
-    padding-bottom: 0.5rem !important;
-  }
-  td.e-vs__us {
-    padding: 0.7rem 0.9rem !important;
-    border-radius: 10px;
-    background:
-      linear-gradient(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.55)),
-      url("/stone/statuarietto-slab.jpg") 50% 30% / cover;
-  }
-}
-
 /* ---------- FAQ, as a conversation, beside the call ---------- */
 .e-faq {
   display: grid;
@@ -1276,19 +1126,6 @@ td.e-vs__us svg {
       animation-timeline: --screen;
       animation-range: entry calc(35% + var(--i) * 5%) entry calc(50% + var(--i) * 5%);
     }
-    .e-vs {
-      view-timeline: --vs block;
-    }
-    .e-vs tbody tr {
-      animation: e-in linear both;
-      animation-timeline: --vs;
-      animation-range: entry calc(15% + var(--i) * 5%) entry calc(40% + var(--i) * 5%);
-    }
-    .e-vs__stone::after {
-      animation: e-sheen linear both;
-      animation-timeline: --vs;
-      animation-range: entry 30% exit 30%;
-    }
   }
 }
 
@@ -1337,14 +1174,6 @@ td.e-vs__us svg {
     opacity: 0;
     scale: 0.9;
     translate: 0 0.4rem;
-  }
-}
-@keyframes e-sheen {
-  from {
-    background-position: 0 100%;
-  }
-  to {
-    background-position: 0 0;
   }
 }
 

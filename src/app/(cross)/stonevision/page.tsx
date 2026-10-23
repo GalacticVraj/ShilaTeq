@@ -12,8 +12,6 @@ import "./vision.css";
  *   Hero     the promise, on the home page's marble; a real result, before and after
  *   Steps    the slab, their room, their floor: each with a real picture
  *   Demo     StoneVision itself, live (StoneX's engine, src/vendor/stonex-vision)
- *   Compare  one room, two stones
- *   Gets     what a buyer gets, in short
  *   FAQ      as a conversation, beside Book a demo
  * Every claim is checked against StoneX's code (read-only, eb9a0d8). Pictures: free Unsplash rooms
  * and sample slabs, laid by StoneVision itself (public/vision-demo).
@@ -32,13 +30,6 @@ const INV = { src: "/product/stonex/inventory-demo.png", w: 2880, h: 1716 };
 const INV_VIEW = { x: 900, y: 20, w: 1800, h: 1200 }; // 3:2, the step pictures' shape
 const INV_BUTTON = { x: 1917, y: 177, w: 406, h: 78 };
 
-const GETS: [string, string, ReactNode][] = [
-  ["The real slab", "Its own photo, never a texture.", <path key="i" d="M4 5h16v14H4zM4 15l5-4 4 3 3-2 4 3" />],
-  ["The room’s own light", "Shadows stay on the stone.", <path key="i" d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4M8 12a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z" />],
-  ["Floor found for them", "Or marked with one tap.", <path key="i" d="M3 17 12 9l9 8M6.5 14 3 21h18l-3.5-7" />],
-  ["Private by design", "The photo stays on their phone.", <path key="i" d="M6 11V8a6 6 0 0 1 12 0v3M5 11h14v10H5zM12 15v2" />],
-];
-
 const FAQ: [string, string][] = [
   [
     "Is the buyer’s photo uploaded anywhere?",
@@ -55,10 +46,6 @@ const FAQ: [string, string][] = [
   [
     "Is the picture exact?",
     "It’s a preview to help buyers choose. Colour and veins come from the slab’s own photo; size is approximate unless the buyer measures two points on the floor.",
-  ],
-  [
-    "Which phones does it work on?",
-    "A recent phone or computer browser. The first time, it downloads about 28 MB; after that it starts from the browser’s cache.",
   ],
 ];
 
@@ -108,7 +95,6 @@ export default function StoneVisionPage() {
             links: [
               { href: "#how", label: "How it works" },
               { href: "#try", label: "Try it live" },
-              { href: "#compare", label: "Compare stones" },
               { href: "#faq", label: "FAQ" },
             ],
           },
@@ -234,54 +220,6 @@ export default function StoneVisionPage() {
             <p className="v-head__text">The real StoneVision, in your browser.</p>
           </div>
           <StoneVisionDemo />
-        </section>
-
-        {/* ---------- Compare ---------- */}
-        <section id="compare" className="v-sec v-sec--light" aria-labelledby="v-compare">
-          <div className="v-head v-reveal">
-            <p className="x-label v-head__no">Compare</p>
-            <h2 id="v-compare" className="v-head__title">
-              Same room. Another stone. One tap.
-            </h2>
-          </div>
-          <div className="v-pair">
-            <figure>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img {...result("result-bright-statuarietto", "(min-width: 48rem) 48vw, 100vw")} alt="A bright room with a Statuarietto marble floor, by StoneVision." loading="lazy" />
-              <figcaption>
-                <b>Statuarietto</b> marble
-              </figcaption>
-            </figure>
-            <figure>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img {...result("result-bright-azul", "(min-width: 48rem) 48vw, 100vw")} alt="The same room with an Azul Macaubas quartzite floor, by StoneVision." loading="lazy" />
-              <figcaption>
-                <b>Azul Macaubas</b> quartzite
-              </figcaption>
-            </figure>
-          </div>
-          <p className="v-cap x-label">Both made by StoneVision · demo room and slabs</p>
-        </section>
-
-        {/* ---------- What buyers get ---------- */}
-        <section className="v-sec v-sec--light" aria-labelledby="v-gets">
-          <div className="v-head v-reveal">
-            <p className="x-label v-head__no">What buyers get</p>
-            <h2 id="v-gets" className="v-head__title">
-              A picture they can trust.
-            </h2>
-          </div>
-          <ul className="v-gets">
-            {GETS.map(([title, text, icon], i) => (
-              <li key={title} style={{ "--i": i } as CSSProperties}>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  {icon}
-                </svg>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </li>
-            ))}
-          </ul>
         </section>
 
         {/* ---------- FAQ + Book a demo ---------- */}

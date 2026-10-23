@@ -12,8 +12,7 @@ import "./erp.css";
  *   Loop     the difference: yard → online showroom → the buyer's floor → a lead
  *   Screen   the real inventory screen, then four close-ups: the question each ends
  *   Search   StoneX's own search, live, as three steps
- *   Modules  everything else, one card each: what it is, what it saves
- *   Compare  the usual way against StoneX
+ *   Modules  everything else, one card each: what it saves
  *   FAQ      as a conversation, beside the call to book a demo
  * Every claim is checked against the StoneX code (read-only). Every screen is
  * the fictional demo yard; the Showroom, room and lead are drawn, and say so.
@@ -83,7 +82,6 @@ const ON_THIS_PAGE = [
       { href: "#tour", label: "The screen" },
       { href: "#search", label: "Search" },
       { href: "#modules", label: "Modules" },
-      { href: "#compare", label: "Compare" },
       { href: "#faq", label: "FAQ" },
     ],
   },
@@ -107,17 +105,7 @@ const MODULES: [string, string, ReactNode][] = [
   ["Reports", "P&L and margin, to Excel or PDF.", <path key="i" d="M4 20V11M10 20V5M16 20v-6M3 20h18" />],
 ];
 
-// The usual way of running a yard, against StoneX. StoneX: checked in its code.
-const VS = [
-  ["Finding a slab", "Walk the yard", "Search it, or scan its QR"],
-  ["“Will it suit my room?”", "They guess", "They see it on their floor"],
-  ["Enquiries", "Lost in calls", "A lead, with the stone"],
-  ["Selling twice", "Two promises, one block", "Reserved when ordered"],
-  ["Money owed", "A ledger and memory", "On one screen"],
-];
-
 const FAQ: [string, string][] = [
-  ["Who is StoneX for?", "Marble, granite and natural-stone yards: traders, processors and anyone who buys blocks and sells slabs."],
   [
     "How do buyers find my stone?",
     "Your available stock is in your online Showroom. Share its link on WhatsApp. Buyers browse, search in plain words, even “safed marble”, and try a slab on their floor with StoneVision.",
@@ -284,7 +272,6 @@ export default function StonexErpPage() {
               </div>
               <p className="e-loop__no x-label">1 · Your yard</p>
               <h3 className="e-loop__title">Every slab in StoneX</h3>
-              <p>Coded, QR-tagged and priced.</p>
             </li>
             <li className="e-loop__step" style={{ "--i": 1 } as CSSProperties}>
               <div className="e-loop__pic e-loop__pic--show" aria-hidden="true">
@@ -306,7 +293,6 @@ export default function StonexErpPage() {
               </div>
               <p className="e-loop__no x-label">2 · Your showroom</p>
               <h3 className="e-loop__title">Online by itself</h3>
-              <p>Only available stone shows.</p>
             </li>
             <li className="e-loop__step" style={{ "--i": 2 } as CSSProperties}>
               <div className="e-loop__pic e-loop__pic--room" aria-hidden="true">
@@ -323,7 +309,6 @@ export default function StonexErpPage() {
               </div>
               <p className="e-loop__no x-label">3 · Their room</p>
               <h3 className="e-loop__title">Seen on their floor</h3>
-              <p>Your slab on their room photo.</p>
             </li>
             <li className="e-loop__step" style={{ "--i": 3 } as CSSProperties}>
               <div className="e-loop__pic e-loop__pic--lead" aria-hidden="true">
@@ -342,7 +327,6 @@ export default function StonexErpPage() {
               </div>
               <p className="e-loop__no x-label">4 · Your lead</p>
               <h3 className="e-loop__title">Back in StoneX</h3>
-              <p>With the stone they chose.</p>
             </li>
           </ol>
           <p className="e-cap x-label">Yard: demo screen · the rest drawn to explain</p>
@@ -367,9 +351,9 @@ export default function StonexErpPage() {
                 <Marks marks={SCREEN_MARKS} w={INV.w} h={INV.h} />
               </div>
             </div>
-            {/* A phone: the screen fits the width, and its labels are listed under it. */}
+            {/* A phone: the screen fits the width, and its modules are listed under it. */}
             <ul className="e-screen__list" aria-hidden="true">
-              {SCREEN_MARKS.map((m) => (
+              {SCREEN_MARKS.filter((m) => m.side === "left").map((m) => (
                 <li key={m.label}>{m.label}</li>
               ))}
             </ul>
@@ -408,60 +392,6 @@ export default function StonexErpPage() {
               </li>
             ))}
           </ul>
-        </section>
-
-        {/* ---------- Compare ---------- */}
-        <section id="compare" className="e-sec e-sec--ink e-vssec" aria-labelledby="e-vs-title">
-          <div className="e-head e-reveal">
-            <p className="x-label e-head__no">Compared</p>
-            <h2 id="e-vs-title" className="e-head__title">
-              The usual way, and the StoneX way.
-            </h2>
-          </div>
-          <div className="e-vs">
-            <span className="e-vs__stone" aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img {...slabImg("(min-width: 64rem) 30vw, 60vw")} alt="" />
-            </span>
-            <table>
-              <caption className="sr-only">The usual way of running a stone yard, and StoneX</caption>
-              <colgroup>
-                <col className="e-vs__what" />
-                <col className="e-vs__old" />
-                <col />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th scope="col">
-                    <span className="sr-only">Job</span>
-                  </th>
-                  <th scope="col">The usual way</th>
-                  <th scope="col" className="e-vs__us">
-                    StoneX
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {VS.map(([job, old, us], i) => (
-                  <tr key={job} style={{ "--i": i } as CSSProperties}>
-                    <th scope="row">{job}</th>
-                    <td className="e-vs__then">
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M7 7l10 10M17 7 7 17" />
-                      </svg>
-                      {old}
-                    </td>
-                    <td className="e-vs__us">
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M5 12.5 10 17.5 19.5 7" />
-                      </svg>
-                      {us}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </section>
 
         {/* ---------- FAQ + Book a demo ---------- */}

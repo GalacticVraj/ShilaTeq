@@ -11,9 +11,8 @@ import "./showroom.css";
 /**
  * the Showroom product page (/showroom).
  *   Hero      the promise; the Showroom itself, desktop and phone
- *   Buyers    what a buyer sees: the aisle, search, the record, compare, StoneVision
- *   Enquiry   form → receipt → your Leads
- *   Control   what the yard decides
+ *   Buyers    what a buyer sees: the aisle, search, the record, StoneVision
+ *   Enquiry   form → your Leads
  *   FAQ       beside Book a demo
  * Every screen is StoneX's real Showroom (src/catalog) running on its own fictional demo yard,
  * renamed "Demo Stone Yard" and given the site's sample stone photos (public/showroom-demo).
@@ -100,13 +99,6 @@ function Phone({ img, alt, className = "", children }: { img: ReturnType<typeof 
   );
 }
 
-const CONTROL: [string, string, ReactNode][] = [
-  ["Prices only where you choose", "Off until you publish them.", <path key="i" d="M3 12V4h8l10 10-8 8L3 12ZM7.5 7.5h.01" />],
-  ["Your own photos", "Never a stock picture.", <path key="i" d="M4 5h16v14H4zM4 15l5-4 4 3 3-2 4 3" />],
-  ["Your link, everywhere", "On every quote and invoice.", <path key="i" d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />],
-  ["The way to your yard", "Directions in Google Maps.", <path key="i" d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12ZM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />],
-];
-
 const FAQ: [string, string][] = [
   [
     "Will sold stone still show?",
@@ -115,10 +107,6 @@ const FAQ: [string, string][] = [
   [
     "How do buyers find my showroom?",
     "Your showroom link goes out with your quotes, invoices and dispatch messages on WhatsApp, and as a QR code on printed invoices and quotations. Share it anywhere else too.",
-  ],
-  [
-    "Does it understand Hindi?",
-    "The search does: colour words like “safed” and “kala” work, in Hindi script too. The pages themselves are in English.",
   ],
   [
     "Do I need StoneX ERP?",
@@ -142,7 +130,6 @@ export default function ShowroomPage() {
             links: [
               { href: "#buyers", label: "What buyers see" },
               { href: "#enquiry", label: "From enquiry to sale" },
-              { href: "#control", label: "You stay in control" },
               { href: "#faq", label: "FAQ" },
             ],
           },
@@ -299,30 +286,13 @@ export default function ShowroomPage() {
             </Browser>
           </article>
 
-          <article className="s-feat s-feat--flip" aria-labelledby="s-f4">
-            <div className="s-feat__copy">
-              <p className="x-label s-feat__no">04 · Compare</p>
-              <h3 id="s-f4" className="s-feat__title">
-                Up to four, side by side.
-              </h3>
-              <p>Every figure in one table.</p>
-            </div>
-            <Browser
-              img={desk("compare", 900, "(min-width: 64rem) 60vw, 100vw")}
-              alt="Three stones compared side by side in the Showroom, each with Request a quote, and their figures in rows."
-            >
-              <Chip x={0.355} y={0.045}>
-                Request a quote from any of them
-              </Chip>
-            </Browser>
-          </article>
         </section>
 
         {/* ---------- StoneVision inside ---------- */}
         <section className="v-sec v-sec--ink s-vision" aria-labelledby="s-vision">
           <div className="s-feat s-feat--flip">
             <div className="s-feat__copy">
-              <p className="x-label v-head__no">05 · Visualize</p>
+              <p className="x-label v-head__no">04 · Visualize</p>
               <h2 id="s-vision" className="v-head__title">
                 On their floor, before they visit.
               </h2>
@@ -354,50 +324,18 @@ export default function ShowroomPage() {
             <li>
               <Phone img={phone("m-quote", "(min-width: 56rem) 18vw, 60vw")} alt="The Request a quote form on a phone: name, phone number, how much they need, and a message." />
               <p className="x-label s-flow__no">1 · They ask</p>
-              <h3>Name and phone, nothing more</h3>
-              <p>No sign-up.</p>
-            </li>
-            <li>
-              <div className="s-card">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img {...shot("sent", 540, 540, "(min-width: 56rem) 26vw, 80vw")} alt="Request sent: the yard has the request about Calacatta Oro, with the buyer's name and number." loading="lazy" />
-              </div>
-              <p className="x-label s-flow__no">2 · They get a receipt</p>
-              <h3>Exactly what was sent</h3>
-              <p>With your yard’s name.</p>
+              <h3>Name and phone, no sign-up</h3>
             </li>
             <li>
               <div className="s-card s-card--lead">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img {...shot("lead", 558, 262, "(min-width: 56rem) 26vw, 80vw")} alt="The new lead in StoneX: the buyer, the stone and block code, the quantity, and a WhatsApp button." loading="lazy" />
               </div>
-              <p className="x-label s-flow__no">3 · It lands in StoneX</p>
+              <p className="x-label s-flow__no">2 · It lands in StoneX</p>
               <h3>A lead, with the stone</h3>
-              <p>Reply on WhatsApp in one tap.</p>
             </li>
           </ol>
           <p className="s-flow__cap x-label">Fictional demo yard and buyer</p>
-        </section>
-
-        {/* ---------- Control ---------- */}
-        <section id="control" className="v-sec v-sec--light" aria-labelledby="s-control">
-          <div className="v-head v-reveal">
-            <p className="x-label v-head__no">You stay in control</p>
-            <h2 id="s-control" className="v-head__title">
-              It shows what you decide.
-            </h2>
-          </div>
-          <ul className="v-gets">
-            {CONTROL.map(([title, text, icon]) => (
-              <li key={title}>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  {icon}
-                </svg>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </li>
-            ))}
-          </ul>
         </section>
 
         {/* ---------- FAQ + Book a demo ---------- */}

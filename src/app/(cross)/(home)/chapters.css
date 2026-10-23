@@ -1053,8 +1053,15 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
+  .c-x__list li:nth-child(n + 6) {
+    display: none;
+  }
   .c-x__note {
     padding-bottom: 0.5rem;
+  }
+  /* Three stones are enough to say it. */
+  .c-slab:nth-child(n + 4) {
+    display: none;
   }
   /* Showroom: the six stones flat in a grid, every name whole. */
   .c-s {

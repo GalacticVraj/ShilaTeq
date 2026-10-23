@@ -73,6 +73,17 @@
   outline: 2px solid var(--color-acid);
   outline-offset: 2px;
 }
+@media (width < 48rem) {
+  .x-contact__card {
+    padding: 1rem;
+  }
+  .x-contact__line {
+    font-size: 1.15rem;
+  }
+  .x-contact__do {
+    margin-top: 0.5rem;
+  }
+}
 @media (min-width: 48rem) {
   .x-contact__list {
     grid-template-columns: repeat(3, minmax(0, 1fr));

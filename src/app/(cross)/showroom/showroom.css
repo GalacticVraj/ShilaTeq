@@ -254,41 +254,45 @@
   font-size: 1.35rem;
   line-height: 1.1;
 }
-.s-flow li > p:last-child {
-  max-width: 22rem;
-  color: rgb(243 246 242 / 0.8);
-  line-height: 1.5;
-}
 .s-flow__cap {
   margin-top: 2rem;
   color: var(--color-lichen);
 }
 @media (width < 56rem) {
-  /* Phones and small tablets: the three steps one under the other, simple to scroll. */
+  /* Phones: the two steps one under the other, the form's phone kept small. */
+  .s-flow {
+    gap: 2rem;
+  }
   .s-flow .s-frame--phone {
-    width: 12rem;
+    width: 11rem;
   }
   .s-flow .s-card {
     max-width: 22rem;
   }
 }
-@media (min-width: 56rem) {
-  .s-flow {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+/* StoneVision inside: on a phone the words and the link are enough. */
+@media (width < 40rem) {
+  .s-vision .s-frame {
+    display: none;
+  }
+}
+/* Laptops: the heading on the left, the two steps beside it. */
+@media (min-width: 64rem) {
+  #enquiry {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    column-gap: clamp(3rem, 5vw, 5rem);
     align-items: start;
   }
-  /* The red thread from one step to the next. */
-  .s-flow li {
-    position: relative;
+  #enquiry .s-flow__cap {
+    grid-column: 2;
   }
-  .s-flow li:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 6rem;
-    right: -1.5rem;
-    width: 1.5rem;
-    height: 2px;
-    background: var(--color-signal);
+}
+@media (min-width: 56rem) {
+  /* The two steps side by side. */
+  .s-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
   }
 }
 
