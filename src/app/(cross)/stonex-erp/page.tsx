@@ -364,8 +364,7 @@ export default function StonexErpPage() {
             </h2>
           </div>
           <figure className="e-screen">
-            {/* On a phone it scrolls sideways, big enough to read its labels. */}
-            <div className="e-screen__scroll" tabIndex={0} role="region" aria-label="StoneX inventory screen, labelled">
+            <div className="e-screen__scroll">
               <div className="e-screen__shot">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -375,10 +374,13 @@ export default function StonexErpPage() {
                 <Marks marks={SCREEN_MARKS} w={INV.w} h={INV.h} />
               </div>
             </div>
-            <figcaption className="x-label">
-              StoneX inventory · fictional demo yard
-              <span className="e-screen__swipe"> · swipe to see it all</span>
-            </figcaption>
+            {/* A phone: the screen fits the width, and its labels are listed under it. */}
+            <ul className="e-screen__list" aria-hidden="true">
+              {SCREEN_MARKS.map((m) => (
+                <li key={m.label}>{m.label}</li>
+              ))}
+            </ul>
+            <figcaption className="x-label">StoneX inventory · fictional demo yard</figcaption>
           </figure>
         </section>
 

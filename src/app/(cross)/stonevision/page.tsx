@@ -182,8 +182,7 @@ export default function StoneVisionPage() {
               From your stock to their room.
             </h2>
           </div>
-          {/* On a phone the three steps are a row to swipe through. */}
-          <div className="v-steps-scroll" tabIndex={0} role="region" aria-label="How it works, in three steps">
+          <div className="v-steps-scroll">
           <ol className="v-steps">
             <li className="v-step" style={{ "--i": 0 } as CSSProperties}>
               <div className="v-step__pic">

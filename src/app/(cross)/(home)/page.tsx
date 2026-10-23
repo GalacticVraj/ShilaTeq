@@ -516,7 +516,18 @@ export default function ChaptersPrototype() {
               </figure>
             ))}
           </div>
+          {/* Phones: the whole screen once, its labels listed under it. */}
+          <ul className="c-x__list">
+            {STOPS.flatMap((st) => st.marks.filter((m) => !m.wide)).map((m) => (
+              <li key={m.label}>{m.label}</li>
+            ))}
+          </ul>
           <p className="c-x__note x-label">StoneX · inventory · fictional demo yard</p>
+          <p className="c-x__more">
+            <a href="/stonex-erp" className="x-link-cut c-more">
+              See StoneX ERP <span aria-hidden="true">→</span>
+            </a>
+          </p>
         </section>
 
         {/* ---------- StoneVision: the slab and its twin lie down as a floor ---------- */}
@@ -549,6 +560,9 @@ export default function ChaptersPrototype() {
                 A buyer photographs their room; your real slabs lie on its floor. Opened from StoneX
                 too: “Visualize in your space”.
               </p>
+              <a href="/stonevision" className="x-link-cut c-more">
+                Try StoneVision <span aria-hidden="true">→</span>
+              </a>
             </div>
           </div>
         </section>
@@ -562,6 +576,9 @@ export default function ChaptersPrototype() {
             </h2>
             <p className="c-s__line">Your available stone, online.</p>
             <p className="c-s__small">Buyers browse and enquire. Enquiries land in StoneX leads.</p>
+            <a href="/showroom" className="x-link-cut c-more">
+              See the Showroom <span aria-hidden="true">→</span>
+            </a>
           </div>
           <div className="c-s__hall">
             <ul className="c-s__rack" aria-label="Stone in the showroom (sample photographs)">

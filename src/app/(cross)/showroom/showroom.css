@@ -264,31 +264,12 @@
   color: var(--color-lichen);
 }
 @media (width < 56rem) {
-  /* Phones and small tablets: the three steps side by side, swiped one at a time. */
-  .s-flow {
-    grid-auto-flow: column;
-    grid-auto-columns: min(78vw, 20rem);
-    gap: 1rem;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--g);
-    margin-inline: calc(-1 * var(--g));
-    padding: 0 var(--g) 0.5rem;
-    scrollbar-width: none;
-  }
-  .s-flow::-webkit-scrollbar {
-    display: none;
-  }
-  .s-flow li {
-    scroll-snap-align: start;
-  }
+  /* Phones and small tablets: the three steps one under the other, simple to scroll. */
   .s-flow .s-frame--phone {
-    width: 11rem;
+    width: 12rem;
   }
-  .s-flow:focus-visible {
-    outline: 2px solid var(--color-acid);
-    outline-offset: 4px;
+  .s-flow .s-card {
+    max-width: 22rem;
   }
 }
 @media (min-width: 56rem) {

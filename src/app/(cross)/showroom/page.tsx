@@ -359,8 +359,7 @@ export default function ShowroomPage() {
               They ask. You know which stone.
             </h2>
           </div>
-          {/* On a phone a row to swipe: focusable, so keys scroll it too. */}
-          <ol className="s-flow" tabIndex={0} aria-label="From enquiry to sale, in three steps">
+          <ol className="s-flow">
             <li>
               <Phone img={phone("m-quote", "(min-width: 56rem) 18vw, 60vw")} alt="The Request a quote form on a phone: name, phone number, how much they need, and a message." />
               <p className="x-label s-flow__no">1 · They ask</p>

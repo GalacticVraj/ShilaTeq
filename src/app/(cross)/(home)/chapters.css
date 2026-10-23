@@ -1008,8 +1008,134 @@
   color: var(--color-bone);
 }
 
+/* ---------- Phones and small tablets: simple, no empty screens ---------- */
+.c-x__list,
+.c-x__more,
+.c-more {
+  display: none;
+}
+@media (width < 56rem) {
+  .c-name {
+    height: 26rem;
+    margin-top: 3rem;
+  }
+  .c-x__open {
+    min-height: 0;
+    padding: 4.5rem var(--g) 2rem;
+  }
+  .c-more {
+    display: inline-flex;
+    justify-self: start;
+    margin-top: 1rem;
+    color: inherit;
+  }
+  .c-x__more {
+    display: block;
+    padding: 0 var(--g) 4rem;
+  }
+  .c-x__more .c-more {
+    margin-top: 0;
+  }
+  /* The floor gets its own room under the words (it lies about 20rem deep). */
+  .c-v__stage {
+    min-height: 0;
+    padding-bottom: 23rem;
+  }
+  .c-s__line,
+  .c-v__line {
+    text-wrap: balance;
+  }
+  .c-end {
+    min-height: 0;
+    padding-top: 5rem;
+  }
+}
+@media (width < 40rem) {
+  /* StoneX: the whole screen once (no crops), its labels as red chips under it. */
+  .c-shot:not(.c-shot--1),
+  .c-shot figcaption,
+  .c-shot .c-spot,
+  .c-shot .c-mark {
+    display: none;
+  }
+  .c-shots {
+    padding-bottom: 1.25rem;
+  }
+  .c-shot--1 .c-frame {
+    aspect-ratio: 2880 / 1716;
+    margin-inline: 0;
+    border-radius: 10px;
+  }
+  .c-shot--1 .c-layer {
+    transform: none;
+  }
+  .c-x__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0 var(--g) 1.5rem;
+    list-style: none;
+  }
+  .c-x__list li {
+    padding: 0.4rem 0.6rem;
+    border: 2px solid var(--color-signal);
+    border-radius: 6px;
+    background: var(--color-acid);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.75rem;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .c-x__note {
+    padding-bottom: 0.5rem;
+  }
+  /* Showroom: the six stones flat in a grid, every name whole. */
+  .c-s {
+    padding-bottom: 3.5rem;
+  }
+  .c-s__hall {
+    height: auto;
+    margin-top: 2rem;
+    padding-inline: var(--g);
+    perspective: none;
+    background: none;
+  }
+  .c-s__rack {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem 0.75rem;
+    transform: none;
+  }
+  .c-slab,
+  .c-slab:nth-child(even) {
+    transform: none;
+  }
+  .c-slab {
+    gap: 0.4rem;
+  }
+  .c-slab__face {
+    aspect-ratio: 3 / 4;
+    order: -1;
+    box-shadow: 0 1rem 1.5rem -1rem rgb(17 23 21 / 0.6);
+  }
+  .c-slab__edge,
+  .c-slab__shadow {
+    display: none;
+  }
+  .c-slab__name {
+    white-space: normal;
+    font-size: 0.75rem;
+    line-height: 1.2;
+  }
+}
+
 /* ---------- Motion ---------- */
-@media (prefers-reduced-motion: no-preference) {
+/* Laptops and up only: on phones and small tablets every chapter is its calm, static
+   composition (no pinned stages, no scroll-driven camera), simple to scroll. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 56rem) {
   /* The hero has no entrance of its own: on first entry the intro reveals it, and
      on a return visit it is simply there. The headline's line rises (x-rise); the
      products line and the caption settle in at once (the opening's default is a

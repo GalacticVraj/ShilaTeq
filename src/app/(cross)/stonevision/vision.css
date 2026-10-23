@@ -452,26 +452,9 @@
   border-radius: 14px;
 }
 @media (width < 56rem) {
-  /* Phones and small tablets: the steps side by side, swiped one at a time. */
-  .v-steps-scroll {
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--g);
-    margin-inline: calc(-1 * var(--g));
-    padding: 0 var(--g) 0.5rem;
-    scrollbar-width: none;
-  }
-  .v-steps-scroll::-webkit-scrollbar {
-    display: none;
-  }
+  /* Phones and small tablets: the steps one under the other, simple to scroll. */
   .v-steps {
-    grid-auto-flow: column;
-    grid-auto-columns: min(80vw, 24rem);
-    gap: 1rem;
-  }
-  .v-step {
-    scroll-snap-align: start;
+    gap: 2.25rem;
   }
 }
 @media (min-width: 56rem) {
@@ -1453,4 +1436,14 @@
   background: rgb(255 82 56 / 0.14);
   color: #ffb3a5;
   font-size: 0.875rem;
+}
+
+/* Phones: no scroll-driven reveals. Each block is simply there as you scroll (an
+   animation with no scroll timeline and no duration shows its final state). */
+@media (width < 56rem) {
+  .v-page *,
+  .v-page *::before,
+  .v-page *::after {
+    animation-timeline: auto !important;
+  }
 }
