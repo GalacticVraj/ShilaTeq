@@ -1,0 +1,55 @@
+/* The site's top bar (SiteHeader.tsx), the same on every page. Over the opening;
+   scrolls away. The same element across pages, so a page change happens under it. */
+.x-top {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  height: 4rem;
+  padding-inline: clamp(1rem, 4vw, 3rem);
+  /* The stone's paper, fading out downwards: a light ground of its own for the
+     graphite wordmark and links, without an edge on the marble. */
+  background: linear-gradient(rgb(235 233 226 / 0.85), rgb(235 233 226 / 0));
+  view-transition-name: site-header;
+}
+/* Graphite on the opening's stone. */
+.x-top .x-top__mark {
+  font-size: 1.75rem; /* the brand, unmistakable on arrival */
+  color: var(--color-obsidian);
+  padding-block: 0.6rem; /* a full-height tap target home */
+}
+.x-top__nav {
+  display: none;
+  gap: 1.75rem;
+  margin-left: auto;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+.x-top__nav a {
+  color: rgb(17 23 21 / 0.8);
+}
+.x-top__nav a:hover {
+  color: var(--color-malachite);
+}
+.x-top__nav a[aria-current="page"] {
+  color: var(--color-obsidian);
+  box-shadow: inset 0 -2px var(--color-signal);
+}
+.x-top .x-top__menu {
+  margin-left: auto;
+}
+@media (min-width: 56rem) {
+  .x-top__nav {
+    display: flex;
+  }
+  .x-top .x-top__menu {
+    display: none;
+  }
+}
+@media (width < 40rem) {
+  .x-top .x-top__mark {
+    font-size: 1.5rem;
+  }
+}

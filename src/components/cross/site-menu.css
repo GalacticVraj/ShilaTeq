@@ -1,0 +1,143 @@
+/* The phone's menu (SiteMenu.tsx): a pill button, and a panel that drops from
+   under the 4rem top bar. Dark or light, to match the bar. */
+
+.sm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 2.5rem;
+  padding: 0 1rem 0 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.sm-btn.sm--dark {
+  color: var(--color-bone);
+  box-shadow: inset 0 0 0 1px rgb(243 246 242 / 0.3);
+}
+.sm-btn.sm--light {
+  color: var(--color-obsidian);
+  box-shadow: inset 0 0 0 1px rgb(17 23 21 / 0.35);
+}
+.sm-btn:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 2px;
+}
+/* Two lines that cross into an X when open. */
+.sm-btn__icon {
+  position: relative;
+  width: 1rem;
+  height: 0.65rem;
+}
+.sm-btn__icon i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  transition:
+    top 200ms ease,
+    rotate 200ms ease;
+}
+.sm-btn__icon i:first-child {
+  top: 0;
+}
+.sm-btn__icon i:last-child {
+  top: calc(100% - 2px);
+}
+.sm-btn[aria-expanded="true"] .sm-btn__icon i {
+  top: calc(50% - 1px);
+}
+.sm-btn[aria-expanded="true"] .sm-btn__icon i:first-child {
+  rotate: 45deg;
+}
+.sm-btn[aria-expanded="true"] .sm-btn__icon i:last-child {
+  rotate: -45deg;
+}
+
+.sm-panel {
+  inset: 4rem 0 auto;
+  width: 100%;
+  max-width: none;
+  max-height: calc(100dvh - 4rem);
+  margin: 0;
+  padding: 1.25rem clamp(1rem, 4vw, 3rem) 1.75rem;
+  overflow-y: auto;
+  border: 0;
+  box-shadow: 0 2rem 3rem -1.5rem rgb(0 0 0 / 0.5);
+}
+.sm-panel.sm--dark {
+  background: #0b0e0d;
+  color: var(--color-bone);
+  border-top: 1px solid rgb(243 246 242 / 0.1);
+}
+.sm-panel.sm--light {
+  background: var(--color-bone);
+  color: var(--color-obsidian);
+  border-top: 1px solid rgb(17 23 21 / 0.1);
+}
+.sm-panel::backdrop {
+  background: rgb(9 12 11 / 0.35);
+}
+.sm-group + .sm-group {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid currentColor;
+  border-top-color: color-mix(in srgb, currentColor 15%, transparent);
+}
+.sm-group__label {
+  opacity: 0.7;
+}
+.sm-group ul {
+  margin-top: 0.4rem;
+  list-style: none;
+}
+.sm-group a {
+  display: block;
+  padding-block: 0.5rem;
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.sm-group a:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 2px;
+}
+.sm-panel__cta {
+  width: 100%;
+  min-height: 3.25rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+  font-size: 1.0625rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sm-panel {
+    transition:
+      opacity 220ms ease,
+      translate 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      overlay 260ms allow-discrete,
+      display 260ms allow-discrete;
+    opacity: 0;
+    translate: 0 -0.75rem;
+  }
+  .sm-panel:popover-open {
+    opacity: 1;
+    translate: 0 0;
+  }
+  @starting-style {
+    .sm-panel:popover-open {
+      opacity: 0;
+      translate: 0 -0.75rem;
+    }
+  }
+}

@@ -36,6 +36,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/security",
     "/legal",
     "/showroom-powered-by",
+    "/stonex-erp",
+    "/stonevision",
+    "/showroom",
   ];
 
   const dynamic = [

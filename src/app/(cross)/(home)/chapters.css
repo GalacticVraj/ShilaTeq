@@ -1,0 +1,1681 @@
+/* "Chapters" prototype (/). Scoped to .c-page; tokens from cross.css.
+   Rhythm: ink → (red cut) → granite → bone → deep green → signal → ink. The static
+   layout is the default; scroll-driven motion is layered on only with
+   no-preference and animation-timeline support. */
+
+:root:has(.c-page) {
+  background: #090c0b;
+}
+.c-page {
+  --ink: #090c0b;
+  --deep: #0b3a2d;
+  --g: clamp(1rem, 4vw, 3rem);
+  position: relative;
+  background: var(--ink);
+  color: var(--color-bone);
+  overflow-x: clip;
+}
+
+/* ---------- Top bar: the site's own (SiteHeader, site-header.css) ---------- */
+/* Pages change under it with a cross-page view transition (its look: erp.css). */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* ---------- Intro: see intro.css (first entry only) ---------- */
+.c-page {
+  /* The opening's stone at 26 × 24 px, shown until the real photo arrives. */
+  --lqip: url("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCAAYABoDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAUGAwT/xAAkEAACAQMDBAMBAAAAAAAAAAABAhEAAxIEITEFFEGBIlFh8P/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAVEQEBAAAAAAAAAAAAAAAAAAAAAf/aAAwDAQACEQMRAD8A305XIJIVidiafaMKqLbUQoEeqmLMwxdws8HiP40y0dzUMjKbxGQ2aBI9fVA+7mwjg5ZDzjvTIX1IEI5H3jU9pLtlCQologgea3EkT2Q3/aCO0Vx4dS0kQRP7xtTm1dVREjI+IoopCmHT8Uv/AAgluduT59V2P1S1bdkbCVMH5gUUUpH/2Q==");
+}
+/* ---------- Opening: the promise, the call, the film ---------- */
+.c-open__stage {
+  position: relative;
+  isolation: isolate;
+  container-type: inline-size; /* widths in cqw: the page, without its scrollbar */
+}
+/* The film is the original, full frame (1920 × 1080). It is shown whole: as wide
+   as the screen allows, centred, with the text column narrowing to match. Above
+   it: the headline on one line (14.62em, set to the column) and one row holding
+   the products line and the call. 14rem covers everything else. */
+.c-hero {
+  --pt: 4.75rem;
+  --pb: 1.5rem;
+  /* Edge to edge if it fits. Otherwise the larger of: the column narrowing with
+     the film (1.5951 = 1 / (0.95 / 14.75 + 1080 / 1920)), or the film narrowing
+     under a full-width headline (0.064407 = 0.95 / 14.75, 1.7778 = 1920 / 1080). */
+  --film-w: min(
+    100cqw,
+    max((100svh - 14rem) * 1.5951, (100svh - 14rem - (100cqw - 2 * var(--g)) * 0.064407) * 1.7778)
+  );
+  --col: min(100cqw - 2 * var(--g), var(--film-w));
+  --t: calc(var(--col) / 14.75);
+  --lap: 0px; /* nothing overlaps the film */
+  /* The name still opens centred on the screen. The film sits --shift below the
+     centre, so the top rule travels that much further and the bottom one less. */
+  --shift: calc((var(--pt) - var(--pb) + 0.95 * var(--t) + 3.775rem) / 2);
+  --open-h: min(31svh, 21rem); /* half the height of the opened cut */
+  --open-up: calc(var(--open-h) + var(--shift));
+  --open-down: calc(var(--open-h) - var(--shift));
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(0, 1fr)
+    [main-start] var(--col)
+    [main-end] minmax(0, 1fr)
+    [full-end];
+  grid-template-rows: repeat(4, auto);
+  align-content: center;
+  min-height: 100svh;
+  padding-block: var(--pt) var(--pb);
+  /* Its own paper (the washed marble's tone), under the stone and the words, so the
+     words always stand on light: one screen of it (the name follows on black). */
+  position: relative;
+  z-index: 0;
+  background: linear-gradient(#ebe9e2, #ebe9e2) 0 0 / 100% 100svh no-repeat;
+}
+/* The ground: the real Statuarietto (the intro's stone) under a warm wash that
+   keeps its veins and lets graphite type read; one screen tall, behind the hero. */
+.c-hero__ground {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 100svh;
+  overflow: hidden;
+  background: #e4e5e1 var(--lqip) 50% 50% / cover;
+}
+.c-hero__ground img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+.c-hero__ground::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(248 246 239 / 0.74),
+    rgb(248 246 239 / 0.56) 55%,
+    rgb(248 246 239 / 0.66)
+  );
+}
+/* The words, the call and the caption stand above the stone (the film is z 1 too). */
+.c-hero__title,
+.c-hero__actions,
+.c-scenes {
+  position: relative;
+  z-index: 1;
+}
+
+/* The film's scenes, as its caption; the one on screen in graphite. */
+.c-scenes {
+  grid-row: 4;
+  grid-column: main;
+  justify-self: start;
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+  white-space: nowrap;
+  list-style: none;
+  color: #2d3833; /* slate, deepened: 7:1 even over the stone's darkest veins */
+}
+.c-scenes li {
+  transition: color 450ms var(--ease-settle);
+}
+.c-scenes span {
+  margin-right: 0.3rem;
+  color: #9e2a15; /* signal, deepened for small type on stone: 4.8:1 at worst */
+}
+.c-hero[data-scene="block"] [data-for="block"],
+.c-hero[data-scene="slabs"] [data-for="slabs"],
+.c-hero[data-scene="record"] [data-for="record"] {
+  color: var(--color-obsidian);
+  font-weight: 700;
+}
+
+/* Archivo semi-expanded: the chapters' voice, a register quieter. "Stone," in
+   graphite, the digital layer in mineral green. One line, set to the column. */
+.c-hero__title {
+  grid-row: 1;
+  grid-column: main;
+  margin-bottom: 0.875rem;
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: var(--t);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  color: var(--color-malachite);
+}
+.c-hero__stone {
+  color: var(--color-obsidian);
+}
+
+/* Directly under the headline: what ShilaTeq makes (the one acid mark on the
+   page's opening), and the call. */
+.c-hero__actions {
+  grid-row: 2;
+  grid-column: main;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  min-height: 3.25rem;
+  margin-bottom: 1.5rem;
+}
+.c-hero__pitch {
+  font-size: clamp(1.125rem, 0.9rem + 0.45vw, 1.375rem);
+  line-height: 1.35;
+  color: #2d3833; /* as the caption */
+}
+.c-hero__pitch strong {
+  padding: 0.04em 0.28em;
+  margin-left: -0.28em;
+  font-weight: 600;
+  color: var(--color-obsidian);
+  background: var(--color-acid);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.c-hero .x-link-cut {
+  color: var(--color-obsidian);
+}
+.c-hero__ctas {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+.c-hero__cta {
+  min-height: 3.25rem;
+  padding-inline: 1.6rem;
+  font-size: 1.0625rem;
+}
+
+.c-hero__film {
+  grid-row: 3;
+  grid-column: full;
+  justify-self: center;
+  position: relative;
+  z-index: 1;
+  width: var(--film-w);
+  margin: 0;
+}
+.c-film__open {
+  position: relative;
+}
+/* The film is shown whole, full frame and at its own pace (FilmScenes skips only
+   the client dashboard); it is just not a box: its ivory ground drops out
+   (multiply), so the slabs and the end card stand on the hero's own marble. The
+   film is its own compositing group, so the marble reaches into it as an exact
+   copy of the ground, placed by FilmScenes (--fx, --fy, --gw, --gh); until then,
+   and without script, it is the plain film. */
+.c-film {
+  position: relative;
+  aspect-ratio: 1920 / 1080;
+  overflow: hidden;
+  background: #fffff6;
+}
+/* Never shown: while the film is inside the skipped seconds, it is hidden. */
+.c-hero[data-scene="skip"] .c-film .f-film__media {
+  visibility: hidden;
+}
+.c-film__stone {
+  position: absolute;
+  left: calc(var(--fx, 0px) * -1);
+  top: calc(var(--fy, 0px) * -1);
+  width: var(--gw, 100%);
+  height: var(--gh, 100%);
+  visibility: hidden;
+}
+.c-hero[data-aligned] .c-film__stone {
+  visibility: visible;
+}
+.c-film__stone img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+.c-film__stone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(248 246 239 / 0.74),
+    rgb(248 246 239 / 0.56) 55%,
+    rgb(248 246 239 / 0.66)
+  );
+}
+.c-film .f-film__media {
+  mix-blend-mode: multiply;
+  transition: opacity 240ms var(--ease-settle);
+}
+/* A still in the film's place: shown as it is (no blend), and named in the site's red chip. */
+.c-film--still .f-film__media {
+  mix-blend-mode: normal;
+  object-fit: cover;
+}
+.c-film__label {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  padding: 0.3em 0.6em;
+  border-radius: 6px;
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+  font-size: clamp(0.75rem, 0.6rem + 0.35vw, 0.875rem);
+  font-weight: 600;
+  line-height: 1.15;
+}
+/* The poster is the first frame: once the footage is up, only the footage blends. */
+.c-film:has(> .f-film__video[data-on]) > img.f-film__media {
+  visibility: hidden;
+  transition: visibility 0s 260ms;
+}
+.c-film__cut {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  z-index: 2;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--color-signal);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+.c-film__flash {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--color-signal);
+  opacity: 0;
+  pointer-events: none;
+}
+/* In the film's corner, over its plain ground in most scenes. */
+.c-page .f-film__toggle {
+  left: auto;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 4;
+  font-size: max(0.75rem, 1em); /* never under 12 px, a phone's too */
+  background: rgb(9 12 11 / 0.74);
+  color: var(--color-bone);
+  box-shadow: 0 0 0 1px rgb(243 246 242 / 0.3);
+}
+.c-page .f-film__toggle:hover {
+  background: rgb(9 12 11 / 0.92);
+}
+
+/* The name, on black granite between two red rules. */
+.c-name {
+  grid-row: 5;
+  grid-column: full;
+  position: relative;
+  height: min(84svh, 56rem);
+  margin-top: clamp(4rem, 12svh, 8rem);
+}
+.c-name__win {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: clamp(0.9rem, 2.4svh, 1.6rem);
+  padding-inline: var(--g);
+  text-align: center;
+  background: var(--ink);
+}
+.c-name__stone {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  filter: brightness(0.62) contrast(1.08);
+}
+.c-name__win::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 80% at 50% 50%, transparent, rgb(9 12 11 / 0.7));
+}
+.c-name__win > p {
+  position: relative;
+  z-index: 1;
+}
+.c-page .c-name__mark {
+  font-size: clamp(4.5rem, 21vw, 24rem);
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+  color: var(--color-bone);
+}
+.c-name__line {
+  font-stretch: 112%;
+  font-size: clamp(1.35rem, 3.2vw, 3.2rem);
+  line-height: 1;
+  color: var(--color-acid);
+}
+.c-name__products {
+  color: rgb(243 246 242 / 0.82);
+}
+.c-name__rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 2px;
+  background: var(--color-signal);
+}
+.c-name__rule--a {
+  top: 0;
+}
+.c-name__rule--b {
+  bottom: 0;
+}
+
+/* Below the wide layout: the headline breaks into lines, the film runs edge to
+   edge under it, then come its caption, the products line and the call. --shift
+   is measured the same way: above the film, the headline and its gap; below it,
+   the caption, the products line and the call (9.119rem). */
+@media (width < 64rem) {
+  .c-hero {
+    --film-w: 100cqw;
+    --col: calc(100cqw - 2 * var(--g));
+    --t: min(var(--col) / 11.2, 9svh); /* "intelligently managed." on one line */
+    --shift: calc((var(--pt) - var(--pb) + 1.9 * var(--t) + 1.25rem - 9.119rem) / 2);
+    --open-h: 26svh;
+    grid-template-columns:
+      [full-start] var(--g)
+      [main-start] minmax(0, 1fr)
+      [main-end] var(--g)
+      [full-end];
+    grid-template-rows: repeat(6, auto);
+  }
+  .c-hero__title {
+    margin-bottom: 1.25rem;
+    white-space: normal;
+  }
+  .c-hero__smart {
+    display: block;
+  }
+  .c-hero__actions {
+    grid-row: 6;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 1.5rem 0 0;
+  }
+  .c-hero__pitch {
+    font-size: 1.125rem;
+  }
+  .c-name {
+    grid-row: 7;
+  }
+}
+@media (width < 40rem) {
+  .c-hero {
+    --pt: 4.5rem;
+    --t: min(var(--col) / 5.85, 8svh); /* "intelligently" fills a line */
+    /* Three lines of headline; below the film, 10.469rem. */
+    --shift: calc((var(--pt) - var(--pb) + 2.85 * var(--t) + 1.25rem - 10.469rem) / 2);
+    /* The name opens across 20–84% of the screen, as it always has on phones. */
+    --open-up: calc(30svh + var(--shift));
+    --open-down: calc(34svh - var(--shift));
+  }
+  .c-hero__smart > span {
+    display: block;
+  }
+  /* Its own line, the acid only as wide as the words (and no taller than the
+     line, which the name's opening is measured from). */
+  .c-hero__pitch strong {
+    display: table;
+    padding-block: 0;
+  }
+  .c-hero__pitch {
+    font-size: 1.0625rem;
+  }
+  .c-hero__actions {
+    align-items: stretch;
+  }
+  .c-scenes {
+    gap: 1.1rem;
+  }
+  .c-hero__ctas {
+    gap: 1.25rem;
+  }
+  .c-hero__cta {
+    flex: 1;
+    justify-content: center;
+  }
+  .c-page .f-film__toggle {
+    right: 0.5rem;
+    bottom: 0.5rem;
+  }
+}
+@media (width < 40rem) and (height < 38rem) {
+  /* Short phones: a tighter top keeps Book a demo on the first screen. */
+  .c-hero {
+    --pt: 4.25rem;
+  }
+}
+
+/* ---------- StoneX: the camera ---------- */
+.c-x {
+  color: var(--color-obsidian);
+}
+.c-x > * {
+  background: var(--color-bone);
+}
+.c-x__open {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+  gap: 1.25rem;
+  padding: 6rem var(--g);
+}
+/* The red cut the chapter opens from (visible only while it opens). */
+.c-x__open::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--color-signal);
+  opacity: 0;
+}
+.c-x__kicker {
+  color: var(--color-slate);
+}
+.c-x__title {
+  font-size: clamp(3.4rem, 14.5vw, 17rem);
+  line-height: 0.85;
+}
+/* Signal, a shade deeper: 3.4:1 on bone (large text). */
+.c-x__title span {
+  color: #f4462b;
+}
+@media (min-width: 40rem) {
+  /* ERP pushed to the far edge: the title spans the whole page. */
+  .c-x__title span {
+    display: block;
+    text-align: right;
+  }
+}
+.c-x__sub {
+  max-width: 18ch;
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: clamp(1.3rem, 2.8vw, 2.5rem);
+  line-height: 1.08;
+}
+.c-cam {
+  display: none;
+}
+.c-shots {
+  display: grid;
+  gap: clamp(3rem, 8vw, 6rem);
+  padding: 0 var(--g) 3rem;
+}
+.c-shot {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+.c-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 2880 / 1716;
+  border-radius: 14px;
+  background: #f4f1ec;
+  box-shadow:
+    0 0 0 1px rgb(17 23 21 / 0.08),
+    0 3rem 6rem -2.5rem rgb(17 23 21 / 0.5);
+}
+.c-layer {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  aspect-ratio: 2880 / 1716;
+  translate: 0 -50%;
+  transform-origin: 50% 50%;
+}
+.c-layer__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+.c-shot--1 .c-layer {
+  transform: translate(var(--tx1), var(--ty1)) scale(var(--s1));
+}
+.c-shot--2 .c-layer {
+  transform: translate(var(--tx2), var(--ty2)) scale(var(--s2));
+}
+.c-shot--3 .c-layer {
+  transform: translate(var(--tx3), var(--ty3)) scale(var(--s3));
+}
+.c-shot--4 .c-layer {
+  transform: translate(var(--tx4), var(--ty4)) scale(var(--s4));
+}
+.c-shot--5 .c-layer {
+  transform: translate(var(--tx5), var(--ty5)) scale(var(--s5));
+}
+.c-cap {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
+  line-height: 1.1;
+}
+.c-cap .x-label {
+  color: var(--color-slate);
+}
+.c-x__note {
+  padding: 0 var(--g) 3rem;
+  color: var(--color-slate);
+}
+@media (width < 40rem) {
+  .c-frame {
+    aspect-ratio: 4 / 5;
+    margin-inline: calc(-1 * var(--g));
+    border-radius: 0;
+  }
+}
+
+/* Spotlight: the screen dims around the stop's elements. */
+.c-spot {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+@media (width < 40rem) {
+  .c-spot__wide {
+    display: none;
+  }
+}
+
+/* Markers: an outline just outside the real element and an acid label. Drawn
+   inside the scaled screenshot, so every size is divided by its scale (--k). */
+.c-mark {
+  --k: 1;
+  position: absolute;
+  border-radius: calc(4px / var(--k));
+  outline: calc(2px / var(--k)) solid var(--color-signal);
+  outline-offset: calc(4px / var(--k));
+  pointer-events: none;
+}
+.c-mark--1 {
+  --k: var(--s1);
+}
+.c-mark--2 {
+  --k: var(--s2);
+}
+.c-mark--3 {
+  --k: var(--s3);
+}
+.c-mark--4 {
+  --k: var(--s4);
+}
+.c-mark--5 {
+  --k: var(--s5);
+}
+.c-mark__label {
+  position: absolute;
+  left: calc(-6px / var(--k));
+  white-space: nowrap;
+  padding: calc(6px / var(--k)) calc(8px / var(--k));
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: calc(12.5px / var(--k)); /* 12.5 px as drawn, at any zoom */
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--color-acid);
+  color: var(--color-obsidian);
+}
+.c-mark[data-side="top"] > .c-mark__label {
+  bottom: calc(100% + 11px / var(--k));
+}
+.c-mark[data-side="bottom"] > .c-mark__label {
+  top: calc(100% + 11px / var(--k));
+}
+.c-mark[data-side="right"] > .c-mark__label {
+  top: calc(-6px / var(--k));
+  left: calc(100% + 12px / var(--k));
+}
+.c-mark[data-end] > .c-mark__label {
+  left: auto;
+  right: calc(-6px / var(--k));
+}
+@media (width < 40rem) {
+  .c-mark--wide {
+    display: none;
+  }
+}
+
+/* ---------- StoneVision: the slab and its twin lie down ---------- */
+.c-v__stage {
+  --horizon: 46.5%;
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 0.9rem;
+  padding: clamp(3rem, 9svh, 6rem) var(--g) clamp(2.5rem, 7svh, 4.5rem);
+  /* Wall, then floor: a pool of window light on it so shadows have something to fall on. */
+  background:
+    radial-gradient(60% 50% at 78% 20%, rgb(230 240 120 / 0.07), transparent 70%),
+    radial-gradient(46% 30% at 52% 88%, rgb(150 190 160 / 0.16), transparent 75%),
+    linear-gradient(
+      to bottom,
+      #0f4c3a 0%,
+      var(--deep) var(--horizon),
+      #0a3127 var(--horizon),
+      #05201a 100%
+    );
+}
+.c-v__stage > :not(.c-v__room) {
+  position: relative;
+  z-index: 2;
+}
+.c-v__kicker {
+  color: rgb(230 240 120 / 0.85);
+}
+.c-v__title {
+  font-size: clamp(2.2rem, 10.4vw, 13rem);
+  line-height: 0.85;
+  color: var(--color-acid);
+}
+.c-v__copy {
+  justify-self: end;
+  max-width: 24rem;
+  margin-top: clamp(0.5rem, 2svh, 1.5rem);
+}
+.c-v__line {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 2.6vw, 2.5rem);
+  line-height: 1.04;
+  color: var(--color-bone);
+}
+.c-v__small {
+  margin-top: 0.8rem;
+  color: var(--color-lichen);
+}
+.c-v__room {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  perspective: 1100px;
+  perspective-origin: 50% 34%;
+}
+/* Window light on the wall. */
+.c-v__window {
+  position: absolute;
+  right: 12%;
+  top: 10%;
+  width: 15vw;
+  height: calc(var(--horizon) - 14%);
+  background: linear-gradient(to bottom, rgb(255 253 235 / 0.1), rgb(255 253 235 / 0.03));
+  transform: skewY(-8deg);
+}
+/* Contact shadow: tight under the standing slab, a broad pool once it lies down. */
+.c-v__shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 3svh;
+  width: 44vw;
+  height: 14svh;
+  margin-left: -22vw;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.8), rgb(0 0 0 / 0.35) 55%, transparent);
+  scale: 2.6 3;
+  opacity: 0.7;
+}
+.c-v__floor {
+  --fw: min(118vw, 1600px);
+  position: absolute;
+  left: 50%;
+  bottom: -8svh;
+  width: var(--fw);
+  aspect-ratio: 2480 / 2214;
+  margin-left: calc(var(--fw) / -2);
+  display: flex;
+  transform-style: preserve-3d;
+  transform-origin: 50% 100%;
+  --lie: 73deg; /* the floor's final tilt */
+  transform: rotateX(var(--lie));
+}
+.c-v__slab {
+  position: relative;
+  flex: 1 1 50%;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25);
+}
+.c-v__slab img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Book-matched: the twin is the slab's mirror, hinged on the shared edge. */
+.c-v__slab--b {
+  transform-origin: 0 50%;
+  backface-visibility: hidden;
+}
+.c-v__slab--b img {
+  scale: -1 1;
+}
+/* Polish: a soft sheen across each slab. */
+.c-v__slab::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgb(255 255 255 / 0.16),
+    transparent 38%,
+    rgb(0 0 0 / 0.16) 100%
+  );
+}
+.c-v__lightbox {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.c-v__light {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 52%;
+  width: 22%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 252 236 / 0.34) 25%,
+    rgb(255 252 236 / 0.34) 75%,
+    transparent
+  );
+  transform: skewX(-24deg);
+}
+@media (min-width: 56rem) {
+  .c-v__stage {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .c-v__kicker,
+  .c-v__title {
+    grid-column: 1 / -1;
+  }
+  .c-v__copy {
+    grid-column: 2;
+    text-align: right;
+  }
+}
+@media (width < 40rem) {
+  .c-v__stage {
+    --horizon: 48%;
+  }
+  .c-v__room {
+    perspective: 700px;
+    perspective-origin: 50% 40%;
+  }
+  .c-v__floor {
+    --fw: 230vw;
+    --lie: 64deg;
+    bottom: -6svh;
+  }
+  .c-v__copy {
+    justify-self: start;
+  }
+  .c-v__window {
+    width: 26vw;
+    right: 8%;
+  }
+}
+
+/* ---------- Showroom: an installation of standing slabs ---------- */
+.c-s {
+  overflow: hidden;
+  padding-top: clamp(4rem, 11svh, 7.5rem);
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+}
+.c-s__head {
+  display: grid;
+  gap: 0.75rem;
+  padding-inline: var(--g);
+}
+.c-s__title {
+  font-size: clamp(3rem, 14vw, 17rem);
+  line-height: 0.85;
+}
+.c-s__line {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 800;
+  font-size: clamp(1.4rem, 3vw, 2.7rem);
+  line-height: 1.05;
+}
+.c-s__small {
+  max-width: 30rem;
+}
+.c-s__hall {
+  --sw: clamp(8rem, 16.5vw, 19rem); /* slab width */
+  position: relative;
+  height: calc(var(--sw) * 17 / 9 + clamp(6rem, 14svh, 10rem));
+  margin-top: clamp(1rem, 4svh, 3rem);
+  perspective: 1500px;
+  perspective-origin: 34% -20%;
+  /* The floor, from behind the farthest slab. */
+  background: linear-gradient(to bottom, transparent 0 40%, #ec4a31 40%, #e2432b 100%);
+}
+.c-s__rack {
+  position: absolute;
+  left: 7vw;
+  bottom: 10%;
+  display: flex;
+  align-items: flex-end;
+  gap: calc(var(--sw) * 0.42);
+  list-style: none;
+  transform-style: preserve-3d;
+  transform-origin: 0 100%;
+  transform: rotateY(28deg);
+}
+.c-slab {
+  position: relative;
+  flex: 0 0 var(--sw);
+  display: grid;
+  gap: 0.7rem;
+  transform-style: preserve-3d;
+  transform: rotateY(-40deg);
+}
+.c-slab:nth-child(even) {
+  transform: rotateY(-40deg) translateZ(calc(var(--sw) * -0.5));
+}
+.c-slab__face {
+  position: relative;
+  display: block;
+  aspect-ratio: 9 / 17;
+  transform-style: preserve-3d;
+}
+.c-slab__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15);
+}
+/* The slab's thickness: its polished edge. */
+.c-slab__edge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: calc(var(--sw) * 0.09);
+  height: 100%;
+  transform-origin: 100% 50%;
+  transform: rotateY(-90deg);
+  background: linear-gradient(to right, rgb(17 23 21 / 0.55), rgb(17 23 21 / 0.25));
+}
+/* Back-lit: each slab casts its shadow toward the viewer, across the floor. */
+.c-slab__shadow {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  height: 46%;
+  transform-origin: 50% 0;
+  transform: rotateX(90deg);
+  background: linear-gradient(to bottom, rgb(17 23 21 / 0.42), transparent);
+}
+.c-slab__name {
+  white-space: nowrap;
+  /* the farther the slab, the larger its name, so every name reads at about the same size */
+  font-size: calc(var(--text-label) * (1 + var(--n, 0) * 0.17));
+}
+@media (width < 40rem) {
+  .c-s__hall {
+    --sw: 34vw;
+    perspective: 900px;
+  }
+  .c-s__rack {
+    left: 6vw;
+    transform: rotateY(34deg);
+  }
+}
+
+/* ---------- End ---------- */
+.c-end {
+  min-height: 85svh;
+  display: grid;
+  align-content: space-between;
+  gap: 4rem;
+  padding: clamp(5rem, 16svh, 10rem) var(--g) 1.75rem;
+}
+.c-end__kicker {
+  color: var(--color-lichen);
+}
+.c-end__title {
+  font-size: clamp(2.6rem, 9.2vw, 11rem);
+  line-height: 0.9;
+}
+.c-end__title a {
+  color: var(--color-acid);
+  background: linear-gradient(var(--color-signal), var(--color-signal)) left 100% / 0% 0.08em
+    no-repeat;
+  transition: background-size 320ms var(--ease-settle);
+}
+.c-end__title a:hover {
+  background-size: 100% 0.08em;
+}
+.c-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-rule-dark);
+  color: var(--color-lichen);
+}
+.c-page .c-foot__mark {
+  font-size: 1.15rem;
+  letter-spacing: -0.035em;
+  text-transform: none;
+  color: var(--color-bone);
+}
+
+/* ---------- Motion ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* The hero has no entrance of its own: on first entry the intro reveals it, and
+     on a return visit it is simply there. The headline's line rises (x-rise); the
+     products line and the caption settle in at once (the opening's default is a
+     1.1 s wait). */
+  .c-hero__actions,
+  .c-scenes {
+    animation: c-fade 400ms var(--ease-settle) both;
+  }
+  /* The film's own camera is the only movement on it (no zoom: it would crop). In
+     its dip to black the red cut is drawn across it. */
+  .c-hero[data-scene="cut"] .c-film__cut {
+    animation: c-draw 300ms var(--ease-cut) both;
+  }
+  @supports (animation-timeline: view()) {
+    /* No 1100 ms wait for the products line and the caption (the scroll exit,
+       the first animation, is untouched). */
+    .c-open .c-hero__actions,
+    .c-open .c-scenes {
+      animation-delay: 0s, 0s;
+    }
+    /* As you scroll, the stone and its paper give way to black before the film
+       becomes the strip, so the transition still plays on black. */
+    .c-hero {
+      background: #ebe9e2;
+      animation: c-paper-out linear both;
+      animation-timeline: --open;
+      animation-range: contain 0% contain 18%;
+    }
+    .c-hero__ground {
+      animation: c-ground-out linear both;
+      animation-timeline: --open;
+      animation-range: contain 0% contain 18%;
+    }
+    /* The film's marble goes with it, so the strip is the plain ivory film it
+       always was. */
+    .c-film__stone {
+      animation: c-off linear both;
+      animation-timeline: --open;
+      animation-range: contain 0% contain 18%;
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    /* Opening: the plate shrinks to a strip, the strip closes to the red cut,
+       the cut widens and opens on the name. One stage, held while you scroll. */
+    .c-open {
+      height: 400svh;
+      view-timeline: --open block;
+    }
+    .c-open__stage {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      overflow: hidden;
+    }
+    .c-hero {
+      height: 100svh;
+      min-height: 0;
+    }
+    .c-hero__kicker,
+    .c-scenes,
+    .c-hero__actions {
+      animation:
+        c-lift linear both,
+        c-fade 700ms var(--ease-settle) 1100ms backwards;
+      animation-timeline: --open, auto;
+      animation-range:
+        contain 0% contain 14%,
+        normal;
+    }
+    /* Fades in place, so its cut stays on the film's edge. */
+    .c-hero__title {
+      animation: c-fade-out linear both;
+      animation-timeline: --open;
+      animation-range: contain 0% contain 16%;
+    }
+    .c-hero__film {
+      animation: c-strip linear both;
+      animation-timeline: --open;
+      animation-range: contain 0% contain 50%;
+    }
+    .c-film__flash {
+      animation: c-flash linear both;
+      animation-timeline: --open;
+      animation-range: contain 28% contain 48%;
+    }
+    /* The name sits on the film's own centre line, so the cut carries over. */
+    .c-name {
+      grid-row: 3;
+      grid-column: full;
+      z-index: 4;
+      height: auto;
+      margin: calc(-1 * var(--lap)) 0 0;
+      pointer-events: none;
+    }
+    .c-name__win {
+      inset: auto 0;
+      top: calc(50% - var(--open-up));
+      height: calc(var(--open-up) + var(--open-down));
+      animation: c-open-win linear both;
+      animation-timeline: --open;
+      animation-range: contain 56% contain 76%;
+    }
+    .c-name__rule {
+      top: 50%;
+      bottom: auto;
+      margin-top: -1px;
+      animation: c-rule-a linear both;
+      animation-timeline: --open;
+      animation-range: contain 47% contain 76%;
+    }
+    .c-name__rule--b {
+      animation-name: c-rule-b;
+    }
+    .c-name__mark {
+      animation: c-name-in linear both;
+      animation-timeline: --open;
+      animation-range: contain 56% contain 84%;
+    }
+    .c-name__line,
+    .c-name__products {
+      animation: c-in linear both;
+      animation-timeline: --open;
+      animation-range: contain 76% contain 90%;
+    }
+
+    /* Each chapter opens from the red cut. */
+    .c-x__open {
+      view-timeline: --xo block;
+    }
+    .c-x__open,
+    .c-end {
+      animation: c-cut linear both;
+      animation-timeline: view();
+      animation-range: entry 25% entry 100%;
+    }
+    .c-x__open::before {
+      animation: c-seam-out linear both;
+      animation-timeline: --xo;
+      animation-range: entry 25% entry 100%;
+    }
+
+    /* StoneX: a camera over the real screen, one view per stop. Between stops it
+       eases back a little and in again; the spotlight and markers arrive as it lands. */
+    .c-shots {
+      display: none;
+    }
+    .c-cam {
+      display: block;
+      height: calc(100svh + 6 * 72svh);
+      view-timeline: --cam block;
+    }
+    .c-cam__stage {
+      --cam-w: min(100%, (100svh - 10rem) * 1.678);
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      align-items: center;
+      justify-items: center;
+      gap: 1.25rem;
+      padding: clamp(1rem, 3svh, 2rem) var(--g) clamp(1.25rem, 4svh, 2.5rem);
+    }
+    .c-cam .c-frame {
+      width: var(--cam-w);
+    }
+    .c-cam__bar {
+      width: var(--cam-w);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(7rem, 28%);
+      align-items: center;
+      gap: 0.9rem 2rem;
+    }
+    .c-cam__caps {
+      position: relative;
+      height: 2.4rem;
+      list-style: none;
+    }
+    .c-cam__caps .c-cap {
+      position: absolute;
+      inset: 0;
+      animation: c-cap linear both;
+      animation-timeline: --cam;
+    }
+    .c-cam__caps .c-cap--0 {
+      animation-name: c-cap-first;
+    }
+    .c-cam__caps .c-cap:last-child {
+      animation-name: c-cap-hold;
+    }
+    .c-cam__rail {
+      position: relative;
+      height: 2px;
+      background: rgb(17 23 21 / 0.15);
+    }
+    .c-cam__fill {
+      position: absolute;
+      inset: 0;
+      background: var(--color-signal);
+      transform-origin: 0 50%;
+      animation: c-fill linear both;
+      animation-timeline: --cam;
+      animation-range: contain 0% contain 100%;
+    }
+    .c-cam__tick {
+      position: absolute;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      margin: -3.5px 0 0 -3.5px;
+      border-radius: 50%;
+      background: var(--color-obsidian);
+    }
+    .c-cam__layer {
+      animation: c-cam linear both;
+      animation-timeline: --cam;
+      animation-range: contain 0% contain 100%;
+    }
+    .c-cam .c-spot {
+      animation: c-on linear both;
+      animation-timeline: --cam;
+    }
+    .c-cam .c-mark {
+      animation: c-mark-in linear both;
+      animation-timeline: --cam;
+    }
+    .c-cam .c-spot--5 {
+      animation-name: c-on-hold;
+    }
+    .c-cam .c-mark--5 {
+      animation-name: c-mark-hold;
+    }
+
+    /* StoneVision: the stage opens, the slab lies down as its twin opens beside
+       it like a book, the light crosses the floor. */
+    .c-v {
+      height: 280svh;
+      view-timeline: --v block;
+    }
+    .c-v__stage {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      animation: c-cut linear both;
+      animation-timeline: --v;
+      animation-range: entry 25% entry 100%;
+    }
+    .c-v__floor {
+      animation: c-lay linear both;
+      animation-timeline: --v;
+      animation-range: contain 4% contain 56%;
+    }
+    .c-v__slab--b {
+      animation: c-book linear both;
+      animation-timeline: --v;
+      animation-range: contain 30% contain 64%;
+    }
+    .c-v__shadow {
+      animation: c-shadow linear both;
+      animation-timeline: --v;
+      animation-range: contain 4% contain 56%;
+    }
+    .c-v__light {
+      animation: c-sweep linear both;
+      animation-timeline: --v;
+      animation-range: contain 52% contain 100%;
+    }
+    .c-v__window {
+      animation: c-glow linear both;
+      animation-timeline: --v;
+      animation-range: contain 40% contain 80%;
+    }
+    .c-v__copy {
+      animation: c-in linear both;
+      animation-timeline: --v;
+      animation-range: contain 58% contain 78%;
+    }
+
+    /* Showroom: the camera trucks slowly along the installation. */
+    .c-s__rack {
+      animation: c-truck linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+
+    @media (width < 40rem) {
+      .c-open {
+        height: 340svh;
+      }
+      .c-cam__stage {
+        --cam-w: 100%;
+        padding-inline: 0;
+      }
+      .c-cam .c-frame {
+        margin-inline: 0;
+      }
+      .c-cam__bar {
+        width: calc(100% - 2 * var(--g));
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .c-s__rack {
+        animation-name: c-truck-phone;
+      }
+    }
+  }
+}
+
+@keyframes c-fade {
+  from {
+    opacity: 0;
+    translate: 0 0.75rem;
+  }
+}
+@keyframes c-off {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes c-paper-out {
+  to {
+    background-color: transparent;
+  }
+}
+/* The hero's stone gives way to black, then is out of the way altogether. */
+@keyframes c-ground-out {
+  99% {
+    visibility: visible;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@keyframes c-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes c-lift {
+  to {
+    opacity: 0;
+    translate: 0 -3rem;
+  }
+}
+@keyframes c-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes c-strip {
+  0% {
+    scale: 1;
+    clip-path: inset(0);
+    opacity: 1;
+  }
+  56%,
+  76% {
+    scale: 0.5;
+    clip-path: inset(32% 0);
+  }
+  96% {
+    scale: 0.5;
+    clip-path: inset(calc(50% - 1px) 0);
+    opacity: 1;
+  }
+  100% {
+    scale: 0.5;
+    clip-path: inset(calc(50% - 1px) 0);
+    opacity: 0;
+  }
+}
+@keyframes c-flash {
+  0%,
+  55% {
+    opacity: 0;
+  }
+  95%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes c-rule-a {
+  0% {
+    opacity: 0;
+    scale: 0.5 1;
+    translate: 0 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  31% {
+    scale: 1 1;
+    translate: 0 0;
+  }
+  100% {
+    opacity: 1;
+    scale: 1 1;
+    translate: 0 calc(-1 * var(--open-up));
+  }
+}
+@keyframes c-rule-b {
+  0% {
+    opacity: 0;
+    scale: 0.5 1;
+    translate: 0 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  31% {
+    scale: 1 1;
+    translate: 0 0;
+  }
+  100% {
+    opacity: 1;
+    scale: 1 1;
+    translate: 0 var(--open-down);
+  }
+}
+@keyframes c-open-win {
+  from {
+    clip-path: inset(var(--open-up) 0 var(--open-down) 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+@keyframes c-name-in {
+  0% {
+    opacity: 0;
+    scale: 1.16;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes c-in {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
+}
+@keyframes c-cut {
+  from {
+    clip-path: inset(49.6% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+@keyframes c-seam-out {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* Stops hold for 10% of the scroll; between them the camera eases back a little
+   (half-way) and in again, with matched speeds through the turn. */
+@keyframes c-cam {
+  0%,
+  10% {
+    transform: none;
+    animation-timing-function: var(--ease-move);
+  }
+  18%,
+  28% {
+    transform: translate(var(--tx1), var(--ty1)) scale(var(--s1));
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.5);
+  }
+  32% {
+    transform: translate(var(--txm2), var(--tym2)) scale(var(--sm2));
+    animation-timing-function: cubic-bezier(0.25, 0.5, 0.5, 1);
+  }
+  36%,
+  46% {
+    transform: translate(var(--tx2), var(--ty2)) scale(var(--s2));
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.5);
+  }
+  50% {
+    transform: translate(var(--txm3), var(--tym3)) scale(var(--sm3));
+    animation-timing-function: cubic-bezier(0.25, 0.5, 0.5, 1);
+  }
+  54%,
+  64% {
+    transform: translate(var(--tx3), var(--ty3)) scale(var(--s3));
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.5);
+  }
+  68% {
+    transform: translate(var(--txm4), var(--tym4)) scale(var(--sm4));
+    animation-timing-function: cubic-bezier(0.25, 0.5, 0.5, 1);
+  }
+  72%,
+  82% {
+    transform: translate(var(--tx4), var(--ty4)) scale(var(--s4));
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.5);
+  }
+  86% {
+    transform: translate(var(--txm5), var(--tym5)) scale(var(--sm5));
+    animation-timing-function: cubic-bezier(0.25, 0.5, 0.5, 1);
+  }
+  90%,
+  100% {
+    transform: translate(var(--tx5), var(--ty5)) scale(var(--s5));
+  }
+}
+@keyframes c-on {
+  0% {
+    opacity: 0;
+  }
+  16%,
+  84% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes c-on-hold {
+  0% {
+    opacity: 0;
+  }
+  16%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes c-mark-in {
+  0% {
+    opacity: 0;
+    scale: 0.94;
+  }
+  16%,
+  84% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 1;
+  }
+}
+@keyframes c-mark-hold {
+  0% {
+    opacity: 0;
+    scale: 0.94;
+  }
+  16%,
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes c-cap {
+  0% {
+    opacity: 0;
+    translate: 0 0.6rem;
+  }
+  16%,
+  84% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  100% {
+    opacity: 0;
+    translate: 0 -0.6rem;
+  }
+}
+@keyframes c-cap-hold {
+  0% {
+    opacity: 0;
+    translate: 0 0.6rem;
+  }
+  16%,
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes c-cap-first {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: 0 -0.6rem;
+  }
+}
+@keyframes c-fill {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+@keyframes c-lay {
+  from {
+    transform: translateX(9%) translateY(-18svh) rotateX(0deg) scale(0.34);
+  }
+  to {
+    transform: translateX(0) translateY(0) rotateX(var(--lie)) scale(1);
+  }
+}
+@keyframes c-book {
+  from {
+    transform: rotateY(-180deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}
+@keyframes c-shadow {
+  from {
+    opacity: 1;
+    scale: 0.62 0.45;
+    translate: 0 -1.5svh;
+  }
+  to {
+    opacity: 0.7;
+    scale: 2.6 3;
+    translate: 0 0;
+  }
+}
+@keyframes c-sweep {
+  from {
+    opacity: 0;
+    translate: -170% 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    translate: 60% 0;
+  }
+}
+@keyframes c-glow {
+  from {
+    opacity: 0.3;
+  }
+}
+@keyframes c-truck {
+  from {
+    transform: rotateY(36deg) translateX(10vw);
+  }
+  to {
+    transform: rotateY(20deg) translateX(-6vw);
+  }
+}
+@keyframes c-truck-phone {
+  from {
+    transform: rotateY(40deg) translateX(16vw);
+  }
+  to {
+    transform: rotateY(28deg) translateX(-22vw);
+  }
+}

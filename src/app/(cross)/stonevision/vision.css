@@ -1,0 +1,1456 @@
+/* The StoneVision product page (/stonevision). Scoped to .v-page; tokens from cross.css. */
+
+:root:has(.v-page) {
+  background: #090c0b;
+}
+.v-page {
+  --ink: #090c0b;
+  --deep: #0b3a2d;
+  --g: clamp(1rem, 4vw, 3rem);
+  --red-on-light: #b83119;
+  position: relative;
+  overflow-x: clip;
+  background: var(--ink);
+  color: var(--color-bone);
+}
+.v-page p {
+  text-wrap: pretty;
+}
+.v-page [id] {
+  scroll-margin-top: 1rem;
+}
+
+/* ---------- Hero: the home page's ground (its stone, its paper, its type) ---------- */
+.v-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4rem);
+  align-items: center;
+  min-height: min(100svh, 58rem);
+  padding: clamp(6rem, 13svh, 8rem) var(--g) clamp(3rem, 8svh, 5rem);
+  background: #ebe9e2;
+  color: var(--color-obsidian);
+  border-bottom: 1px solid rgb(17 23 21 / 0.1);
+}
+.v-hero__ground {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: #e4e5e1;
+}
+.v-hero__ground img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+.v-hero__ground::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(248 246 239 / 0.74),
+    rgb(248 246 239 / 0.56) 55%,
+    rgb(248 246 239 / 0.66)
+  );
+}
+.v-hero__kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  color: #2d3833;
+}
+.v-hero__product {
+  display: inline-block;
+  padding: 0.1em 0.4em;
+  margin-left: -0.4em;
+  background: var(--color-acid);
+  color: var(--color-obsidian);
+}
+.v-hero__title {
+  margin-top: 1.25rem;
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: clamp(2.5rem, 1rem + 3.4vw, 4.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+.v-hero__title span {
+  display: block;
+  text-wrap: balance;
+}
+.v-hero__title span + span {
+  color: var(--color-malachite);
+}
+.v-hero__lede {
+  max-width: 33rem;
+  margin-top: 1.5rem;
+  font-size: var(--text-lead);
+  line-height: 1.5;
+  color: #2d3833;
+}
+.v-hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+  margin-top: 2rem;
+}
+.v-cta {
+  white-space: nowrap; /* a call never breaks over two lines */
+  min-height: 3.25rem;
+  padding-inline: 1.6rem;
+  font-size: 1.0625rem;
+}
+.v-hero .x-link-cut {
+  color: var(--color-obsidian);
+}
+.v-hero__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 2.25rem;
+  list-style: none;
+}
+.v-hero__facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: rgb(248 246 239 / 0.6);
+  box-shadow: inset 0 0 0 1px rgb(17 23 21 / 0.22);
+  font-size: 0.875rem;
+  color: #2d3833;
+}
+.v-hero__facts li::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--color-malachite);
+}
+.v-hero__visual {
+  margin: 0;
+}
+.v-hero__visual figcaption {
+  margin-top: 0.9rem;
+  color: #2d3833;
+}
+@media (width < 40rem) {
+  /* A phone's first screen: the headline, the call, then the picture; the words after it. */
+  .v-hero {
+    gap: 0;
+    padding-top: 5.75rem;
+  }
+  .v-hero__copy {
+    display: contents;
+  }
+  .v-hero__kicker {
+    order: 1;
+  }
+  .v-hero__title {
+    order: 2;
+  }
+  .v-hero__ctas {
+    order: 3;
+    flex-wrap: nowrap;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  .v-hero__visual {
+    order: 4;
+    margin: 1.5rem calc(-1 * var(--g)) 0;
+  }
+  .v-hero__visual .v-ba {
+    border-radius: 0;
+  }
+  .v-hero__visual figcaption {
+    padding-inline: var(--g);
+  }
+  .v-hero__lede {
+    order: 5;
+  }
+  .v-hero__ctas .v-cta {
+    flex: 1;
+    justify-content: center;
+  }
+  .v-hero__facts {
+    order: 6;
+  }
+}
+@media (min-width: 64rem) {
+  .v-hero {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+}
+
+/* ---------- Before / after (BeforeAfter.tsx) ---------- */
+/* The split as a real percentage, so it can be animated (the arrival sweep). */
+@property --at {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Once on arrival: the room as photographed, the stone sweeping across it, then the resting split. */
+  .v-ba[data-intro] {
+    animation: v-ba-intro 2400ms cubic-bezier(0.65, 0, 0.35, 1) 700ms backwards;
+  }
+}
+@keyframes v-ba-intro {
+  0% {
+    --at: 100%;
+  }
+  55% {
+    --at: 12%;
+  }
+}
+.v-ba {
+  --at: 50%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #d9d3c8;
+  box-shadow:
+    0 0 0 1px rgb(17 23 21 / 0.12),
+    0 3rem 6rem -2rem rgb(17 23 21 / 0.5);
+  user-select: none;
+}
+.v-ba__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.v-ba__before {
+  clip-path: inset(0 calc(100% - var(--at)) 0 0);
+}
+.v-ba__labels {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 0 0 var(--at));
+  pointer-events: none;
+}
+.v-ba__tag {
+  position: absolute;
+  top: 0.75rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgb(9 12 11 / 0.7);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+.v-ba__tag--before {
+  left: 0.75rem;
+}
+.v-ba__tag--after {
+  right: 0.75rem;
+}
+.v-ba__handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--at);
+  width: 2px;
+  translate: -50% 0;
+  background: #fff;
+  box-shadow: 0 0 8px rgb(0 0 0 / 0.45);
+  pointer-events: none;
+}
+.v-ba__handle span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: rgb(9 12 11 / 0.72);
+  box-shadow: 0 0 0 2px #fff;
+  color: #fff;
+  font-weight: 700;
+}
+/* The native slider, invisible, over the whole picture. */
+.v-ba__range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+.v-ba:has(.v-ba__range:focus-visible) {
+  outline: 3px solid var(--color-signal);
+  outline-offset: 3px;
+}
+
+/* Red labels on pictures: the site's chip, with a dot where it points. */
+.v-chip {
+  position: absolute;
+  padding: 0.3em 0.6em;
+  border-radius: 6px;
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+  font-size: clamp(0.75rem, 0.6rem + 0.35vw, 0.875rem);
+  font-weight: 600;
+  line-height: 1.15;
+  white-space: nowrap;
+  box-shadow: 0 0.25em 0.75em -0.25em rgb(17 23 21 / 0.5);
+  pointer-events: none;
+}
+.v-chip[data-end] {
+  translate: -100% 0;
+}
+.v-mark {
+  position: absolute;
+  border-radius: 8px;
+  outline: 2px solid var(--color-signal);
+  outline-offset: 3px;
+  pointer-events: none;
+}
+.v-mark span {
+  position: absolute;
+  left: -3px;
+  top: calc(100% + 9px);
+  padding: 0.3em 0.6em;
+  border-radius: 6px;
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+  font-size: clamp(0.75rem, 0.6rem + 0.35vw, 0.8125rem);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.v-win {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: #f4f1ec;
+}
+.v-win img {
+  position: absolute;
+  max-width: none;
+  height: auto;
+}
+
+/* ---------- Sections ---------- */
+.v-sec {
+  position: relative;
+  padding: clamp(4.5rem, 11svh, 7.5rem) var(--g);
+}
+.v-sec--light {
+  background: var(--color-bone);
+  color: var(--color-obsidian);
+}
+.v-sec--ink {
+  background:
+    radial-gradient(55% 45% at 50% 30%, rgb(22 75 61 / 0.45), transparent 70%), var(--ink);
+}
+.v-sec--deep {
+  background: var(--deep);
+}
+.v-head {
+  position: relative;
+  max-width: 50rem;
+  margin-bottom: clamp(2.25rem, 5svh, 3.5rem);
+}
+.v-head__no {
+  color: var(--color-lichen);
+}
+.v-sec--light .v-head__no {
+  color: var(--red-on-light);
+}
+.v-sec--deep .v-head__no {
+  color: var(--color-acid);
+}
+.v-head__title {
+  margin-top: 0.9rem;
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: clamp(2rem, 1.1rem + 3vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.v-head__text {
+  max-width: 38rem;
+  margin-top: 1.1rem;
+  font-size: var(--text-lead);
+  line-height: 1.5;
+  color: rgb(243 246 242 / 0.8);
+}
+.v-sec--light .v-head__text {
+  color: var(--color-slate);
+}
+.v-cap {
+  margin-top: 1.25rem;
+  color: var(--color-slate);
+}
+
+/* ---------- How it works: three pictures ---------- */
+.v-steps {
+  display: grid;
+  gap: 2.5rem 1.5rem;
+  list-style: none;
+}
+.v-step {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+}
+.v-step__pic {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  aspect-ratio: 3 / 2;
+  background: #d9d3c8;
+  box-shadow: 0 1.5rem 3rem -1.5rem rgb(17 23 21 / 0.45);
+}
+.v-step__pic > img,
+.v-step__pic > .v-win {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.v-step__no {
+  margin-top: 0.9rem;
+  color: var(--red-on-light);
+}
+.v-step__title {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1.1;
+}
+.v-step > p:last-child {
+  max-width: 24rem;
+  color: var(--color-slate);
+  line-height: 1.5;
+}
+.v-steps-scroll:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 6px;
+  border-radius: 14px;
+}
+@media (width < 56rem) {
+  /* Phones and small tablets: the steps side by side, swiped one at a time. */
+  .v-steps-scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--g);
+    margin-inline: calc(-1 * var(--g));
+    padding: 0 var(--g) 0.5rem;
+    scrollbar-width: none;
+  }
+  .v-steps-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .v-steps {
+    grid-auto-flow: column;
+    grid-auto-columns: min(80vw, 24rem);
+    gap: 1rem;
+  }
+  .v-step {
+    scroll-snap-align: start;
+  }
+}
+@media (min-width: 56rem) {
+  .v-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  /* A red thread from one picture to the next. */
+  .v-step {
+    position: relative;
+    container-type: inline-size;
+  }
+  .v-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: calc(33.33cqi - 1px);
+    right: -1.5rem;
+    width: 1.5rem;
+    height: 2px;
+    background: var(--color-signal);
+  }
+}
+
+/* ---------- Live demo section ---------- */
+.v-try .v-head {
+  max-width: 44rem;
+}
+
+/* ---------- Compare: one room, two stones ---------- */
+.v-pair {
+  display: grid;
+  gap: 1rem;
+}
+.v-pair figure {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 1.5rem 3rem -1.5rem rgb(17 23 21 / 0.45);
+}
+.v-pair img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+.v-pair figcaption {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+  font-size: 0.875rem;
+}
+@media (min-width: 48rem) {
+  .v-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Loop: stock to enquiry ---------- */
+.v-loop__body {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+.v-chain {
+  position: relative;
+  display: grid;
+  gap: 1.25rem;
+  padding-left: 2rem;
+  list-style: none;
+  counter-reset: v-chain;
+}
+/* The thread from stock to lead. */
+.v-chain::before {
+  content: "";
+  position: absolute;
+  left: 0.55rem;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  width: 2px;
+  background: var(--color-signal);
+}
+.v-chain li {
+  position: relative;
+  display: grid;
+  gap: 0.2rem;
+  counter-increment: v-chain;
+}
+.v-chain li::before {
+  content: counter(v-chain);
+  position: absolute;
+  left: -2rem;
+  top: 0.1rem;
+  display: grid;
+  place-items: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+.v-chain b {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-size: 1.25rem;
+}
+.v-chain span {
+  color: rgb(243 246 242 / 0.8);
+}
+.v-lead {
+  margin: 0;
+}
+.v-lead__card {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 26rem;
+  padding: 1.4rem;
+  border-radius: 18px;
+  background: #fff;
+  color: var(--color-obsidian);
+  box-shadow: 0 2.5rem 4rem -1.5rem rgb(0 0 0 / 0.6);
+}
+.v-lead__tag {
+  justify-self: start;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--color-signal);
+}
+.v-lead__stone {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.v-lead__stone img {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.v-lead__stone b {
+  display: block;
+  font-size: 1.15rem;
+}
+.v-lead__stone small {
+  color: var(--color-slate);
+}
+.v-lead__msg {
+  padding: 0.75rem 0.9rem;
+  border-left: 3px solid var(--color-signal);
+  background: rgb(17 23 21 / 0.05);
+  line-height: 1.45;
+}
+.v-lead__reply {
+  padding: 0.65rem;
+  border-radius: 999px;
+  background: #075e54;
+  color: #fff;
+  font-weight: 600;
+  text-align: center;
+}
+.v-lead figcaption {
+  max-width: 26rem;
+  margin-top: 0.9rem;
+  color: var(--color-lichen);
+}
+@media (min-width: 56rem) {
+  .v-loop__body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(3rem, 6vw, 6rem);
+  }
+}
+
+/* ---------- What buyers get ---------- */
+.v-gets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--color-rule-light);
+  box-shadow: 0 0 0 1px var(--color-rule-light);
+  list-style: none;
+}
+.v-gets li {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+  padding: clamp(1.1rem, 2.5vw, 1.75rem);
+  background: var(--color-bone);
+}
+.v-gets svg {
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.4rem;
+  fill: none;
+  stroke: var(--color-obsidian);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.v-gets h3 {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.3rem);
+  line-height: 1.1;
+}
+.v-gets p {
+  color: var(--color-slate);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+@media (min-width: 64rem) {
+  .v-gets {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ---------- FAQ, as a conversation, beside the call ---------- */
+.v-faq {
+  display: grid;
+  gap: 3rem;
+  border-top: 1px solid var(--color-rule-light);
+}
+.v-faq__lead .v-head__title {
+  max-width: 12ch;
+}
+.v-faq__text {
+  max-width: 26rem;
+  margin: 1rem 0 1.75rem;
+  color: var(--color-slate);
+  font-size: var(--text-lead);
+  line-height: 1.5;
+}
+.v-chat {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 40rem;
+}
+.v-chat summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+.v-chat summary::-webkit-details-marker {
+  display: none;
+}
+.v-chat__q {
+  padding: 1rem 1.4rem;
+  border-radius: 1.6rem;
+  background: var(--ink);
+  color: var(--color-bone);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.v-chat summary:hover .v-chat__q {
+  background: #1f2623;
+}
+.v-chat summary:focus-visible {
+  outline: none;
+}
+.v-chat summary:focus-visible .v-chat__q {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 3px;
+}
+.v-chat__plus {
+  position: relative;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(17 23 21 / 0.35);
+  transition: rotate 250ms var(--ease-settle);
+}
+.v-chat__plus::before,
+.v-chat__plus::after {
+  content: "";
+  position: absolute;
+  inset: 50% 30%;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: var(--color-obsidian);
+}
+.v-chat__plus::after {
+  rotate: 90deg;
+}
+.v-chat__item[open] .v-chat__plus {
+  rotate: 45deg;
+}
+.v-chat__a {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  margin: 0.75rem 0 0.4rem 1.25rem;
+}
+.v-chat__who {
+  position: relative;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.v-chat__who::after {
+  content: "";
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background: var(--color-signal);
+}
+.v-chat__a p {
+  max-width: 34rem;
+  padding: 0.9rem 1.2rem;
+  border-radius: 1.25rem 1.25rem 1.25rem 0.35rem;
+  background: #fff;
+  color: var(--color-obsidian);
+  line-height: 1.55;
+  box-shadow:
+    0 0 0 1px var(--color-rule-light),
+    0 0.75rem 1.5rem -1rem rgb(17 23 21 / 0.35);
+}
+@media (min-width: 64rem) {
+  .v-faq {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(3rem, 6vw, 6rem);
+    align-items: start;
+  }
+  .v-faq__lead {
+    position: sticky;
+    top: 3rem;
+  }
+}
+
+/* ---------- Footer: as the other pages' ---------- */
+.v-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  padding: 1.25rem var(--g) 1.75rem;
+  border-top: 1px solid var(--color-rule-dark);
+  color: var(--color-lichen);
+}
+.v-page .v-foot__mark {
+  font-size: 1.15rem;
+  letter-spacing: -0.035em;
+  text-transform: none;
+  color: var(--color-bone);
+}
+
+/* ---------- Motion ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* Arriving from another page: closes to the red cut and opens on this one, on the same
+     paper; the site's bar holds still above it (as the ERP page). */
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition {
+    background: #ebe9e2;
+  }
+  ::view-transition-group(root) {
+    background: #ff5238;
+    animation: v-vt-cut 900ms cubic-bezier(0.65, 0, 0.15, 1) both;
+  }
+  ::view-transition-old(root) {
+    animation: v-vt-old 900ms linear both;
+  }
+  ::view-transition-new(root) {
+    animation: v-vt-new 900ms linear both;
+  }
+  .v-hero__copy > * {
+    animation: v-in 700ms var(--ease-settle) both;
+  }
+  .v-hero__copy > :nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .v-hero__copy > :nth-child(3) {
+    animation-delay: 160ms;
+  }
+  .v-hero__copy > :nth-child(n + 4) {
+    animation-delay: 240ms;
+  }
+  .v-hero__visual {
+    animation: v-in 900ms var(--ease-settle) 200ms both;
+  }
+  .v-hero .v-chip {
+    animation: v-pop 450ms var(--ease-settle) both;
+    animation-delay: 1100ms;
+  }
+  .v-hero .v-chip + .v-chip {
+    animation-delay: 1380ms;
+  }
+  .v-chat__item[open] .v-chat__a p {
+    animation: v-bubble 420ms var(--ease-settle) both;
+  }
+  @supports (animation-timeline: view()) {
+    .v-reveal {
+      animation: v-in linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 70%;
+    }
+    .v-step,
+    .v-gets li,
+    .v-chain li {
+      animation: v-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+    .v-step {
+      animation-range: entry calc(var(--i) * 6%) entry calc(50% + var(--i) * 6%);
+    }
+    /* In the sideways row a step's view() would follow that row, not the page: no reveal there. */
+    @media (width < 56rem) {
+      .v-step {
+        animation: none;
+      }
+    }
+  }
+}
+@keyframes v-vt-cut {
+  0% {
+    clip-path: inset(0);
+  }
+  42%,
+  58% {
+    clip-path: inset(calc(50% - 1px) 0);
+  }
+  100% {
+    clip-path: inset(0);
+  }
+}
+@keyframes v-vt-old {
+  0%,
+  30% {
+    opacity: 1;
+  }
+  42%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes v-vt-new {
+  0%,
+  58% {
+    opacity: 0;
+  }
+  70%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes v-in {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
+}
+@keyframes v-pop {
+  from {
+    opacity: 0;
+    scale: 0.92;
+  }
+}
+@keyframes v-bubble {
+  from {
+    opacity: 0;
+    scale: 0.9;
+    translate: 0 0.4rem;
+  }
+}
+
+/* ---------- The live demo ---------- */
+.v-demo {
+  display: grid;
+  gap: 1.5rem;
+}
+@media (min-width: 64rem) {
+  .v-demo {
+    grid-template-columns: minmax(0, 1fr) 21rem;
+    align-items: start;
+  }
+}
+.v-demo__stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #151a18;
+  box-shadow:
+    0 0 0 1px rgb(243 246 242 / 0.12),
+    0 3rem 6rem -2rem rgb(0 0 0 / 0.85);
+}
+.v-demo__preview,
+.v-demo__before {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.v-demo__before {
+  pointer-events: none;
+  user-select: none;
+}
+.v-demo__holder {
+  position: absolute;
+  inset: 0;
+}
+.v-demo__holder[hidden] {
+  display: block;
+  visibility: hidden;
+}
+.v-demo__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: filter 500ms ease;
+}
+/* While the engine reads the room: the photo a shade quieter, a scan line passing over it. */
+.v-demo__stage[data-scan] .v-demo__canvas {
+  filter: saturate(0.8) brightness(0.9);
+}
+.v-demo__scan {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.v-demo__scan::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -35%;
+  height: 35%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(226 251 107 / 0.14) 80%,
+    rgb(226 251 107 / 0.7) 99%,
+    transparent
+  );
+}
+/* The model's real download progress, along the bottom edge. */
+.v-demo__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgb(255 255 255 / 0.18);
+  pointer-events: none;
+}
+.v-demo__bar span {
+  display: block;
+  height: 100%;
+  background: var(--color-acid);
+  transform-origin: 0 50%;
+  transition: transform 300ms ease;
+}
+/* The stone just laid: the photo wipes away, a line of light leading. */
+.v-demo__reveal,
+.v-demo__fade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.v-demo__reveal[data-go] {
+  clip-path: inset(0 0 0 100%);
+}
+.v-demo__sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: 2px;
+  background: var(--color-acid);
+  box-shadow: 0 0 18px 5px rgb(226 251 107 / 0.55);
+  pointer-events: none;
+}
+/* The stone before, fading out over the new one. */
+.v-demo__fade {
+  opacity: 1;
+  transition: opacity 650ms ease;
+}
+.v-demo__fade[data-out] {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .v-demo__scan::before {
+    animation: v-demo-scan 2.4s ease-in-out infinite;
+  }
+  .v-demo__reveal[data-go] {
+    animation: v-demo-wipe 1200ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+  .v-demo__sweep {
+    animation: v-demo-sweep 1200ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+  .v-demo__label {
+    animation: v-pop 400ms var(--ease-settle) both;
+  }
+}
+@keyframes v-demo-scan {
+  to {
+    top: 100%;
+  }
+}
+@keyframes v-demo-wipe {
+  from {
+    clip-path: inset(0);
+  }
+  to {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+@keyframes v-demo-sweep {
+  from {
+    left: 0;
+  }
+  to {
+    left: 100%;
+  }
+}
+.v-demo__touch {
+  position: absolute;
+  inset: 0;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: crosshair;
+}
+.v-demo__touch[role="slider"] {
+  cursor: ew-resize;
+}
+.v-demo__touch:focus-visible {
+  outline: 3px solid var(--color-acid);
+  outline-offset: -3px;
+}
+.v-demo__mark {
+  position: absolute;
+  width: 0.9rem;
+  height: 0.9rem;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 1px 4px rgb(0 0 0 / 0.4);
+}
+.v-demo__mark[data-neg] {
+  background: var(--color-signal);
+}
+.v-demo__tag {
+  position: absolute;
+  top: 0.75rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgb(9 12 11 / 0.72);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+.v-demo__split {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  translate: -50% 0;
+  background: #fff;
+  box-shadow: 0 0 6px rgb(0 0 0 / 0.5);
+  pointer-events: none;
+}
+.v-demo__split span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgb(9 12 11 / 0.7);
+  box-shadow: 0 0 0 2px #fff;
+  color: #fff;
+  font-weight: 700;
+}
+/* The stone's name on the result: the site's red chip. */
+.v-demo__label {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+.v-demo__prompt {
+  position: absolute;
+  left: 50%;
+  top: 0.75rem;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: max-content;
+  max-width: 92%;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgb(9 12 11 / 0.78);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+.v-demo__spin {
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid rgb(255 255 255 / 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .v-demo__spin {
+    animation: v-spin 0.8s linear infinite;
+  }
+}
+@keyframes v-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+.v-demo__start {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: linear-gradient(rgb(9 12 11 / 0.1), rgb(9 12 11 / 0.55));
+  text-align: center;
+}
+.v-demo__start p {
+  max-width: 22rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  background: rgb(9 12 11 / 0.6);
+  color: rgb(243 246 242 / 0.9);
+  font-size: 0.875rem;
+}
+.v-demo__go {
+  min-height: 3.25rem;
+  padding-inline: 1.6rem;
+  font-size: 1.0625rem;
+}
+
+/* The panel: room, stone, tools. */
+.v-demo__panel {
+  display: grid;
+  gap: 1.25rem;
+}
+.v-demo__group {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.v-demo__group legend {
+  margin-bottom: 0.6rem;
+  color: var(--color-lichen);
+}
+.v-demo__rooms,
+.v-demo__stones {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.v-demo__stones {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.v-demo__room,
+.v-demo__stone {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border: 0;
+  border-radius: 10px;
+  background: rgb(243 246 242 / 0.06);
+  box-shadow: inset 0 0 0 1px rgb(243 246 242 / 0.14);
+  color: var(--color-bone);
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+}
+.v-demo__room img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.v-demo__room[aria-pressed="true"],
+.v-demo__own[data-on],
+.v-demo__stone[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px var(--color-acid);
+  background: rgb(226 251 107 / 0.08);
+}
+.v-demo__room:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.v-demo__own {
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+}
+.v-demo__own[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.v-demo__own:focus-within {
+  outline: 2px solid var(--color-acid);
+  outline-offset: 2px;
+}
+.v-demo__plus {
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--color-acid);
+}
+.v-demo__stone {
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+}
+.v-demo__stone img {
+  width: 3.25rem;
+  height: 3.25rem;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.v-demo__stone b {
+  display: block;
+  font-size: 0.9375rem;
+}
+.v-demo__stone small {
+  font-size: 0.75rem;
+  color: var(--color-lichen);
+}
+.v-demo__room:focus-visible,
+.v-demo__stone:focus-visible,
+.v-demo__tools button:focus-visible,
+.v-demo__check button:focus-visible {
+  outline: 2px solid var(--color-acid);
+  outline-offset: 2px;
+}
+.v-demo__tools {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+@media (min-width: 64rem) {
+  /* Beside the picture: one stone a row, two tools a row. */
+  .v-demo__stones {
+    grid-template-columns: 1fr;
+  }
+  .v-demo__tools {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (width < 40rem) {
+  /* A phone: the picture edge to edge, the controls compact enough to sit under it. */
+  .v-demo {
+    gap: 1rem;
+  }
+  .v-demo__stage {
+    margin-inline: calc(-1 * var(--g));
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .v-demo__panel {
+    gap: 0.9rem;
+  }
+  .v-demo__group legend {
+    margin-bottom: 0.4rem;
+  }
+  .v-demo__room,
+  .v-demo__stone {
+    font-size: 0.75rem;
+  }
+  .v-demo__stone {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+  .v-demo__stone img {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .v-demo__stone b {
+    font-size: 0.875rem;
+  }
+  .v-demo__tools button {
+    padding-inline: 0.25rem;
+    font-size: 0.75rem;
+  }
+  .v-demo__prompt,
+  .v-demo__label {
+    font-size: 0.75rem;
+  }
+  .v-demo__fine {
+    font-size: 0.75rem;
+  }
+}
+.v-demo__tools button,
+.v-demo__check button {
+  min-height: 2.75rem;
+  padding: 0.4rem 0.6rem;
+  border: 0;
+  border-radius: 10px;
+  background: rgb(243 246 242 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(243 246 242 / 0.18);
+  color: var(--color-bone);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.v-demo__tools button[aria-pressed="true"] {
+  background: var(--color-bone);
+  color: var(--color-obsidian);
+}
+.v-demo__tools button:disabled,
+.v-demo__check button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.v-demo__check {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.85rem;
+  border-radius: 12px;
+  background: rgb(255 82 56 / 0.12);
+  box-shadow: inset 0 0 0 1px rgb(255 82 56 / 0.4);
+  font-size: 0.9375rem;
+}
+.v-demo__check div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.v-demo__note,
+.v-demo__fine {
+  color: var(--color-lichen);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+.v-demo__error {
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
+  background: rgb(255 82 56 / 0.14);
+  color: #ffb3a5;
+  font-size: 0.875rem;
+}

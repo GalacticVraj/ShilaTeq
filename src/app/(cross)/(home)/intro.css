@@ -1,0 +1,261 @@
+/* / — the intro, "the mark" (first entry only; INTRO_SCRIPT in
+   page.tsx decides). About 2.8 s, small and quiet: one gesture, dot → stone → dot.
+
+     0–0.6 s     the brand's red dot appears and becomes a short red cut
+     0.55–1.2    a small slab of real Statuarietto opens from the cut like a book,
+                 its two leaves mirroring (the stone trade's book match)
+     1.35–1.8    it closes back into the cut, and the cut back into the dot
+     1.75–2.15   the dot is the dot of ShilaTeq: the letters appear around it
+     2.25–2.8    the wordmark glides to its place in the top bar as the site fades in
+
+   Everything is placed so the wordmark ends centred on the screen: its dot (the
+   anchor, --ax / --ay) sits 1.346em from its left edge and 0.598em above its
+   middle. It is fixed and lets the pointer through, and any key, tap or scroll
+   ends it at once. Only transforms and opacity move. */
+
+.c-intro {
+  --mfs: 1.75rem; /* the wordmark's size in the top bar */
+  --s: 2.4; /* and its size at the centre, × that */
+  --ax: calc(50vw - 0.6275 * var(--mfs) * var(--s));
+  --ay: calc(50vh - 0.598 * var(--mfs) * var(--s));
+  --lw: 4rem; /* one leaf of the slab */
+  --lh: 5.5rem;
+  /* The dot stretched into the cut: 2px wide, the slab's height and a little
+     more, as multiples of the dot (0.21em of the centred wordmark). */
+  --thin: 0.142;
+  --long: 7.6;
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-intro="play"] .c-intro {
+    display: block;
+    animation: c-intro-out 150ms linear 2650ms forwards;
+  }
+  :root[data-intro="done"] .c-intro {
+    display: block;
+    animation: c-intro-skip 200ms var(--ease-settle) forwards;
+  }
+  /* One wordmark at a time: the top bar's shows once the intro's has landed on it. */
+  :root[data-intro="play"] .x-top__mark {
+    animation: ci-wait 2670ms backwards;
+  }
+  /* The hero's own entrance follows the intro. */
+  :root[data-intro="play"] .c-hero__title .x-line > span {
+    animation-delay: 2.35s;
+  }
+  :root[data-intro="play"] .c-hero__actions,
+  :root[data-intro="play"] .c-scenes {
+    animation-delay: 2.5s;
+  }
+  @supports (animation-timeline: view()) {
+    :root[data-intro="play"] .c-open .c-hero__actions,
+    :root[data-intro="play"] .c-open .c-scenes {
+      animation-delay: 0s, 2.5s;
+    }
+  }
+}
+.c-intro > * {
+  position: absolute;
+}
+
+/* The stage: plain graphite, a breath of mineral green at the centre. */
+.ci-bg {
+  inset: 0;
+  background:
+    radial-gradient(28rem 20rem at var(--ax) var(--ay), rgb(22 75 61 / 0.32), transparent 70%),
+    #0b0f0e;
+  animation: ci-off 350ms ease-in 2300ms forwards;
+}
+
+/* The dot, at the anchor: it stretches into the cut, holds as the slab's seam,
+   shrinks back, and hands over to the wordmark's own dot (same size and place). */
+.ci-dot {
+  left: var(--ax);
+  top: var(--ay);
+  z-index: 1;
+  width: calc(var(--mfs) * var(--s) * 0.21);
+  aspect-ratio: 1;
+  margin: calc(var(--mfs) * var(--s) * -0.105) 0 0 calc(var(--mfs) * var(--s) * -0.105);
+  border-radius: 50%;
+  background: var(--color-signal);
+  animation:
+    ci-pop 260ms cubic-bezier(0.3, 1.5, 0.5, 1) both,
+    ci-stretch 340ms var(--ease-cut) 260ms both,
+    ci-shrink 300ms cubic-bezier(0.6, 0, 0.9, 0.4) 1500ms forwards,
+    ci-gone 0s 1850ms forwards;
+}
+
+/* The slab: two leaves of one stone, hinged on the cut. */
+.ci-book {
+  left: var(--ax);
+  top: var(--ay);
+  width: calc(var(--lw) * 2);
+  height: var(--lh);
+  margin: calc(var(--lh) / -2) 0 0 calc(var(--lw) * -1);
+  perspective: 18rem;
+}
+.ci-leaf {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  background: #d9d9d6;
+  animation:
+    ci-open-l 650ms cubic-bezier(0.2, 0.7, 0.1, 1) 550ms both,
+    ci-close-l 380ms cubic-bezier(0.6, 0, 0.9, 0.4) 1350ms forwards;
+}
+.ci-leaf--l {
+  left: 0;
+  transform-origin: 100% 50%;
+}
+.ci-leaf--r {
+  right: 0;
+  transform-origin: 0 50%;
+  animation-name: ci-open-r, ci-close-r;
+}
+/* The same stone, the right leaf its mirror: the veins meet at the cut. */
+.ci-leaf > span {
+  position: absolute;
+  inset: 0;
+  background: var(--marble) 62% 46% / auto 150%;
+}
+.ci-leaf--r > span {
+  transform: scaleX(-1);
+}
+
+/* The wordmark: waits with its dot on the anchor at --s times the size; the dot
+   pops where the cut closed, the letters appear, then it glides home. */
+.c-page .c-intro__mark {
+  --from: translate(
+      calc(var(--ax) - var(--g) - 1.346em * var(--s)),
+      calc(var(--ay) - 2rem + 0.598em * var(--s))
+    )
+    scale(var(--s));
+  left: var(--g);
+  top: 2rem;
+  translate: 0 -50%;
+  transform-origin: 0 50%;
+  font-size: var(--mfs);
+  color: var(--color-bone);
+  animation:
+    ci-letters 300ms ease-out 1850ms both,
+    ci-fly 420ms cubic-bezier(0.65, 0, 0.15, 1) 2250ms both,
+    ci-off 150ms linear 2650ms forwards;
+}
+/* Its own dot takes over from the stage's at the same instant. */
+.c-intro__mark .x-wordmark__dot {
+  animation: ci-wait 1850ms backwards;
+}
+
+@media (width < 40rem) {
+  .c-intro {
+    --mfs: 1.5rem;
+    --s: 2;
+    --thin: 0.198;
+    --long: 10.6;
+  }
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes ci-pop {
+  from {
+    transform: scale(0);
+  }
+}
+@keyframes ci-stretch {
+  to {
+    scale: var(--thin) var(--long);
+  }
+}
+@keyframes ci-shrink {
+  from {
+    scale: var(--thin) var(--long);
+  }
+  to {
+    scale: 1 1;
+  }
+}
+@keyframes ci-gone {
+  to {
+    visibility: hidden;
+  }
+}
+@keyframes ci-wait {
+  from,
+  to {
+    visibility: hidden;
+  }
+}
+/* Unseen while edge-on; they appear as they open, and go as they close. */
+@keyframes ci-open-l {
+  from {
+    transform: rotateY(-90deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+}
+@keyframes ci-open-r {
+  from {
+    transform: rotateY(90deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+}
+@keyframes ci-close-l {
+  85% {
+    opacity: 1;
+  }
+  to {
+    transform: rotateY(-90deg);
+    opacity: 0;
+  }
+}
+@keyframes ci-close-r {
+  85% {
+    opacity: 1;
+  }
+  to {
+    transform: rotateY(90deg);
+    opacity: 0;
+  }
+}
+/* The letters only: the dot is its own background. */
+@keyframes ci-letters {
+  from {
+    color: transparent;
+  }
+}
+@keyframes ci-fly {
+  from {
+    transform: var(--from);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes ci-off {
+  to {
+    opacity: 0;
+  }
+}
+/* Visible until its last frame (visibility interpolates that way), then gone. */
+@keyframes c-intro-out {
+  to {
+    visibility: hidden;
+  }
+}
+@keyframes c-intro-skip {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

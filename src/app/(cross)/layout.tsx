@@ -54,7 +54,10 @@ export default function CrossLayout({ children }: Readonly<{ children: React.Rea
       <body>
         <script
           dangerouslySetInnerHTML={{
-            __html: "document.documentElement.classList.remove('no-js')",
+            // Comparison only: ?hero=daylight | sandstone picks a light hero variant.
+            __html:
+              "var d=document.documentElement;d.classList.remove('no-js');" +
+              "var h=new URLSearchParams(location.search).get('hero');if(h)d.dataset.hero=h",
           }}
         />
         <a href="#main" className="x-skip">

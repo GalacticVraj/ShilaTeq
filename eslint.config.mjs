@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // StoneX's StoneVision engine, copied as it is (its own repo lints it)
+    "src/vendor/**",
   ]),
 ]);
 

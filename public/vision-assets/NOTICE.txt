@@ -1,0 +1,11 @@
+StoneVision's in-browser floor finder, served with the ShilaTeq website.
+
+ort-wasm-simd-threaded.wasm, ort.wasm.bundle.min.mjs
+  ONNX Runtime Web 1.30.0 — Copyright (c) Microsoft Corporation.
+  MIT License: https://github.com/microsoft/onnxruntime/blob/main/LICENSE
+
+models/slimsam-77-uniform/5850ab45/*.onnx
+  SlimSAM-77 (uniform), ONNX export by Xenova (huggingface.co/Xenova/slimsam-77-uniform,
+  revision 5850ab45f587c112167512ffef949107115e26a0), from SlimSAM by Zigeng Chen et al.,
+  based on Segment Anything by Meta AI.
+  Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0

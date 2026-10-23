@@ -1,0 +1,1460 @@
+/* The StoneX ERP product page (/stonex-erp). Scoped to .e-page; tokens from
+   cross.css. Rhythm: ink → bone → ink → ink → bone → ink → bone → ink. The static
+   layout is complete; motion is layered on only with no-preference, never pins. */
+
+:root:has(.e-page) {
+  background: #090c0b;
+}
+.e-page {
+  --ink: #090c0b;
+  --deep: #0b3a2d;
+  --g: clamp(1rem, 4vw, 3rem);
+  --red-on-light: #b83119; /* signal, deepened for small text on bone (5.2:1) */
+  --wa: #075e54; /* WhatsApp's dark green */
+  position: relative;
+  overflow-x: clip;
+  background: var(--ink);
+  color: var(--color-bone);
+}
+.e-page p {
+  text-wrap: pretty;
+}
+.e-page [id] {
+  scroll-margin-top: 1rem;
+}
+
+/* ---------- Hero: the home page's ground (its stone, its paper, its type) ---------- */
+.e-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4rem);
+  align-items: center;
+  min-height: min(100svh, 58rem);
+  padding: clamp(6rem, 13svh, 8rem) var(--g) clamp(3rem, 8svh, 5rem);
+  background: #ebe9e2;
+  color: var(--color-obsidian);
+  border-bottom: 1px solid rgb(17 23 21 / 0.1);
+}
+.e-hero__ground {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: #e4e5e1;
+}
+.e-hero__ground img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+.e-hero__ground::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(248 246 239 / 0.74),
+    rgb(248 246 239 / 0.56) 55%,
+    rgb(248 246 239 / 0.66)
+  );
+}
+.e-hero__kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  color: #2d3833; /* slate, deepened: 7:1 over the stone's darkest veins */
+}
+/* The product's name: the acid mark the home page gives "ERP + visualisation". */
+.e-hero__product {
+  display: inline-block;
+  padding: 0.1em 0.4em;
+  margin-left: -0.4em;
+  background: var(--color-acid);
+  color: var(--color-obsidian);
+}
+.e-hero__title {
+  margin-top: 1.25rem;
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: clamp(2.5rem, 1rem + 3.4vw, 4.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+.e-hero__title span {
+  display: block;
+  text-wrap: balance;
+}
+/* As on the home page: the stone in graphite, the digital layer in mineral green. */
+.e-hero__title span + span {
+  color: var(--color-malachite);
+}
+.e-hero__lede {
+  max-width: 33rem;
+  margin-top: 1.5rem;
+  font-size: var(--text-lead);
+  line-height: 1.5;
+  color: #2d3833;
+}
+.e-hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+  margin-top: 2rem;
+}
+.e-cta {
+  white-space: nowrap; /* a call never breaks over two lines */
+  min-height: 3.25rem;
+  padding-inline: 1.6rem;
+  font-size: 1.0625rem;
+}
+.e-hero .x-link-cut {
+  color: var(--color-obsidian);
+}
+.e-hero__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 2.25rem;
+  list-style: none;
+}
+.e-hero__facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: rgb(248 246 239 / 0.6);
+  box-shadow: inset 0 0 0 1px rgb(17 23 21 / 0.22);
+  font-size: 0.875rem;
+  color: #2d3833;
+}
+.e-hero__facts li::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--color-malachite);
+}
+.e-hero__visual {
+  margin: 0;
+}
+.e-hero__screen {
+  position: relative;
+  display: block;
+  aspect-ratio: 2880 / 1240;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #f4f1ec;
+  box-shadow:
+    0 0 0 1px rgb(17 23 21 / 0.12),
+    0 3rem 6rem -2rem rgb(17 23 21 / 0.5);
+}
+.e-hero__screen img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.e-hero__visual figcaption {
+  margin-top: 0.9rem;
+  color: #2d3833;
+}
+.e-hero__screen {
+  --mk: clamp(0.625rem, 0.5rem + 0.35vw, 0.8125rem);
+}
+/* Red labels on a real screen (Marks in page.tsx): an outline on the element,
+   its name in a red chip on the side given, so none meet or cover what they name. */
+.e-mark {
+  position: absolute;
+  border-radius: 8px;
+  outline: 2px solid var(--color-signal);
+  outline-offset: 2px;
+  pointer-events: none;
+}
+.e-mark__label {
+  position: absolute;
+  left: -2px;
+  bottom: calc(100% + 7px);
+  padding: 0.3em 0.55em;
+  border-radius: 6px;
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+  font-size: var(--mk, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  box-shadow: 0 0.25em 0.75em -0.25em rgb(17 23 21 / 0.45);
+}
+.e-mark[data-side="bottom"] .e-mark__label {
+  bottom: auto;
+  top: calc(100% + 7px);
+}
+.e-mark[data-side="right"] .e-mark__label {
+  bottom: auto;
+  top: 50%;
+  left: calc(100% + 9px);
+  translate: 0 -50%;
+}
+.e-mark[data-side="inside"] .e-mark__label {
+  bottom: auto;
+  top: 7px;
+  left: auto;
+  right: 7px;
+}
+.e-mark[data-end] .e-mark__label {
+  left: auto;
+  right: -2px;
+}
+/* In the margin beside the screen, level with its box: the modules. */
+.e-mark[data-side="left"] .e-mark__label {
+  bottom: auto;
+  top: 50%;
+  left: auto;
+  right: calc(100% + 10px);
+  translate: 0 -50%;
+  width: max-content;
+  max-width: calc(var(--gut) - 1.25rem);
+  white-space: normal;
+  text-align: right;
+}
+@media (width < 40rem) {
+  /* A phone's screen is small: two names, not three. */
+  .e-hero .e-mark[data-wide] {
+    display: none;
+  }
+  /* The call and the link on one row, as on the home page. */
+  .e-hero__ctas {
+    flex-wrap: nowrap;
+    gap: 1.25rem;
+  }
+  .e-hero__ctas .e-cta {
+    flex: 1;
+    justify-content: center;
+  }
+}
+@media (min-width: 64rem) {
+  .e-hero {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+}
+
+/* ---------- Sections ---------- */
+.e-sec {
+  position: relative;
+  padding: clamp(4.5rem, 11svh, 7.5rem) var(--g);
+}
+.e-sec--light {
+  background: var(--color-bone);
+  color: var(--color-obsidian);
+}
+.e-sec--ink {
+  background: var(--ink);
+}
+.e-head {
+  position: relative;
+  max-width: 50rem;
+  margin-bottom: clamp(2.25rem, 5svh, 3.5rem);
+}
+.e-head__no {
+  color: var(--color-lichen);
+}
+.e-sec--light .e-head__no {
+  color: var(--red-on-light);
+}
+.e-head__title {
+  margin-top: 0.9rem;
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: clamp(2rem, 1.1rem + 3vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.e-head__text {
+  max-width: 38rem;
+  margin-top: 1.1rem;
+  font-size: var(--text-lead);
+  line-height: 1.5;
+  color: rgb(243 246 242 / 0.8);
+}
+.e-sec--light .e-head__text {
+  color: var(--color-slate);
+}
+.e-cap {
+  margin-top: 1.5rem;
+  color: var(--color-lichen);
+}
+.e-sec--light .e-cap {
+  color: var(--color-slate);
+}
+
+/* ---------- Loop: yard → showroom → their floor → lead ---------- */
+.e-loop__steps {
+  position: relative;
+  display: grid;
+  gap: 2.25rem 1.5rem;
+  list-style: none;
+}
+.e-loop__step {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+}
+.e-loop__step > p:last-child {
+  max-width: 22rem;
+  color: var(--color-slate);
+  line-height: 1.5;
+}
+.e-loop__no {
+  margin-top: 0.85rem;
+  color: var(--red-on-light);
+}
+.e-loop__title {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+.e-loop__pic {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 14px;
+  container-type: inline-size;
+}
+.e-loop__pic--yard {
+  background: linear-gradient(160deg, #e9e5dd, #d9d3c8);
+}
+.e-loop__window {
+  position: relative;
+  display: block;
+  width: 90%;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f4f1ec;
+  box-shadow: 0 1rem 2rem -1rem rgb(17 23 21 / 0.5);
+}
+.e-loop__pic--show {
+  background: var(--deep);
+}
+.e-phone {
+  display: grid;
+  align-content: start;
+  gap: 5cqi;
+  width: 40cqi;
+  height: 68cqi;
+  padding: 7cqi 4cqi;
+  overflow: hidden;
+  border-radius: 6cqi;
+  background: #f7f4ef;
+  box-shadow:
+    0 0 0 1.6cqi #111,
+    0 1.5rem 3rem -1rem rgb(0 0 0 / 0.6);
+}
+.e-phone__switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.6cqi;
+  border-radius: 99px;
+  background: #e6e0d6;
+  font-size: 1.85cqi;
+  line-height: 1.2;
+  color: #4b4b46;
+}
+.e-phone__switch span {
+  padding: 1cqi 0.5cqi;
+  border-radius: 99px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.e-phone__switch span:first-child {
+  background: #111;
+  color: #fff;
+}
+.e-phone__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5cqi;
+}
+.e-phone__stone {
+  display: grid;
+  gap: 1cqi;
+  font-size: 2.3cqi;
+  line-height: 1.15;
+  color: #2a2a26;
+}
+.e-phone__stone img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 1.2cqi;
+}
+/* The buyer's photo of their room, the slab laid as its floor. */
+.e-loop__pic--room {
+  background: #ddd6ca;
+}
+.e-room {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.e-room__wall {
+  position: absolute;
+  inset: 0 0 44%;
+  background: linear-gradient(180deg, #f1ece4, #e3dccf);
+}
+.e-room__window {
+  position: absolute;
+  left: 56%;
+  top: 14%;
+  width: 26%;
+  height: 66%;
+  background: linear-gradient(160deg, #cfe2ec, #f4f9fc);
+  box-shadow:
+    0 0 0 1.4cqi #fbfaf7,
+    0 0 0 1.8cqi #d6cfc3;
+}
+.e-room__floor {
+  position: absolute;
+  inset: 56% -40% -60%;
+  perspective: 30cqi;
+  perspective-origin: 50% 0;
+}
+.e-room__floor img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: rotateX(60deg);
+  transform-origin: 50% 0;
+}
+/* Viewfinder corners: this is a photo the buyer took. */
+.e-room__corners {
+  position: absolute;
+  inset: 7%;
+  --c: rgb(255 255 255 / 0.95);
+  background:
+    linear-gradient(var(--c), var(--c)) 0 0 / 7cqi 0.8cqi,
+    linear-gradient(var(--c), var(--c)) 0 0 / 0.8cqi 7cqi,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 7cqi 0.8cqi,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 0.8cqi 7cqi,
+    linear-gradient(var(--c), var(--c)) 0 100% / 7cqi 0.8cqi,
+    linear-gradient(var(--c), var(--c)) 0 100% / 0.8cqi 7cqi,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 7cqi 0.8cqi,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 0.8cqi 7cqi;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 0 2px rgb(0 0 0 / 0.35));
+}
+.e-loop__pic--lead {
+  background: var(--ink);
+}
+.e-lead {
+  display: grid;
+  gap: 4cqi;
+  width: 76%;
+  padding: 6cqi;
+  border-radius: 4cqi;
+  background: #fff;
+  color: var(--color-obsidian);
+  box-shadow: 0 1.5rem 3rem -1rem rgb(0 0 0 / 0.7);
+}
+.e-lead__tag {
+  justify-self: start;
+  padding: 1cqi 2.4cqi;
+  border-radius: 99px;
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+  font-size: 3.4cqi;
+}
+.e-lead__stone {
+  display: flex;
+  align-items: center;
+  gap: 3.5cqi;
+}
+.e-lead__stone img {
+  flex: none;
+  width: 15cqi;
+  height: 15cqi;
+  object-fit: cover;
+  border-radius: 2cqi;
+}
+.e-lead__stone b {
+  display: block;
+  font-size: 5cqi;
+  line-height: 1.15;
+}
+.e-lead__stone small {
+  font-size: 3.6cqi;
+  color: var(--color-slate);
+}
+.e-lead__reply {
+  padding: 2.4cqi;
+  border-radius: 99px;
+  background: var(--wa);
+  color: #fff;
+  font-size: 3.8cqi;
+  font-weight: 600;
+  text-align: center;
+}
+.e-loop__back {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: rgb(17 23 21 / 0.05);
+  font-weight: 600;
+}
+.e-loop__back span {
+  font-size: 1.5rem;
+  color: var(--red-on-light);
+}
+@media (min-width: 40rem) {
+  .e-loop__steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 72rem) {
+  .e-loop__steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  /* A red thread runs from one picture to the next, at their middle. */
+  .e-loop__step {
+    container-type: inline-size;
+  }
+  .e-loop__step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: calc(37.5cqi - 1px);
+    right: -1.5rem;
+    width: 1.5rem;
+    height: 2px;
+    background: var(--color-signal);
+  }
+}
+
+/* ---------- The screen: whole, then four close-ups ---------- */
+.e-toursec {
+  background:
+    radial-gradient(55% 45% at 50% 30%, rgb(22 75 61 / 0.45), transparent 70%), var(--ink);
+}
+.e-screen {
+  --gut: clamp(9rem, 14vw, 13rem); /* the margin the module labels stand in */
+  margin: 0;
+}
+.e-screen__shot {
+  --mk: clamp(0.625rem, 1cqi, 0.875rem); /* the labels grow with the screen */
+  position: relative;
+  margin-left: var(--gut);
+  container-type: inline-size;
+}
+.e-screen__shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  background: #f4f1ec;
+  box-shadow:
+    0 0 0 1px rgb(243 246 242 / 0.12),
+    0 3rem 6rem -2rem rgb(0 0 0 / 0.85);
+}
+.e-screen__scroll:focus-visible {
+  outline: 2px solid var(--color-acid);
+  outline-offset: 4px;
+  border-radius: 14px;
+}
+.e-screen figcaption {
+  margin: 0.9rem 0 0 var(--gut);
+  color: var(--color-lichen);
+}
+.e-screen__swipe {
+  display: none;
+}
+@media (width < 48rem) {
+  /* A phone: the screen at a size its labels can be read at, scrolled sideways. */
+  .e-screen__scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    margin-inline: calc(-1 * var(--g));
+    padding: 0.25rem var(--g) 1rem;
+    scrollbar-width: thin;
+  }
+  .e-screen {
+    --gut: 10rem;
+  }
+  .e-screen__shot {
+    width: 1100px;
+  }
+  .e-screen figcaption {
+    margin-left: 0;
+  }
+  .e-screen__swipe {
+    display: inline;
+  }
+}
+/* A window on part of a screenshot (Window in page.tsx). */
+.e-win {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+.e-win img {
+  position: absolute;
+  max-width: none;
+  height: auto;
+}
+
+/* ---------- Search: three steps in one dark field ---------- */
+.e-asksec {
+  padding-top: clamp(2rem, 5svh, 3.5rem);
+}
+.e-ask {
+  max-width: 56rem;
+}
+.e-step {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-lichen);
+}
+.e-step span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--color-acid);
+  color: var(--color-obsidian);
+  font-weight: 600;
+}
+.e-ask__bar {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem 0.9rem;
+  padding: 1rem 1.25rem;
+  border-radius: 20px;
+  background: #1a1e1c;
+  box-shadow:
+    0 0 0 1px rgb(243 246 242 / 0.12),
+    0 2.5rem 5rem -2rem rgb(0 0 0 / 0.8);
+  transition: box-shadow 300ms ease;
+}
+/* The wash: brighter while you type, warm when a typo was forgiven. */
+.e-ask__bar::before,
+.e-ask__bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity 500ms ease;
+}
+.e-ask__bar::before {
+  background: radial-gradient(130% 140% at 0% 100%, rgb(226 251 107 / 0.16), transparent 60%);
+  opacity: 0.6;
+}
+/* Sparks: points of light, only once a typo is forgiven. */
+.e-ask__bar::after {
+  background-image:
+    radial-gradient(circle, rgb(226 251 107 / 0.9) 0 1.1px, transparent 1.6px),
+    radial-gradient(circle, rgb(226 251 107 / 0.7) 0 0.9px, transparent 1.4px),
+    radial-gradient(circle, rgb(255 82 56 / 0.7) 0 0.9px, transparent 1.4px);
+  background-size:
+    150px 110px,
+    97px 83px,
+    211px 127px;
+  background-position:
+    10px 20px,
+    40px 60px,
+    90px 10px;
+  mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+  opacity: 0;
+}
+.e-ask__bar:focus-within {
+  box-shadow:
+    0 0 0 2px var(--color-acid),
+    0 2.5rem 5rem -2rem rgb(0 0 0 / 0.8);
+}
+.e-ask__bar:focus-within::before,
+.e-ask__bar[data-fixed]::before {
+  opacity: 1;
+}
+.e-ask__bar[data-fixed]::after {
+  opacity: 0.6;
+}
+.e-ask__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: none;
+  stroke: var(--color-lichen);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.e-ask__input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.35rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-bone);
+  caret-color: var(--color-acid);
+  font: inherit;
+  font-size: clamp(1.15rem, 1rem + 0.8vw, 1.6rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  outline: none;
+}
+.e-ask__input::placeholder {
+  color: rgb(243 246 242 / 0.4);
+}
+.e-ask__input::-webkit-search-cancel-button {
+  filter: invert(1) brightness(0.8);
+}
+.e-ask__count {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-lichen);
+  white-space: nowrap;
+}
+.e-ask__tries {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgb(243 246 242 / 0.08);
+}
+.e-ask__tries .x-label {
+  margin-right: 0.25rem;
+  color: var(--color-lichen);
+}
+.e-ask__try {
+  flex: none;
+  min-height: 2.5rem; /* a finger's tap */
+  padding: 0.3rem 0.85rem;
+  border: 1px solid rgb(243 246 242 / 0.18);
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(243 246 242 / 0.88);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.e-ask__try:hover {
+  background: rgb(243 246 242 / 0.08);
+}
+.e-ask__try[aria-pressed="true"] {
+  border-color: var(--color-acid);
+  background: var(--color-acid);
+  color: var(--color-obsidian);
+}
+.e-ask__try:focus-visible {
+  outline: 2px solid var(--color-acid);
+  outline-offset: -2px;
+}
+@media (width < 48rem) {
+  .e-ask__bar {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding-inline: 1rem;
+  }
+  .e-ask__count {
+    grid-column: 2;
+    margin-top: -0.5rem;
+  }
+  .e-ask__tries {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+    scrollbar-width: none;
+    mask-image: linear-gradient(90deg, #000 85%, transparent);
+  }
+}
+.e-ask__out {
+  min-height: 36rem;
+  margin-top: 1.75rem;
+}
+.e-ask__col + .e-ask__col {
+  margin-top: 1.5rem;
+}
+.e-ask__read {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  list-style: none;
+}
+.e-chip {
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: rgb(243 246 242 / 0.08);
+  color: var(--color-bone);
+  font-size: 0.9375rem;
+}
+.e-chip--fixed {
+  background: rgb(226 251 107 / 0.14);
+  color: var(--color-acid);
+  box-shadow: inset 0 0 0 1px rgb(226 251 107 / 0.4);
+}
+.e-chip--fixed s {
+  color: rgb(243 246 242 / 0.6);
+}
+.e-chip--miss {
+  background: transparent;
+  color: #ff8a73;
+  box-shadow: inset 0 0 0 1px rgb(255 82 56 / 0.6);
+}
+.e-ask__results {
+  list-style: none;
+  border-top: 1px solid rgb(243 246 242 / 0.14);
+}
+.e-ask__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "code status status"
+    "name name rate"
+    "size zone zone";
+  gap: 0.2rem 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgb(243 246 242 / 0.08);
+  font-size: 0.9375rem;
+  color: rgb(243 246 242 / 0.85);
+}
+.e-ask__code {
+  grid-area: code;
+  font-family: var(--font-mono);
+  color: var(--color-acid);
+}
+.e-ask__name {
+  grid-area: name;
+  color: var(--color-bone);
+  font-weight: 600;
+}
+.e-ask__name small {
+  margin-left: 0.35rem;
+  font-weight: 400;
+  color: var(--color-lichen);
+}
+.e-ask__size {
+  grid-area: size;
+}
+.e-ask__zone {
+  grid-area: zone;
+}
+.e-ask__rate {
+  grid-area: rate;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.e-ask__status {
+  grid-area: status;
+  justify-self: end;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: #9be4b4;
+}
+.e-ask__status[data-s="reserved"],
+.e-ask__status[data-s="processing"] {
+  color: #ffb199;
+}
+.e-ask__status[data-s="sold"] {
+  color: var(--color-lichen);
+}
+.e-ask__status[data-s="cut"],
+.e-ask__status[data-s="at_saw"] {
+  color: #f5d48a;
+}
+.e-ask__more,
+.e-ask__none {
+  padding-top: 0.85rem;
+  color: var(--color-lichen);
+}
+@media (min-width: 48rem) {
+  .e-ask__out {
+    min-height: 23rem;
+  }
+  .e-ask__col:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+  }
+  .e-ask__col:first-child .e-step {
+    margin-bottom: 0;
+  }
+  .e-ask__row {
+    grid-template-columns: 7.25rem minmax(0, 1fr) 7.5rem 4.5rem 7rem 7.5rem;
+    grid-template-areas: "code name size zone status rate";
+    align-items: baseline;
+  }
+  .e-ask__status {
+    justify-self: start;
+  }
+}
+
+/* ---------- Modules ---------- */
+.e-mods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--color-rule-light);
+  box-shadow: 0 0 0 1px var(--color-rule-light);
+  list-style: none;
+}
+.e-mod {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+  padding: clamp(1.1rem, 2.5vw, 1.75rem);
+  background: var(--color-bone);
+  transition: background-color 200ms ease;
+}
+.e-mod:hover {
+  background: #fff;
+}
+.e-mod__icon {
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.4rem;
+  fill: none;
+  stroke: var(--color-obsidian);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.e-mod__name {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: clamp(1.1rem, 1rem + 0.4vw, 1.35rem);
+  line-height: 1.1;
+}
+.e-mod__what {
+  color: var(--color-slate);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+.e-mod__gain {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  color: var(--red-on-light);
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+@media (min-width: 64rem) {
+  .e-mods {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Compare: the usual way, and StoneX on a strip of marble ---------- */
+.e-vssec {
+  background:
+    radial-gradient(50% 60% at 70% 45%, rgb(22 75 61 / 0.4), transparent 70%), var(--ink);
+}
+.e-vs {
+  --what: 24%;
+  --old: 36%;
+  position: relative;
+  max-width: 70rem;
+}
+.e-vs__stone {
+  position: absolute;
+  top: -0.9rem;
+  bottom: -0.9rem;
+  left: calc(var(--what) + var(--old));
+  right: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.25),
+    0 2.5rem 4rem -1.5rem rgb(0 0 0 / 0.9);
+}
+.e-vs__stone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Honed for reading, and the light that runs down the slab. */
+.e-vs__stone::before,
+.e-vs__stone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.e-vs__stone::before {
+  background: rgb(255 255 255 / 0.5);
+}
+.e-vs__stone::after {
+  background: linear-gradient(170deg, transparent 35%, rgb(255 255 255 / 0.6) 48%, transparent 60%);
+  background-size: 100% 300%;
+  background-position: 0 100%;
+  mix-blend-mode: soft-light;
+}
+.e-vs table {
+  position: relative;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.e-vs__what {
+  width: var(--what);
+}
+.e-vs__old {
+  width: var(--old);
+}
+.e-vs th,
+.e-vs td {
+  padding: 1.05rem 1.1rem;
+  text-align: left;
+  border-bottom: 1px solid rgb(243 246 242 / 0.1);
+}
+.e-vs tbody tr:last-child > * {
+  border-bottom: 0;
+}
+.e-vs thead th {
+  padding-block: 0.9rem 1.1rem;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: rgb(243 246 242 / 0.7);
+}
+.e-vs thead .e-vs__us {
+  color: var(--color-obsidian);
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+.e-vs tbody th {
+  padding-left: 0;
+  font-weight: 600;
+  color: var(--color-bone);
+}
+.e-vs td {
+  vertical-align: middle;
+  line-height: 1.35;
+}
+.e-vs svg {
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-right: 0.55rem;
+  vertical-align: -0.2em;
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.e-vs__then {
+  color: rgb(243 246 242 / 0.62);
+}
+.e-vs__then svg {
+  stroke: #ff6a52;
+}
+td.e-vs__us {
+  color: var(--color-obsidian);
+  font-weight: 600;
+  border-bottom-color: rgb(17 23 21 / 0.12);
+}
+td.e-vs__us svg {
+  stroke: var(--deep);
+}
+@media (width < 48rem) {
+  .e-vs__stone,
+  .e-vs thead {
+    display: none;
+  }
+  .e-vs table,
+  .e-vs tbody,
+  .e-vs tr,
+  .e-vs th,
+  .e-vs td {
+    display: block;
+    width: auto;
+  }
+  .e-vs tr {
+    padding-block: 1.1rem;
+    border-bottom: 1px solid rgb(243 246 242 / 0.1);
+  }
+  .e-vs th,
+  .e-vs td {
+    padding: 0;
+    border: 0;
+  }
+  .e-vs tbody th {
+    margin-bottom: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-lichen);
+  }
+  .e-vs__then {
+    padding-bottom: 0.5rem !important;
+  }
+  td.e-vs__us {
+    padding: 0.7rem 0.9rem !important;
+    border-radius: 10px;
+    background:
+      linear-gradient(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.55)),
+      url("/stone/statuarietto-slab.jpg") 50% 30% / cover;
+  }
+}
+
+/* ---------- FAQ, as a conversation, beside the call ---------- */
+.e-faq {
+  display: grid;
+  gap: 3rem;
+}
+.e-faq__lead .e-head__title {
+  max-width: 12ch;
+}
+.e-faq__text {
+  max-width: 26rem;
+  margin-top: 1rem;
+  color: var(--color-slate);
+  font-size: var(--text-lead);
+  line-height: 1.5;
+}
+.e-faq__ctas {
+  margin-top: 1.75rem;
+}
+.e-chat {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 40rem;
+}
+.e-chat summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+.e-chat summary::-webkit-details-marker {
+  display: none;
+}
+.e-chat__q {
+  padding: 1rem 1.4rem;
+  border-radius: 1.6rem;
+  background: var(--ink);
+  color: var(--color-bone);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.35;
+  transition: background-color 150ms ease;
+}
+.e-chat summary:hover .e-chat__q {
+  background: #1f2623;
+}
+.e-chat summary:focus-visible {
+  outline: none;
+}
+.e-chat summary:focus-visible .e-chat__q {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 3px;
+}
+.e-chat__plus {
+  position: relative;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(17 23 21 / 0.35);
+  transition: rotate 250ms var(--ease-settle);
+}
+.e-chat__plus::before,
+.e-chat__plus::after {
+  content: "";
+  position: absolute;
+  inset: 50% 30%;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: var(--color-obsidian);
+}
+.e-chat__plus::after {
+  rotate: 90deg;
+}
+.e-chat__item[open] .e-chat__plus {
+  rotate: 45deg;
+}
+.e-chat__a {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  margin: 0.75rem 0 0.4rem 1.25rem;
+}
+.e-chat__who {
+  position: relative;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.e-chat__who::after {
+  content: "";
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background: var(--color-signal);
+}
+.e-chat__a p {
+  max-width: 34rem;
+  padding: 0.9rem 1.2rem;
+  border-radius: 1.25rem 1.25rem 1.25rem 0.35rem;
+  background: #fff;
+  color: var(--color-obsidian);
+  line-height: 1.55;
+  box-shadow:
+    0 0 0 1px var(--color-rule-light),
+    0 0.75rem 1.5rem -1rem rgb(17 23 21 / 0.35);
+  transform-origin: 0 100%;
+}
+@media (min-width: 64rem) {
+  .e-faq {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(3rem, 6vw, 6rem);
+    align-items: start;
+  }
+  .e-faq__lead {
+    position: sticky;
+    top: 6rem;
+  }
+}
+
+/* ---------- Footer ---------- */
+.e-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  padding: 1.25rem var(--g) 1.75rem; /* as the home page's */
+  border-top: 1px solid var(--color-rule-dark);
+  color: var(--color-lichen);
+}
+.e-page .e-foot__mark {
+  font-size: 1.15rem;
+  letter-spacing: -0.035em;
+  text-transform: none;
+  color: var(--color-bone);
+}
+
+/* ---------- Motion ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* Arriving from the home page: the page closes to the red cut and opens on this
+     one, on the same paper; the site's bar (site-header) holds still above it. */
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition {
+    background: #ebe9e2;
+  }
+  ::view-transition-group(root) {
+    background: #ff5238;
+    animation: e-vt-cut 900ms cubic-bezier(0.65, 0, 0.15, 1) both;
+  }
+  ::view-transition-old(root) {
+    animation: e-vt-old 900ms linear both;
+  }
+  ::view-transition-new(root) {
+    animation: e-vt-new 900ms linear both;
+  }
+
+  /* The hero: the copy settles, the screen rises, its tiles are named in turn. */
+  .e-hero__copy > * {
+    animation: e-in 700ms var(--ease-settle) both;
+  }
+  .e-hero__copy > :nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .e-hero__copy > :nth-child(3) {
+    animation-delay: 160ms;
+  }
+  .e-hero__copy > :nth-child(n + 4) {
+    animation-delay: 240ms;
+  }
+  .e-hero__screen {
+    animation: e-in 900ms var(--ease-settle) 200ms both;
+  }
+  .e-hero .e-mark {
+    animation: e-pop 450ms var(--ease-settle) both;
+    animation-delay: calc(1000ms + var(--i) * 280ms);
+  }
+
+  /* Search: sparks drift up; what it read and found settles in. */
+  .e-ask__bar::after {
+    animation: e-sparks 6s linear infinite;
+  }
+  .e-chip {
+    animation: e-pop 320ms var(--ease-settle) both;
+  }
+  .e-chip--fixed {
+    animation: e-fixed 700ms var(--ease-settle) both;
+  }
+  .e-ask__row {
+    animation: e-fade 220ms ease both;
+  }
+  /* FAQ: the answer arrives as a bubble. */
+  .e-chat__item[open] .e-chat__a p {
+    animation: e-bubble 420ms var(--ease-settle) both;
+  }
+  .e-chat__item[open] .e-chat__who {
+    animation: e-fade 300ms ease both;
+  }
+
+  @supports (animation-timeline: view()) {
+    .e-reveal {
+      animation: e-in linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 70%;
+    }
+    .e-loop__step,
+    .e-mod {
+      animation: e-in linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--i) * 4%) entry calc(50% + var(--i) * 4%);
+    }
+    /* The screen's labels arrive one after another as it comes into view, then
+       stay. (The timeline is the figure's: on a phone the screen sits in a
+       sideways scroller.) */
+    .e-screen {
+      view-timeline: --screen block;
+    }
+    .e-screen .e-mark {
+      animation: e-pop linear both;
+      animation-timeline: --screen;
+      animation-range: entry calc(35% + var(--i) * 5%) entry calc(50% + var(--i) * 5%);
+    }
+    .e-vs {
+      view-timeline: --vs block;
+    }
+    .e-vs tbody tr {
+      animation: e-in linear both;
+      animation-timeline: --vs;
+      animation-range: entry calc(15% + var(--i) * 5%) entry calc(40% + var(--i) * 5%);
+    }
+    .e-vs__stone::after {
+      animation: e-sheen linear both;
+      animation-timeline: --vs;
+      animation-range: entry 30% exit 30%;
+    }
+  }
+}
+
+@keyframes e-vt-cut {
+  0% {
+    clip-path: inset(0);
+  }
+  42%,
+  58% {
+    clip-path: inset(calc(50% - 1px) 0);
+  }
+  100% {
+    clip-path: inset(0);
+  }
+}
+@keyframes e-vt-old {
+  0%,
+  30% {
+    opacity: 1;
+  }
+  42%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes e-vt-new {
+  0%,
+  58% {
+    opacity: 0;
+  }
+  70%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes e-in {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
+}
+@keyframes e-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes e-pop {
+  from {
+    opacity: 0;
+    scale: 0.92;
+  }
+}
+@keyframes e-fixed {
+  0% {
+    opacity: 0;
+    scale: 0.9;
+    box-shadow:
+      inset 0 0 0 1px rgb(226 251 107 / 0.4),
+      0 0 0 0 rgb(226 251 107 / 0.6);
+  }
+  60% {
+    opacity: 1;
+    box-shadow:
+      inset 0 0 0 1px rgb(226 251 107 / 0.4),
+      0 0 0 8px rgb(226 251 107 / 0);
+  }
+}
+@keyframes e-sparks {
+  to {
+    background-position:
+      10px -200px,
+      40px -106px,
+      90px -244px;
+  }
+}
+@keyframes e-bubble {
+  from {
+    opacity: 0;
+    scale: 0.9;
+    translate: 0 0.4rem;
+  }
+}
+@keyframes e-sheen {
+  from {
+    background-position: 0 100%;
+  }
+  to {
+    background-position: 0 0;
+  }
+}

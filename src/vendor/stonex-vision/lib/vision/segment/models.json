@@ -1,0 +1,365 @@
+{
+  "schema": 1,
+  "note": "Pinned runtime + model artifacts for the StoneX Vision segmentation bake-off. Files are self-hosted from .vision-bench/assets/ (git-ignored); `npm run bench:vision:assets` downloads/copies them and verifies every sha256. Never load these from a CDN at runtime.",
+  "runtimes": {
+    "onnxruntime-web": {
+      "version": "1.30.0",
+      "licence": "MIT",
+      "files": [
+        {
+          "from": "node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm",
+          "to": "ort/1.30.0/ort-wasm-simd-threaded.wasm",
+          "use": "CPU (WASM) build used by onnxruntime-web/wasm",
+          "sha256": "3398c10d07d229bd91b364548e130e0e51a8e5704b88c7c083ebbeb78842dee2",
+          "bytes": 14239897
+        },
+        {
+          "from": "node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm",
+          "to": "ort/1.30.0/ort-wasm-simd-threaded.asyncify.wasm",
+          "use": "WebGPU (native EP, Asyncify) build used by onnxruntime-web/webgpu",
+          "sha256": "39f9f0894d478800487ed9f7dbe92618498db320cf55c8e3d89adff8dce658da",
+          "bytes": 26781914
+        }
+      ]
+    },
+    "@mediapipe/tasks-vision": {
+      "version": "1.1.0",
+      "licence": "Apache-2.0",
+      "files": [
+        {
+          "from": "node_modules/@mediapipe/tasks-vision/wasm/vision_wasm_module_internal.js",
+          "to": "mediapipe/1.1.0/vision_wasm_module_internal.js",
+          "use": "ES-module Wasm loader (module workers)",
+          "sha256": "70eff3956521b7de058d7173a4935c95e4a223c26ea624b9f5a936d3a043dcb0",
+          "bytes": 335431
+        },
+        {
+          "from": "node_modules/@mediapipe/tasks-vision/wasm/vision_wasm_module_internal.wasm",
+          "to": "mediapipe/1.1.0/vision_wasm_module_internal.wasm",
+          "use": "Wasm binary",
+          "sha256": "ee03b14a878e6c3c053a1bfa62e166dc45244be54dc0bbe61c578f710b771f6a",
+          "bytes": 12997272
+        }
+      ]
+    }
+  },
+  "candidates": {
+    "magictouch": {
+      "label": "MediaPipe MagicTouch v2",
+      "runtime": "@mediapipe/tasks-vision",
+      "backend": "mediapipe-cpu",
+      "defaultVariant": "magictouch-v2-int8",
+      "biggerSmaller": false,
+      "complexity": { "score": 0.8, "why": "One runtime and one API (setImage + segment(strokes)) do all pre/post-processing. Loader needs useModule=true inside the module worker. Model is a closed .task bundle: no export or quantisation control." },
+      "licence": {
+        "status": "verified",
+        "runtime": "Apache-2.0 (@mediapipe/tasks-vision 1.1.0 package.json; google-ai-edge/mediapipe LICENSE)",
+        "weights": "Apache 2.0 — declared in the v2 artifact's own manifest.pb (author 'Google LLC', model 'interactive_segmenter_v2', licence 'Apache 2.0'), read 2026-10-07 by unpacking the pinned .task",
+        "redistribution": "Apache-2.0 permits redistribution with the licence notice",
+        "commercialSaaS": "permitted under Apache-2.0",
+        "caveats": "No v2-specific model card: the docs page links the v1 MagicTouch card (people-centred evaluation). Docs page content itself is CC-BY-4.0 and does not license the weights.",
+        "sources": [
+          "https://developers.google.com/edge/mediapipe/solutions/vision/interactive_segmenter",
+          "gs://mediapipe-models/interactive_segmenter_v2/magic_touch/int8/1/interactive_segmentation.task → manifest.pb"
+        ]
+      }
+    },
+    "slimsam": {
+      "label": "SlimSAM-77 (ORT Web WASM)",
+      "runtime": "onnxruntime-web",
+      "backend": "wasm",
+      "defaultVariant": "slimsam77-int8",
+      "biggerSmaller": true,
+      "complexity": { "score": 0.6, "why": "ORT Web plus our own SAM pre/post-processing (verified against the export's preprocessor_config). The tiny decoder runs once per tap." },
+      "licence": {
+        "status": "verified",
+        "runtime": "MIT (onnxruntime-web 1.30.0; microsoft/onnxruntime LICENSE)",
+        "weights": "Apache-2.0 at every link: Zigeng/SlimSAM-uniform-77 → nielsr/slimsam-77-uniform → Xenova/slimsam-77-uniform (ONNX, rev 5850ab45); distilled from Meta SAM ViT-B (Apache-2.0)",
+        "code": "Apache-2.0 (czg1225/SlimSAM)",
+        "redistribution": "permitted with notices (Apache-2.0)",
+        "commercialSaaS": "permitted (Apache-2.0)",
+        "sources": [
+          "https://github.com/czg1225/SlimSAM/blob/master/LICENSE",
+          "https://huggingface.co/Zigeng/SlimSAM-uniform-77",
+          "https://huggingface.co/nielsr/slimsam-77-uniform",
+          "https://huggingface.co/Xenova/slimsam-77-uniform/tree/5850ab45f587c112167512ffef949107115e26a0",
+          "https://github.com/facebookresearch/segment-anything/blob/main/LICENSE"
+        ]
+      }
+    },
+    "sam21": {
+      "label": "SAM 2.1 Hiera-Tiny (ORT Web WebGPU)",
+      "runtime": "onnxruntime-web",
+      "backend": "webgpu",
+      "defaultVariant": "sam21tiny-q4f16",
+      "biggerSmaller": true,
+      "complexity": { "score": 0.5, "why": "ORT WebGPU EP with our own pre/post-processing, plus a WebGPU device we create (no subgroups) with a CPU fallback path. Ships a 26 MB Asyncify runtime. External-data ONNX files." },
+      "licence": {
+        "status": "BLOCKED — LICENCE UNRESOLVED",
+        "runtime": "MIT (onnxruntime-web 1.30.0)",
+        "weights": "Official SAM 2.1 checkpoints are Apache-2.0 (facebookresearch/sam2; facebook/sam2.1-hiera-tiny). The pinned ONNX export onnx-community/sam2.1-hiera-tiny-ONNX (rev 814a0666) has NO model card and declares NO licence.",
+        "redistribution": "unclear for the export as published; Apache-2.0 derivative terms would apply if confirmed",
+        "commercialSaaS": "base weights permitted (Apache-2.0); export unconfirmed",
+        "resolution": "Either get a written licence statement for the export or reproduce the ONNX export from facebook/sam2.1-hiera-tiny ourselves (Apache-2.0) and pin that. Until then not production-ready.",
+        "sources": [
+          "https://github.com/facebookresearch/sam2/blob/main/LICENSE",
+          "https://huggingface.co/facebook/sam2.1-hiera-tiny",
+          "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/tree/814a066640debee5a91e70aa401fb8e17e030503"
+        ]
+      }
+    }
+  },
+  "variants": {
+    "magictouch-v2-int8": {
+      "candidate": "magictouch",
+      "precision": "int8",
+      "fullPrecisionBaseline": null,
+      "baselineNote": "Google publishes only an int8 build of MagicTouch v2 (gs://mediapipe-models/interactive_segmenter_v2/magic_touch/int8/1/). No full-precision v2 baseline exists, so no compression comparison is possible.",
+      "source": "https://storage.googleapis.com/mediapipe-models/interactive_segmenter_v2/magic_touch/int8/1/interactive_segmentation.task",
+      "files": {
+        "model": {
+          "url": "https://storage.googleapis.com/mediapipe-models/interactive_segmenter_v2/magic_touch/int8/1/interactive_segmentation.task",
+          "to": "models/magictouch-v2/int8-1/interactive_segmentation.task",
+          "md5": "eff9593362906a47112886311c6d34c6",
+          "sha256": "38431bc66b883404e8397f74c3579404315b9b52b04a46c6346fe906a7309b03",
+          "bytes": 30525312
+        }
+      }
+    },
+    "slimsam77-int8": {
+      "candidate": "slimsam",
+      "precision": "int8",
+      "fullPrecisionBaseline": "slimsam77-fp32",
+      "source": "https://huggingface.co/Xenova/slimsam-77-uniform/tree/5850ab45f587c112167512ffef949107115e26a0",
+      "files": {
+        "encoder": {
+          "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/vision_encoder_quantized.onnx",
+          "to": "models/slimsam-77-uniform/5850ab45/vision_encoder_quantized.onnx",
+          "sha256": "cce23c7b2e5d4f330932738fb67ba518e04b0d99ccdd1cccd22a7da4e01f2971",
+          "bytes": 8882165
+        },
+        "decoder": {
+          "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/prompt_encoder_mask_decoder_quantized.onnx",
+          "to": "models/slimsam-77-uniform/5850ab45/prompt_encoder_mask_decoder_quantized.onnx",
+          "sha256": "cb90b279f549d2cab7fd6e20c38522438c65d84bdcca3d2a764cff7d857fdce2",
+          "bytes": 4903810
+        }
+      }
+    },
+    "slimsam77-fp16": {
+      "candidate": "slimsam",
+      "precision": "fp16",
+      "fullPrecisionBaseline": "slimsam77-fp32",
+      "optional": true,
+      "source": "https://huggingface.co/Xenova/slimsam-77-uniform/tree/5850ab45f587c112167512ffef949107115e26a0",
+      "files": {
+        "encoder": {
+          "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/vision_encoder_fp16.onnx",
+          "to": "models/slimsam-77-uniform/5850ab45/vision_encoder_fp16.onnx",
+          "sha256": "11aaeb49c75e7b3f4cbf8a32c2c819406520c6b3affb4068ff474b2240c8aa38",
+          "bytes": 12170657
+        },
+        "decoder": {
+          "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/prompt_encoder_mask_decoder_fp16.onnx",
+          "to": "models/slimsam-77-uniform/5850ab45/prompt_encoder_mask_decoder_fp16.onnx",
+          "sha256": "df24d49a6f1a5dc0dbbecd84ca0fff9f14c76e63b81fd35c2b92c1321b007f71",
+          "bytes": 8550118
+        }
+      }
+    },
+    "slimsam77-fp32": {
+      "candidate": "slimsam",
+      "precision": "fp32",
+      "fullPrecisionBaseline": null,
+      "optional": true,
+      "source": "https://huggingface.co/Xenova/slimsam-77-uniform/tree/5850ab45f587c112167512ffef949107115e26a0",
+      "files": {
+        "encoder": {
+          "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/vision_encoder.onnx",
+          "to": "models/slimsam-77-uniform/5850ab45/vision_encoder.onnx",
+          "sha256": "9f8433273a6750b587779baa0cf5508111001bf7e7acfcf585d370139fd366d0",
+          "bytes": 23276014
+        },
+        "decoder": {
+          "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/prompt_encoder_mask_decoder.onnx",
+          "to": "models/slimsam-77-uniform/5850ab45/prompt_encoder_mask_decoder.onnx",
+          "sha256": "f4514391764fbd56e08e119060d874ecd7d52994bfb1968af159e12d4943b5bb",
+          "bytes": 16557892
+        }
+      }
+    },
+    "sam21tiny-q4f16": {
+      "candidate": "sam21",
+      "precision": "q4f16",
+      "fullPrecisionBaseline": "sam21tiny-fp32",
+      "source": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/tree/814a066640debee5a91e70aa401fb8e17e030503",
+      "files": {
+        "encoder": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/vision_encoder_q4f16.onnx",
+          "to": "models/sam2.1-hiera-tiny/814a0666/vision_encoder_q4f16.onnx",
+          "sha256": "c4092f4c02a369a94b65718ba9fd274c0dc8923e4fa10e55bc908633d4a4a794",
+          "bytes": 327108
+        },
+        "encoderData": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/vision_encoder_q4f16.onnx_data",
+          "to": "models/sam2.1-hiera-tiny/814a0666/vision_encoder_q4f16.onnx_data",
+          "sha256": "48c3dc2795f70c855fc35061b9f49431d50762c00af8c644380781f2a20eb187",
+          "bytes": 28532736
+        },
+        "decoder": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/prompt_encoder_mask_decoder_q4f16.onnx",
+          "to": "models/sam2.1-hiera-tiny/814a0666/prompt_encoder_mask_decoder_q4f16.onnx",
+          "sha256": "0ff3ee0406764a4c5e8f05c1b5d59de4ec292c7c2a13d64f08a7d37a2d9f697b",
+          "bytes": 243598
+        },
+        "decoderData": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/prompt_encoder_mask_decoder_q4f16.onnx_data",
+          "to": "models/sam2.1-hiera-tiny/814a0666/prompt_encoder_mask_decoder_q4f16.onnx_data",
+          "sha256": "8b204a80f601cf580f81ede775a096ecbb0c25f3d49ea592b6364ac7d67cc3d0",
+          "bytes": 4563968
+        }
+      }
+    },
+    "sam21tiny-int8": {
+      "candidate": "sam21",
+      "precision": "int8",
+      "fullPrecisionBaseline": "sam21tiny-fp32",
+      "optional": true,
+      "source": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/tree/814a066640debee5a91e70aa401fb8e17e030503",
+      "files": {
+        "encoder": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/vision_encoder_int8.onnx",
+          "to": "models/sam2.1-hiera-tiny/814a0666/vision_encoder_int8.onnx",
+          "sha256": "d848e08b747ba44ee59b31246988528d5ecc67d1e1c0a2f5c08395c86d92176f",
+          "bytes": 440423
+        },
+        "encoderData": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/vision_encoder_int8.onnx_data",
+          "to": "models/sam2.1-hiera-tiny/814a0666/vision_encoder_int8.onnx_data",
+          "sha256": "4359d45f8aafcbc69f945e714af7fb06b74b24c753b5af86b6a230ecd0e737bc",
+          "bytes": 52573088
+        },
+        "decoder": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/prompt_encoder_mask_decoder_int8.onnx",
+          "to": "models/sam2.1-hiera-tiny/814a0666/prompt_encoder_mask_decoder_int8.onnx",
+          "sha256": "e53727dc441a3c8716dd4a606d5bbf920e33e7545d1a6ff843c9fb804c7d19b6",
+          "bytes": 289885
+        },
+        "decoderData": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/prompt_encoder_mask_decoder_int8.onnx_data",
+          "to": "models/sam2.1-hiera-tiny/814a0666/prompt_encoder_mask_decoder_int8.onnx_data",
+          "sha256": "fdb3179a32388267a944a416c0f992c77a138b69a4bfd94f0bbf7089430d7489",
+          "bytes": 8662016
+        }
+      }
+    },
+    "sam21tiny-fp16": {
+      "candidate": "sam21",
+      "precision": "fp16",
+      "fullPrecisionBaseline": "sam21tiny-fp32",
+      "optional": true,
+      "source": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/tree/814a066640debee5a91e70aa401fb8e17e030503",
+      "files": {
+        "encoder": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/vision_encoder_fp16.onnx",
+          "to": "models/sam2.1-hiera-tiny/814a0666/vision_encoder_fp16.onnx",
+          "sha256": "7773e79d589dada8e1e630cc7eb18b17b2c5b4faeb1eaab5ebf9df618ecbd50a",
+          "bytes": 314925
+        },
+        "encoderData": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/vision_encoder_fp16.onnx_data",
+          "to": "models/sam2.1-hiera-tiny/814a0666/vision_encoder_fp16.onnx_data",
+          "sha256": "a4dd3759e9b6a476d991fb3493787992e78777e51462695e1bede71ae258103e",
+          "bytes": 67005504
+        },
+        "decoder": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/prompt_encoder_mask_decoder_fp16.onnx",
+          "to": "models/sam2.1-hiera-tiny/814a0666/prompt_encoder_mask_decoder_fp16.onnx",
+          "sha256": "00ac7200451f246e8307aa1a1648113f47dc45625738406403a0e6b86c69fc55",
+          "bytes": 229799
+        },
+        "decoderData": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/prompt_encoder_mask_decoder_fp16.onnx_data",
+          "to": "models/sam2.1-hiera-tiny/814a0666/prompt_encoder_mask_decoder_fp16.onnx_data",
+          "sha256": "027b457a53f5bd76bb401c59555448451d04b4eab6d2f6a6758406b40133ee2c",
+          "bytes": 10454016
+        }
+      }
+    },
+    "sam21tiny-fp32": {
+      "candidate": "sam21",
+      "precision": "fp32",
+      "fullPrecisionBaseline": null,
+      "optional": true,
+      "source": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/tree/814a066640debee5a91e70aa401fb8e17e030503",
+      "files": {
+        "encoder": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/vision_encoder.onnx",
+          "to": "models/sam2.1-hiera-tiny/814a0666/vision_encoder.onnx",
+          "sha256": "4f30aacd3aaefbca81a0b7fe4c1fc96345570ea0a6f80ced599493d1b3be2e8c",
+          "bytes": 354238
+        },
+        "encoderData": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/vision_encoder.onnx_data",
+          "to": "models/sam2.1-hiera-tiny/814a0666/vision_encoder.onnx_data",
+          "sha256": "e83df9866a5afe68ea7f0f721f18f65137fc3acbf0da1c74e946d363e09c69cc",
+          "bytes": 134084864
+        },
+        "decoder": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/prompt_encoder_mask_decoder.onnx",
+          "to": "models/sam2.1-hiera-tiny/814a0666/prompt_encoder_mask_decoder.onnx",
+          "sha256": "874414704c5d686db7d206a35f6e15d26563d50c8c4468fccc6739bd7e491dcf",
+          "bytes": 213114
+        },
+        "decoderData": {
+          "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/onnx/prompt_encoder_mask_decoder.onnx_data",
+          "to": "models/sam2.1-hiera-tiny/814a0666/prompt_encoder_mask_decoder.onnx_data",
+          "sha256": "e9874d900dd4134ed60eab1e97910327c2419e0b2954485d8fd6e7f1a1470f47",
+          "bytes": 20958208
+        }
+      }
+    }
+  },
+  "configs": {
+    "slimsam": [
+      {
+        "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/preprocessor_config.json",
+        "to": "models/slimsam-77-uniform/5850ab45/preprocessor_config.json",
+        "sha256": "225545a743c654e3c495ec6f545a0eaba57c8ba3fbbd8483b3cb1c0fc58db517",
+        "bytes": 466
+      },
+      {
+        "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/config.json",
+        "to": "models/slimsam-77-uniform/5850ab45/config.json",
+        "sha256": "6339884f168658d3ca6473b486973913fb33e84e625e06ae2dd7b4a808187419",
+        "bytes": 379
+      },
+      {
+        "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/README.md",
+        "to": "models/slimsam-77-uniform/5850ab45/README.md",
+        "sha256": "93ae9259be974a58bee5e16bb68c42dcf511ea829f58aa405694af04d0296773",
+        "bytes": 2987
+      }
+    ],
+    "sam21": [
+      {
+        "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/preprocessor_config.json",
+        "to": "models/sam2.1-hiera-tiny/814a0666/preprocessor_config.json",
+        "sha256": "240c886b428d36b63bbb51b0c17ad4d2668d83ba851a04f09880a2b93f0b7349",
+        "bytes": 749
+      },
+      {
+        "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/processor_config.json",
+        "to": "models/sam2.1-hiera-tiny/814a0666/processor_config.json",
+        "sha256": "17756f63e17f4e6a8af56dc28dabbddfa23401384b5b2e56367dc1c468db57a5",
+        "bytes": 932
+      },
+      {
+        "url": "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/resolve/814a066640debee5a91e70aa401fb8e17e030503/config.json",
+        "to": "models/sam2.1-hiera-tiny/814a0666/config.json",
+        "sha256": "9813c595dfbbe73c6b40ed269a2d6252915f538b8cdef5955f48c79716414cce",
+        "bytes": 5814
+      }
+    ]
+  }
+}
