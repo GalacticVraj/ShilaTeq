@@ -748,10 +748,11 @@
   height: 100%;
   object-fit: cover;
 }
-/* Book-matched: the twin is the slab's mirror, hinged on the shared edge. */
+/* Book-matched: the twin is the slab's mirror, hinged on the shared edge. (No
+   backface-visibility here: Safari hides a mirrored image under it, losing half the
+   floor; only the laptop's opening, which turns the twin over, needs it.) */
 .c-v__slab--b {
   transform-origin: 0 50%;
-  backface-visibility: hidden;
 }
 .c-v__slab--b img {
   scale: -1 1;
@@ -1362,6 +1363,7 @@
       animation-range: contain 4% contain 56%;
     }
     .c-v__slab--b {
+      backface-visibility: hidden;
       animation: c-book linear both;
       animation-timeline: --v;
       animation-range: contain 30% contain 64%;

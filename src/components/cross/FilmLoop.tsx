@@ -24,15 +24,32 @@ export function FilmLoop({ src }: { src: string }) {
       ?.saveData;
     // A calm setting never starts or resumes the film; it still stops off screen.
     const calm = matchMedia("(prefers-reduced-motion: reduce)").matches || !!saveData;
+    // Autoplay can be refused (an iPhone in Low Power Mode): then the visitor's first
+    // tap anywhere starts it, as a tap is allowed to.
+    const onTap = () => {
+      if (!held.current && v.paused) v.play().catch(() => {});
+    };
+    let waiting = false;
+    const start = () =>
+      v.play().catch(() => {
+        if (waiting) return;
+        waiting = true;
+        document.addEventListener("touchend", onTap, { once: true, passive: true });
+        document.addEventListener("click", onTap, { once: true });
+      });
     const io = new IntersectionObserver(
       ([e]) => {
         if (e.intersectionRatio < 0.2) v.pause();
-        else if (!calm && !held.current) v.play().catch(() => {});
+        else if (!calm && !held.current) start();
       },
       { threshold: [0, 0.2] },
     );
     io.observe(v);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      document.removeEventListener("touchend", onTap);
+      document.removeEventListener("click", onTap);
+    };
   }, []);
 
   const toggle = () => {

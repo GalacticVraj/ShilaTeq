@@ -17,7 +17,9 @@
   --mfs: 1.75rem; /* the wordmark's size in the top bar */
   --s: 2.4; /* and its size at the centre, × that */
   --ax: calc(50vw - 0.6275 * var(--mfs) * var(--s));
-  --ay: calc(50vh - 0.598 * var(--mfs) * var(--s));
+  /* dvh: the screen as shown (on an iPhone, 50vh is below the middle while Safari's
+     bars are out). */
+  --ay: calc(50dvh - 0.598 * var(--mfs) * var(--s));
   --lw: 4rem; /* one leaf of the slab */
   --lh: 5.5rem;
   /* The dot stretched into the cut: 2px wide, the slab's height and a little
