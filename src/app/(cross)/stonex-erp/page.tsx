@@ -1,6 +1,7 @@
 import type { CSSProperties, ImgHTMLAttributes, ReactNode } from "react";
 import type { Metadata } from "next";
 import { getImageProps } from "next/image";
+import { Contact } from "@/components/cross/Contact";
 import { SiteHeader } from "@/components/cross/SiteHeader";
 import YardSearch from "./YardSearch";
 import "./erp.css";
@@ -254,11 +255,6 @@ export default function StonexErpPage() {
                 How it works <span aria-hidden="true">↓</span>
               </a>
             </div>
-            <ul className="e-hero__facts">
-              <li>QR on every block &amp; slab</li>
-              <li>GST invoices</li>
-              <li>Hindi worker screens</li>
-            </ul>
           </div>
           <figure className="e-hero__visual">
             <span className="e-hero__screen">
@@ -504,6 +500,7 @@ export default function StonexErpPage() {
             ))}
           </div>
         </section>
+        <Contact />
       </main>
 
       <footer className="e-foot x-label">

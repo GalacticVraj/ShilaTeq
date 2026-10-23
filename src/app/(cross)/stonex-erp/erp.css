@@ -117,31 +117,6 @@
 .e-hero .x-link-cut {
   color: var(--color-obsidian);
 }
-.e-hero__facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 2.25rem;
-  list-style: none;
-}
-.e-hero__facts li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.85rem;
-  border-radius: 999px;
-  background: rgb(248 246 239 / 0.6);
-  box-shadow: inset 0 0 0 1px rgb(17 23 21 / 0.22);
-  font-size: 0.875rem;
-  color: #2d3833;
-}
-.e-hero__facts li::before {
-  content: "";
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 50%;
-  background: var(--color-malachite);
-}
 .e-hero__visual {
   margin: 0;
 }

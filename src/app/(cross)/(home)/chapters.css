@@ -208,8 +208,8 @@
 .c-film__open {
   position: relative;
 }
-/* The film is shown whole, full frame and at its own pace (FilmScenes skips only
-   the client dashboard); it is just not a box: its ivory ground drops out
+/* The film is shown whole, full frame and at its own pace; it is just not a box:
+   its ivory ground drops out
    (multiply), so the slabs and the end card stand on the hero's own marble. The
    film is its own compositing group, so the marble reaches into it as an exact
    copy of the ground, placed by FilmScenes (--fx, --fy, --gw, --gh); until then,
@@ -219,10 +219,6 @@
   aspect-ratio: 1920 / 1080;
   overflow: hidden;
   background: #fffff6;
-}
-/* Never shown: while the film is inside the skipped seconds, it is hidden. */
-.c-hero[data-scene="skip"] .c-film .f-film__media {
-  visibility: hidden;
 }
 .c-film__stone {
   position: absolute;
@@ -257,24 +253,6 @@
 .c-film .f-film__media {
   mix-blend-mode: multiply;
   transition: opacity 240ms var(--ease-settle);
-}
-/* A still in the film's place: shown as it is (no blend), and named in the site's red chip. */
-.c-film--still .f-film__media {
-  mix-blend-mode: normal;
-  object-fit: cover;
-}
-.c-film__label {
-  position: absolute;
-  left: 0.75rem;
-  bottom: 0.75rem;
-  z-index: 2;
-  padding: 0.3em 0.6em;
-  border-radius: 6px;
-  background: var(--color-signal);
-  color: var(--color-obsidian);
-  font-size: clamp(0.75rem, 0.6rem + 0.35vw, 0.875rem);
-  font-weight: 600;
-  line-height: 1.15;
 }
 /* The poster is the first frame: once the footage is up, only the footage blends. */
 .c-film:has(> .f-film__video[data-on]) > img.f-film__media {
@@ -975,8 +953,9 @@
   gap: 4rem;
   padding: clamp(5rem, 16svh, 10rem) var(--g) 1.75rem;
 }
-.c-end__kicker {
-  color: var(--color-lichen);
+.c-end .x-contact {
+  padding: 0;
+  background: none;
 }
 .c-end__title {
   font-size: clamp(2.6rem, 9.2vw, 11rem);

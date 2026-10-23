@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { Metadata } from "next";
 import { getImageProps } from "next/image";
+import { Contact } from "@/components/cross/Contact";
 import { SiteHeader } from "@/components/cross/SiteHeader";
 import SearchShots from "./SearchShots";
 // The product pages' shared system (hero on marble, sections, chips, FAQ, footer) lives in vision.css.
@@ -182,11 +183,6 @@ export default function ShowroomPage() {
                 How it works <span aria-hidden="true">↓</span>
               </a>
             </div>
-            <ul className="v-hero__facts">
-              <li>Fed from your stock</li>
-              <li>Search in plain words</li>
-              <li>Enquiries land in Leads</li>
-            </ul>
           </div>
           <figure className="v-hero__visual s-hero__shots">
             <Browser
@@ -436,6 +432,7 @@ export default function ShowroomPage() {
             ))}
           </div>
         </section>
+        <Contact />
       </main>
 
       <footer className="v-foot x-label">

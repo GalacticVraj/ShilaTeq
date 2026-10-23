@@ -1,6 +1,9 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import { getImageProps } from "next/image";
+import { Contact } from "@/components/cross/Contact";
+import { FilmLoop } from "@/components/cross/FilmLoop";
+import { FilmScenes } from "@/components/cross/FilmScenes";
 import { SiteHeader } from "@/components/cross/SiteHeader";
 import "./chapters.css";
 import "./intro.css";
@@ -22,9 +25,8 @@ import "./intro.css";
  *   Showroom         (signal) the yard's stone as a standing installation.
  *   End (black)      Book a demo.
  * Motion is CSS scroll-driven (never hijacked); without support or with reduced
- * motion every chapter is a calm, static composition. Where the film stood (it
- * shows a client's records and is never published) is a picture StoneVision made:
- * Statuarietto on a free Unsplash room's floor (public/vision-demo).
+ * motion every chapter is a calm, static composition. The film is a cut of the
+ * original without its client-dashboard seconds (see FilmScenes).
  */
 
 export const metadata: Metadata = {
@@ -262,11 +264,11 @@ function Spot({
 }
 
 export default function ChaptersPrototype() {
-  // In the film's place: StoneVision's own result (a demo room, Statuarietto laid on its floor).
-  const { props: still } = getImageProps({
-    src: "/vision-demo/result-hall-statuarietto.jpg",
-    width: 1600,
-    height: 1066,
+  // The film's first frame, under it until it plays.
+  const { props: poster } = getImageProps({
+    src: "/film/stone-film-poster.jpg",
+    width: 1920,
+    height: 1080,
     alt: "",
     sizes: "100vw",
     fetchPriority: "high",
@@ -359,7 +361,7 @@ export default function ChaptersPrototype() {
         {/* ---------- Opening: the film, the cut, the name ---------- */}
         <section className="c-open" aria-labelledby="c-title">
           <div className="c-open__stage">
-            <div className="c-hero on-light">
+            <FilmScenes className="c-hero on-light">
               {/* The hero stands on the real marble (the intro's stone, lightened). */}
               <div className="c-hero__ground" aria-hidden="true">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -392,21 +394,37 @@ export default function ChaptersPrototype() {
 
               <figure className="c-hero__film">
                 <div className="c-film__open">
-                  <div className="c-film c-film--still">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      {...still}
-                      alt="An open hall with Statuarietto marble laid on its floor by StoneVision, the window light kept on the stone."
-                      className="f-film__media"
-                    />
-                    <span className="c-film__label" aria-hidden="true">
-                      Made by StoneVision
+                  <div className="c-film">
+                    {/* The hero's marble, continued under the film (placed by FilmScenes). */}
+                    <span className="c-film__stone" aria-hidden="true">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img {...stone} alt="" />
                     </span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img {...poster} alt="" className="f-film__media" />
+                    {/* The film without the original's client-dashboard seconds (FilmScenes). */}
+                    <FilmLoop src="/film/stone-film.mp4" />
                     <span className="c-film__cut" aria-hidden="true" />
                     <span className="c-film__flash" aria-hidden="true" />
                   </div>
                 </div>
+                <figcaption className="sr-only">
+                  ShilaTeq’s film: every slab has a story. A marble block is cut into slabs, a slab
+                  becomes its record, and the slabs come together as ShilaTeq.
+                </figcaption>
               </figure>
+
+              <ol className="c-scenes x-label" aria-label="In the film">
+                <li data-for="block">
+                  <span>01</span> Block
+                </li>
+                <li data-for="slabs">
+                  <span>02</span> Slabs
+                </li>
+                <li data-for="record">
+                  <span>03</span> Record
+                </li>
+              </ol>
 
               {/* The cut opens on the name (overlaid while scrolling; its own block otherwise). */}
               <div className="c-name">
@@ -423,7 +441,7 @@ export default function ChaptersPrototype() {
                 <span className="c-name__rule c-name__rule--a" aria-hidden="true" />
                 <span className="c-name__rule c-name__rule--b" aria-hidden="true" />
               </div>
-            </div>
+            </FilmScenes>
           </div>
         </section>
 
@@ -608,18 +626,18 @@ export default function ChaptersPrototype() {
 
         {/* ---------- End ---------- */}
         <section className="c-end" aria-labelledby="c-end-title">
-          <p className="x-label c-end__kicker">StoneX ERP · Showroom · StoneVision</p>
           <h2 id="c-end-title" className="c-end__title x-display">
             <a href={DEMO_MAIL}>
               Book a demo <span aria-hidden="true">→</span>
             </a>
           </h2>
+          <Contact />
           <footer className="c-foot x-label">
             <span className="x-wordmark c-foot__mark">
               <Wordmark />
               <span className="sr-only">ShilaTeq</span>
             </span>
-            <span>Screens: fictional demo yard · pictures made by StoneVision</span>
+            <span>Screens: fictional demo yard</span>
             <span>© 2026 ShilaTeq</span>
           </footer>
         </section>

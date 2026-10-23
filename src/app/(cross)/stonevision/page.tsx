@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { Metadata } from "next";
 import { getImageProps } from "next/image";
+import { Contact } from "@/components/cross/Contact";
 import { SiteHeader } from "@/components/cross/SiteHeader";
 import BeforeAfter from "./BeforeAfter";
 import StoneVisionDemo from "./StoneVisionDemo";
@@ -12,11 +13,10 @@ import "./vision.css";
  *   Steps    the slab, their room, their floor: each with a real picture
  *   Demo     StoneVision itself, live (StoneX's engine, src/vendor/stonex-vision)
  *   Compare  one room, two stones
- *   Loop     stock → Showroom → their floor → your Leads
  *   Gets     what a buyer gets, in short
  *   FAQ      as a conversation, beside Book a demo
  * Every claim is checked against StoneX's code (read-only, eb9a0d8). Pictures: free Unsplash rooms
- * and sample slabs, laid by StoneVision itself (public/vision-demo); the lead card is drawn, and says so.
+ * and sample slabs, laid by StoneVision itself (public/vision-demo).
  */
 
 export const metadata: Metadata = {
@@ -111,7 +111,6 @@ export default function StoneVisionPage() {
               { href: "#how", label: "How it works" },
               { href: "#try", label: "Try it live" },
               { href: "#compare", label: "Compare stones" },
-              { href: "#loop", label: "Stock to enquiry" },
               { href: "#faq", label: "FAQ" },
             ],
           },
@@ -145,11 +144,6 @@ export default function StoneVisionPage() {
                 Try it live <span aria-hidden="true">↓</span>
               </a>
             </div>
-            <ul className="v-hero__facts">
-              <li>Your real slab photo</li>
-              <li>The room’s own light</li>
-              <li>Photo stays on their phone</li>
-            </ul>
           </div>
           <figure className="v-hero__visual">
             <BeforeAfter
@@ -275,52 +269,6 @@ export default function StoneVisionPage() {
           <p className="v-cap x-label">Both made by StoneVision · demo room and slabs</p>
         </section>
 
-        {/* ---------- Loop: stock → enquiry ---------- */}
-        <section id="loop" className="v-sec v-sec--deep v-loop" aria-labelledby="v-loop">
-          <div className="v-head v-reveal">
-            <p className="x-label v-head__no">Stock to enquiry</p>
-            <h2 id="v-loop" className="v-head__title">
-              Every picture leads back to a real slab.
-            </h2>
-          </div>
-          <div className="v-loop__body">
-            <ol className="v-chain">
-              <li>
-                <b>In your stock</b>
-                <span>Each slab in StoneX has its code and its own photo.</span>
-              </li>
-              <li>
-                <b>In your Showroom</b>
-                <span>Buyers browse what’s available, online.</span>
-              </li>
-              <li>
-                <b>On their floor</b>
-                <span>They try the slab in StoneVision.</span>
-              </li>
-              <li>
-                <b>In your Leads</b>
-                <span>Their quote request arrives with that slab.</span>
-              </li>
-            </ol>
-            <figure className="v-lead">
-              <div className="v-lead__card">
-                <p className="v-lead__tag x-label">New lead</p>
-                <p className="v-lead__stone">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img {...pic("/stone/statuarietto-slab.jpg", 1240, 2214, "56px")} alt="" loading="lazy" />
-                  <span>
-                    <b>Statuarietto</b>
-                    <small>Block DEMO-B01</small>
-                  </span>
-                </p>
-                <p className="v-lead__msg">“Slab DEMO-B01-S01 — I tried it on a photo of my floor.”</p>
-                <p className="v-lead__reply">Reply on WhatsApp</p>
-              </div>
-              <figcaption className="x-label">Drawn to explain · StoneVision’s own message</figcaption>
-            </figure>
-          </div>
-        </section>
-
         {/* ---------- What buyers get ---------- */}
         <section className="v-sec v-sec--light" aria-labelledby="v-gets">
           <div className="v-head v-reveal">
@@ -369,6 +317,7 @@ export default function StoneVisionPage() {
             ))}
           </div>
         </section>
+        <Contact />
       </main>
 
       <footer className="v-foot x-label">
