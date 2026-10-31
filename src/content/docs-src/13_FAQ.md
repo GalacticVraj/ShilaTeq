@@ -178,7 +178,7 @@ Only **admins/owners.** ✅ Workers never see prices, costs, or margins; the pub
 There is an **activity view** that shows recent actions and captured errors. ✅ Automatic, server-side population of a complete, tamper-evident audit log is **still being completed** — it's a known, tracked improvement. 💡 See [Product Opportunities](12_Product_Opportunities.md).
 
 ### What about backups and losing data?
-Data lives in a managed cloud with automated durability, so there are no local files to lose. ✅ Customer-facing backup/restore and "export my data" controls are a roadmap enhancement; in the meantime, reports and data export freely to Excel and CSV. 💡
+Data is stored in a managed cloud database (Supabase), not on a computer at the yard. The yard's owner can download a full copy of all its records to Excel at any time, and reports export to Excel and CSV. ✅ What StoneX itself backs up, how often and where will be stated in the terms of service, which are being finalised.
 
 ### Are there any known security items being worked on?
 Yes, and we're transparent about them. ✅ A previously-published demo owner password is flagged for rotation, and a few permission-hardening follow-ups are tracked before large-scale multi-tenant rollout. These are documented and prioritized in [Product Opportunities](12_Product_Opportunities.md).

@@ -34,9 +34,13 @@ export const site = {
   /** Live showroom example URL (a real yard's public catalog) — footer proof link. */
   showroomUrl: process.env.NEXT_PUBLIC_SHOWROOM_URL ?? null,
 
-  /** PostHog analytics — loads only when the key is set (M7). */
+  /**
+   * PostHog analytics — loads only when the key is set (M7) AND the visitor agrees (INDIA-11).
+   * Host: PostHog Cloud has US and EU regions, none in India. EU is the default (GDPR-grade
+   * terms); the founder may switch with NEXT_PUBLIC_POSTHOG_HOST or self-host in India.
+   */
   posthogKey: process.env.NEXT_PUBLIC_POSTHOG_KEY ?? null,
-  posthogHost: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
+  posthogHost: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com",
 
   /**
    * Company entity facts for legal/trust pages (Gate-zero B7). Null = the

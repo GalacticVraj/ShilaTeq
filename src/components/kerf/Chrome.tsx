@@ -146,6 +146,7 @@ export function KerfFooter() {
               ["Privacy", "/legal/privacy"],
               ["Terms", "/legal/terms"],
               ["Cookies", "/legal/cookies"],
+              ["Refunds", "/legal/refund"],
             ].map(([label, href]) => (
               <li key={href}>
                 <a href={href} className="hover:text-charcoal-950 hover:underline">

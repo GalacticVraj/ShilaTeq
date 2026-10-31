@@ -43,8 +43,8 @@ const PROTECTED: Array<[string, string]> = [
     "The showroom, a block's QR card, and delivery tracking are the only public windows, and each reads a deliberately narrow, safe set of columns — never cost, supplier, exact location, or any financial data.",
   ],
   [
-    "A managed, durable backend",
-    "Data lives in a managed cloud with automated durability — there are no local files to lose. Credentials are never hard-coded in the app.",
+    "A managed backend",
+    "Data lives in a managed cloud database, not on a computer at the yard, and the owner can download a full copy at any time. Credentials are never hard-coded in the app.",
   ],
   [
     "Your data is portable",

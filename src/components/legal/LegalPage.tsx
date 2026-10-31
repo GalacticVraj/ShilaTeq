@@ -60,8 +60,8 @@ export function LegalPage({ doc }: { doc: LegalDoc }) {
             This is a working draft in plain language, not final legal text. {doc.reviewMarkers}{" "}
             section{doc.reviewMarkers === 1 ? "" : "s"} below{" "}
             {doc.reviewMarkers === 1 ? "is" : "are"} marked{" "}
-            <span className="font-mono">⚖️ Review</span> and must be completed with the
-            company&rsquo;s legal counsel before this document is relied upon in production.
+            <span className="font-mono">Being finalised</span> while we complete them with our
+            lawyer.
           </p>
         </div>
 

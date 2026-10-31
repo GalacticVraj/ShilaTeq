@@ -18,7 +18,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "github-slugger": "^2.0.0",
     "motion": "^12.43.0",
-    "next": "16.2.10",
+    "next": "16.4.3",
     "next-mdx-remote": "^6.0.0",
     "posthog-js": "^1.402.2",
     "qrcode": "^1.5.4",
@@ -27,7 +27,7 @@
     "react-hook-form": "^7.81.0",
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
-    "zod": "^4.4.3"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
@@ -38,7 +38,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "16.4.3",
     "prettier": "^3.9.5",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4",
