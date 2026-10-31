@@ -6,7 +6,8 @@
  * flagged as a draft pending review. Rendered through the shared DocContent
  * pipeline. `updated` is the honest authoring date.
  *
- * Review-marker convention in bodies: a blockquote beginning "⚖️ **Review**".
+ * Unfinished-section convention in bodies: a blockquote beginning "**Being finalised**".
+ * Never fill one with an invented company name, address, GSTIN or registration.
  */
 
 export type LegalDoc = {
@@ -22,7 +23,7 @@ export type LegalDoc = {
 const AUTHORED = "2026-07-15";
 
 const ENTITY_NOTE =
-  "> ⚖️ **Review** — The legal entity name, registered address, and jurisdiction below are pending and must be completed and reviewed by the company and its legal counsel before this policy is relied upon.";
+  "> **Being finalised** — The company's legal name, registered address and governing law are being finalised with our lawyer and will be added here.";
 
 export const legalDocs: LegalDoc[] = [
   {
@@ -47,17 +48,20 @@ Two different things are described here, and they collect very different amounts
 
 We keep the website deliberately light. As it stands today:
 
-- **No third-party advertising or tracking cookies** are set. (If we add privacy-respecting analytics in future, this policy will be updated first, and a cookie notice will appear.)
+- **No advertising cookies** are set.
+- **Analytics only if you agree.** If analytics is switched on, a notice asks first. Only if you choose "Allow" does PostHog (an analytics service, hosted in the EU by default) receive page visits and a random ID kept in your browser. "No thanks" sends nothing. Vercel, which hosts the site, counts visits without cookies and without identifying you.
 - **The demo** runs in your browser with sample data; it does not require an account or personal details.
 - **When you contact us**, you choose what to send. If you use the WhatsApp option, your message and phone number go to us through WhatsApp under WhatsApp's own terms and privacy policy. If you use the contact form, it composes a message you send yourself — this site does not run a server that stores form submissions.
 
-> ⚖️ **Review** — Confirm the above matches the deployed analytics/consent configuration at launch, and add the specific processor names and their roles once analytics and hosting are finalised.
+> **Being finalised** — The full list of service providers, with where each stores data, is being finalised and will be added here.
 
 ## Information the product handles
 
-When a stone yard uses ShilaTeq, the yard (not us as a visitor-facing site) is the party deciding what business data goes in — stock, orders, customers, workers, payments. That data lives in a managed cloud backend and is **isolated per yard** at the database level, so one yard's data is not accessible to another. Sensitive operations run on protected server functions. Data can be exported by the yard at any time.
+When a stone yard uses ShilaTeq, the yard (not us as a visitor-facing site) is the party deciding what business data goes in — stock, orders, customers, workers, payments. That data lives in a managed cloud backend and is **isolated per yard** at the database level, so one yard's data is not accessible to another. Sensitive operations run on protected server functions. Data can be exported by the yard at any time. Questions about a yard's records about you go to that yard; we help it answer.
 
-> ⚖️ **Review** — The product privacy terms (controller/processor roles between the yard and ShilaTeq, sub-processors, storage location and retention, worker personal-data handling) require a full data-processing review under India's Digital Personal Data Protection Act and any other applicable law. Treat the paragraph above as an honest summary, not the operative terms.
+About the people who sign in to the app (owners, office staff, workers), ShilaTeq itself records the sign-in time, IP address and device, kept for 1 year to keep accounts safe, and which screens are used, per person, kept for 13 months to improve the app.
+
+> **Being finalised** — The agreement between each yard and ShilaTeq (how we process the yard's records, where they are stored, and for how long) is being finalised with our lawyer under India's Digital Personal Data Protection Act.
 
 ## How we use information
 
@@ -65,9 +69,9 @@ To reply to you, to run and improve the product for the yards that use it, and t
 
 ## Your choices and rights
 
-You can contact us to ask what we hold about you, to correct it, or to request deletion, subject to applicable law and any records we must keep.
+You can contact us to ask what we hold about you, to correct it, or to request deletion, subject to applicable law and any records we must keep (for example, tax invoices). We aim to reply within 30 days.
 
-> ⚖️ **Review** — Enumerate the specific data-subject rights, response timelines, and the grievance/【DPDP consent-manager】mechanism required by applicable law.
+> **Being finalised** — The name and contact details of our grievance officer, and the full list of your rights and our response times, are being finalised and will be added here.
 
 ## Contact
 
@@ -107,11 +111,11 @@ Where we describe features as "on the roadmap," we mean planned direction, not a
 
 The site's content, design, and the ShilaTeq name are ours or our licensors'. You keep anything you own.
 
-> ⚖️ **Review** — Standard clauses that require legal drafting and review: limitation of liability, disclaimer of warranties for the informational site, indemnity, termination, and changes to terms.
+> **Being finalised** — Clauses on liability, warranties, termination and changes to these terms are being finalised with our lawyer.
 
 ## Governing law
 
-> ⚖️ **Review** — Specify the governing law and jurisdiction (expected: India) and the dispute-resolution mechanism, to be confirmed by counsel.
+> **Being finalised** — The governing law and how disputes are resolved are being finalised with our lawyer.
 
 ## Contact
 
@@ -126,24 +130,24 @@ _Last updated: authoring date shown below. This is a working draft pending legal
     description:
       "How this website uses cookies and similar storage — honestly. A draft pending review.",
     updated: AUTHORED,
-    reviewMarkers: 2,
+    reviewMarkers: 1,
     body: `This policy explains how this website uses cookies and similar browser storage.
 
 ## Where we stand today
 
-As it currently ships, this website sets **no advertising or third-party tracking cookies**. The small amount of browser storage we use is strictly functional — for example, remembering how far you got in the guided demo so you can resume, and your language choice. This stays on your device and is not shared.
+This website sets **no advertising cookies**. Most of the browser storage we use is strictly functional — for example, remembering how far you got in the guided demo so you can resume, your language choice, and your answer to the analytics question. This stays on your device and is not shared.
+
+If analytics is switched on and you choose "Allow", PostHog keeps a random visitor ID in your browser's local storage so visits can be counted. If you choose "No thanks", nothing is stored for analytics except your answer.
 
 ## If this changes
 
-If we add analytics or any non-essential cookies, we will update this policy first and show a consent notice where required, so you can make a choice before anything non-essential is set.
+If we add any other non-essential cookies, we will update this policy first and ask before anything non-essential is set.
 
-> ⚖️ **Review** — Once the analytics tooling and any embedded third-party content (e.g. maps on customer showrooms) are finalised, list each cookie/storage item, its purpose, provider, and lifetime, and confirm the consent mechanism meets applicable requirements.
+> **Being finalised** — A table of each storage item, its purpose, provider and lifetime is being prepared and will be added here.
 
 ## Managing storage
 
-You can clear or block cookies and site storage in your browser settings at any time. Functional storage being unavailable simply means conveniences like demo-resume won't persist.
-
-> ⚖️ **Review** — Confirm this reflects the deployed configuration at launch.
+You can clear or block cookies and site storage in your browser settings at any time. Clearing it also clears your analytics answer, so the question appears again. Functional storage being unavailable simply means conveniences like demo-resume won't persist.
 
 _Last updated: authoring date shown below. This is a working draft pending review before production use._`,
   },
@@ -171,9 +175,34 @@ We deliberately avoid inventing figures. Where we describe benefits, we mean the
 
 Features described as planned or "on the roadmap" are direction, not commitments. What exists today is what the product does today.
 
-> ⚖️ **Review** — Confirm this disclaimer's scope with counsel, and align it with the limitation-of-liability clauses in the Terms of Service.
+> **Being finalised** — This disclaimer is being reviewed with our lawyer alongside the Terms of Service.
 
 _Last updated: authoring date shown below._`,
+  },
+
+  {
+    slug: "refund",
+    title: "Cancellation and Refund Policy",
+    description: "Cancelling a ShilaTeq subscription and getting money back. A draft pending review.",
+    updated: "2026-10-31",
+    reviewMarkers: 2,
+    body: `${ENTITY_NOTE}
+
+## Cancelling
+
+A yard owner can cancel the subscription at any time by writing to us through the [contact page](/contact). The subscription runs to the end of the period already paid.
+
+## Your records
+
+Cancelling does not delete a yard's records at once. The owner can still download a full copy of them.
+
+## Mistaken payments
+
+A payment charged by mistake (twice, or after cancelling) is refunded in full to the original payment method.
+
+> **Being finalised** — Refunds for a part-used period, free-trial terms, how long records stay available after cancelling, and refund timelines are being finalised and will be added here.
+
+_Last updated: authoring date shown below. This is a working draft pending legal review before production use._`,
   },
 ];
 
