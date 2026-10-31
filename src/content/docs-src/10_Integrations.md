@@ -47,10 +47,10 @@ Supabase is the secure, managed cloud that stores and protects every yard's data
 - **Storage** — holds block photographs and generated assets. ✅ Confirmed
 
 ### Why it exists
-A stone yard cannot run a database server, manage backups, or write security policy. Supabase gives ShilaTeq an enterprise-grade backend — with **row-level, per-yard data isolation** enforced on every table — as a managed service, so the product ships with bank-grade multi-tenancy without the yard (or ShilaTeq's operators) maintaining any infrastructure.
+A stone yard cannot run a database server, manage backups, or write security policy. Supabase gives ShilaTeq an enterprise-grade backend — with **row-level, per-yard data isolation** enforced on every table — as a managed service, so the yard (and ShilaTeq's operators) don't run any database servers.
 
 ### Business Value
-- **No servers, no ops.** The yard's data lives in a managed cloud with automated durability. There is nothing to patch, back up, or babysit.
+- **No servers at the yard.** The yard's data lives in a managed cloud database, so the yard has nothing to install or patch. The owner can download a full copy of the records at any time.
 - **True multi-tenant isolation.** Every business table is scoped to a yard, and the database itself refuses to return one yard's data to another's user. Security is enforced at the data layer, not just the screen. (See [Security & Data Isolation](04_User_Roles.md).)
 - **Live, shared truth.** Realtime sync means the owner on the office desktop and the supervisor on the yard floor see the same numbers at the same moment.
 - **Tamper-proof money logic.** Because reservations, cutting, credit, and returns execute as protected server functions, the financial and inventory rules can't be worked around from a browser.

@@ -46,7 +46,7 @@ const costShape = [
   },
   {
     item: "No servers to run",
-    why: "Your data lives in a managed cloud. Nothing to patch, back up, or babysit.",
+    why: "Your data lives in a managed cloud, so there is nothing to install or patch. Download a full copy any time.",
   },
   {
     item: "No per-message fees",
