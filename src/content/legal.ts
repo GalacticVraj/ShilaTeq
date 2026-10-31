@@ -183,7 +183,8 @@ _Last updated: authoring date shown below._`,
   {
     slug: "refund",
     title: "Cancellation and Refund Policy",
-    description: "Cancelling a ShilaTeq subscription and getting money back. A draft pending review.",
+    description:
+      "Cancelling a ShilaTeq subscription and getting money back. A draft pending review.",
     updated: "2026-10-31",
     reviewMarkers: 2,
     body: `${ENTITY_NOTE}
