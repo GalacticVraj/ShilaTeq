@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
+import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -19,31 +20,41 @@ import { track, setPosthog, getPosthog } from "@/lib/analytics";
  * kept in localStorage). Vercel Analytics is cookieless and aggregate, so it needs no notice.
  */
 const CONSENT_KEY = "shilateq.analytics-consent";
+const CONSENT_EVENT = "shilateq:analytics-consent";
+
+let chosen = ""; // this visit's answer, for when storage is blocked
+
+// "yes" | "no" | "" (not asked yet); null on the server
+function readConsent(): string | null {
+  try {
+    return localStorage.getItem(CONSENT_KEY) || chosen;
+  } catch {
+    return chosen; // storage blocked: ask again next visit
+  }
+}
+function subscribeConsent(cb: () => void) {
+  window.addEventListener("storage", cb);
+  window.addEventListener(CONSENT_EVENT, cb);
+  return () => {
+    window.removeEventListener("storage", cb);
+    window.removeEventListener(CONSENT_EVENT, cb);
+  };
+}
 
 export function AnalyticsProvider() {
   const pathname = usePathname();
   const search = useSearchParams();
   const inited = useRef(false);
-  // null until read on the client: "yes" | "no" | "" (not asked yet)
-  const [consent, setConsent] = useState<string | null>(null);
-
-  useEffect(() => {
-    let v = "";
-    try {
-      v = localStorage.getItem(CONSENT_KEY) || "";
-    } catch {
-      /* storage blocked: ask every visit */
-    }
-    setConsent(v);
-  }, []);
+  const consent = useSyncExternalStore(subscribeConsent, readConsent, () => null);
 
   const choose = (v: "yes" | "no") => {
+    chosen = v;
     try {
       localStorage.setItem(CONSENT_KEY, v);
     } catch {
       /* ignore */
     }
-    setConsent(v);
+    window.dispatchEvent(new Event(CONSENT_EVENT));
   };
 
   // Init once, after consent — dynamic import keeps PostHog out of every other bundle.
@@ -124,9 +135,9 @@ export function AnalyticsProvider() {
           <p>
             May we count page visits with PostHog analytics to improve this site? It stores an ID in
             your browser. Nothing is sent unless you agree.{" "}
-            <a href="/legal/privacy" className="underline">
+            <Link href="/legal/privacy" className="underline">
               Privacy
-            </a>
+            </Link>
           </p>
           <div className="mt-3 flex gap-2">
             <button
