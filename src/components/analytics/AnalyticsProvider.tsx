@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -14,15 +14,41 @@ import { track, setPosthog, getPosthog } from "@/lib/analytics";
  * closed schema, derived from routes and a delegated click listener — zero page
  * components are touched. Vercel Analytics + Speed Insights are tiny and
  * self-disable off-Vercel.
+ *
+ * INDIA-11: PostHog loads only after the visitor agrees in the notice below (the choice is
+ * kept in localStorage). Vercel Analytics is cookieless and aggregate, so it needs no notice.
  */
+const CONSENT_KEY = "shilateq.analytics-consent";
+
 export function AnalyticsProvider() {
   const pathname = usePathname();
   const search = useSearchParams();
   const inited = useRef(false);
+  // null until read on the client: "yes" | "no" | "" (not asked yet)
+  const [consent, setConsent] = useState<string | null>(null);
 
-  // Init once — dynamic import keeps PostHog out of every other bundle.
   useEffect(() => {
-    if (inited.current || !site.posthogKey) return;
+    let v = "";
+    try {
+      v = localStorage.getItem(CONSENT_KEY) || "";
+    } catch {
+      /* storage blocked: ask every visit */
+    }
+    setConsent(v);
+  }, []);
+
+  const choose = (v: "yes" | "no") => {
+    try {
+      localStorage.setItem(CONSENT_KEY, v);
+    } catch {
+      /* ignore */
+    }
+    setConsent(v);
+  };
+
+  // Init once, after consent — dynamic import keeps PostHog out of every other bundle.
+  useEffect(() => {
+    if (inited.current || !site.posthogKey || consent !== "yes") return;
     inited.current = true;
     let cancelled = false;
     import("posthog-js").then(({ default: posthog }) => {
@@ -42,7 +68,7 @@ export function AnalyticsProvider() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [consent]);
 
   // Pageview + route-derived semantic events.
   useEffect(() => {
@@ -89,6 +115,37 @@ export function AnalyticsProvider() {
     <>
       <VercelAnalytics />
       <SpeedInsights />
+      {site.posthogKey && consent === "" ? (
+        <div
+          role="region"
+          aria-label="Analytics choice"
+          className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-lg border border-black/10 bg-white p-4 text-sm text-neutral-800 shadow-lg"
+        >
+          <p>
+            May we count page visits with PostHog analytics to improve this site? It stores an ID in
+            your browser. Nothing is sent unless you agree.{" "}
+            <a href="/legal/privacy" className="underline">
+              Privacy
+            </a>
+          </p>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => choose("yes")}
+              className="rounded-md bg-neutral-900 px-4 py-2 text-white"
+            >
+              Allow
+            </button>
+            <button
+              type="button"
+              onClick={() => choose("no")}
+              className="rounded-md border border-neutral-300 px-4 py-2"
+            >
+              No thanks
+            </button>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
