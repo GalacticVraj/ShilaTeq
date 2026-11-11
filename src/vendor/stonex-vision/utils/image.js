@@ -1,39 +1,3 @@
-// Downscale + compress an image File to a small JPEG data URL, in the browser.
-//
-// Block photos were being stored as FULL-resolution base64 (5MB+ each) directly in the
-// DB, which made every photo query crawl. This caps the longest edge at `maxDim` and
-// re-encodes as JPEG, so a phone photo drops from ~5MB to ~100-250KB with no visible
-// quality loss at display sizes. Falls back to the raw data URL if the canvas path fails.
-export function downscaleImage(file, maxDim = 1280, quality = 0.72) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onerror = reject
-    reader.onload = (e) => {
-      const img = new Image()
-      img.onerror = reject
-      img.onload = () => {
-        let { width, height } = img
-        if (Math.max(width, height) > maxDim) {
-          const scale = maxDim / Math.max(width, height)
-          width = Math.round(width * scale)
-          height = Math.round(height * scale)
-        }
-        try {
-          const canvas = document.createElement('canvas')
-          canvas.width = width
-          canvas.height = height
-          canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-          resolve(canvas.toDataURL('image/jpeg', quality))
-        } catch {
-          resolve(e.target?.result) // canvas blocked (rare) → keep original
-        }
-      }
-      img.src = e.target?.result
-    }
-    reader.readAsDataURL(file)
-  })
-}
-
 // A phone photo File → a canvas at most `maxDim` on its long side, upright (EXIF
 // orientation applied). For photos that get uploaded as files, not stored inline.
 // `willReadFrequently`: a CPU canvas for pixels that are read back (no GPU upload of the full-size

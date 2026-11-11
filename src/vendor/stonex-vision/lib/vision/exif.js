@@ -154,3 +154,57 @@ export function focalPixels(focal35, width, height) {
   if (!(focal35 > 0) || !(width > 0) || !(height > 0)) return null
   return (focal35 / FILM_DIAGONAL_MM) * Math.hypot(width, height)
 }
+
+const JPEG_KEEP_APP = new Set([0xe0, 0xe2, 0xee]) // JFIF, ICC colour profile, Adobe colour transform
+
+/**
+ * A photo file without its metadata (EXIF: GPS, camera, time; XMP; IPTC; comments), the pixels
+ * untouched. Photos are re-encoded through a canvas before upload, which already drops it; this
+ * is the guarantee at the upload itself (SQ-02: location never leaves the phone).
+ * JPEG: every APPn segment but JFIF / ICC / Adobe, and COM, before the image data. WebP: the
+ * EXIF and XMP chunks (and their VP8X flags). Anything else, or a file it can't follow, comes
+ * back as it was.
+ * @param {ArrayBuffer} buffer the whole file
+ * @returns {ArrayBuffer} the same buffer when there was nothing to take out
+ */
+export function stripPhotoMetadata(buffer) {
+  if (!buffer || buffer.byteLength < 12) return buffer
+  const v = new DataView(buffer)
+  const bytes = new Uint8Array(buffer)
+  const keep = []
+  let dropped = false
+  if (v.getUint16(0) === 0xffd8) {
+    keep.push([0, 2])
+    let p = 2
+    while (p + 4 <= v.byteLength) {
+      if (v.getUint8(p) !== 0xff) return buffer
+      const m = v.getUint8(p + 1)
+      if (m === 0xff) { p++; continue }
+      if (m === 0xda || m === 0xd9) { keep.push([p, v.byteLength]); break } // image data: the rest as is
+      const len = v.getUint16(p + 2)
+      if (len < 2 || p + 2 + len > v.byteLength) return buffer
+      if ((m >= 0xe1 && m <= 0xef && !JPEG_KEEP_APP.has(m)) || m === 0xfe) dropped = true
+      else keep.push([p, p + 2 + len])
+      p += 2 + len
+    }
+  } else if (v.getUint32(0) === 0x52494646 && v.getUint32(8) === 0x57454250) { // RIFF....WEBP
+    keep.push([0, 12])
+    let p = 12
+    while (p + 8 <= v.byteLength) {
+      const id = String.fromCharCode(bytes[p], bytes[p + 1], bytes[p + 2], bytes[p + 3])
+      const end = Math.min(v.byteLength, p + 8 + v.getUint32(p + 4, true) + (v.getUint32(p + 4, true) & 1))
+      if (id === 'EXIF' || id === 'XMP ') dropped = true
+      else keep.push([p, end])
+      p = end
+    }
+  } else return buffer
+  if (!dropped) return buffer
+  const out = new Uint8Array(keep.reduce((n, [a, b]) => n + b - a, 0))
+  let at = 0
+  for (const [a, b] of keep) { out.set(bytes.subarray(a, b), at); at += b - a }
+  if (out[0] === 0x52) { // WebP: the RIFF size, and VP8X no longer announces EXIF / XMP
+    new DataView(out.buffer).setUint32(4, out.byteLength - 8, true)
+    if (String.fromCharCode(out[12], out[13], out[14], out[15]) === 'VP8X') out[20] &= ~0x0c
+  }
+  return out.buffer
+}

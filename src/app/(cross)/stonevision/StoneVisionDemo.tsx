@@ -24,6 +24,7 @@ type SvState = {
   photo: { url: string | null; width: number; height: number } | null;
   mask: { coverage: number } | null;
   floorCheck: { ask: string } | null;
+  tryAnother: { at: number; of: number } | null; // the first selection's other shapes: the one shown, of how many
   taps: { label: string; x: number; y: number }[];
   modelLoad: { loaded: number; total: number } | null;
   error: { code: string; kept?: boolean } | null;
@@ -36,6 +37,7 @@ type Session = {
   undo(): Promise<unknown>;
   confirmFloor(): Promise<unknown>;
   rejectFloor(): Promise<unknown>;
+  tryAnother(): Promise<unknown>;
   exportImage(o?: { caption?: boolean }): Promise<Blob>;
   dispose(): Promise<unknown>;
 };
@@ -203,6 +205,14 @@ export default function StoneVisionDemo() {
   // The engine reads the room (its long step): a scan line passes over the photo meanwhile.
   const scanning = busy && (s?.stage === "analyse" || s?.stage === "floor" || s?.stage === "room");
   const left = Math.max(0, OWN_PHOTO_TRIES - used);
+  // "Try another": the model's next shape for the first selection, with how many there are (as in StoneX)
+  const another = s?.tryAnother;
+  const anotherButton = another && (
+    <button type="button" onClick={() => session.current?.tryAnother()} disabled={busy}>
+      {VT.tryAnother} <span aria-hidden="true">· {VT.shapeOf(another.at, another.of)}</span>
+      <span className="sr-only">({VT.shapeShown(another.at, another.of)})</span>
+    </button>
+  );
   const preview = DEMO_ROOMS.find((r) => r.id === room) ?? DEMO_ROOMS[0];
 
   const toPx = (e: PointerEvent) => {
@@ -397,7 +407,14 @@ export default function StoneVisionDemo() {
               <button type="button" onClick={() => session.current?.rejectFloor()} disabled={busy}>
                 {VT.floorCheck.no}
               </button>
+              {anotherButton}
             </div>
+          </div>
+        )}
+        {another && !s?.floorCheck && (
+          <div className="v-demo__another">
+            <span>{VT.notRight}</span>
+            {anotherButton}
           </div>
         )}
 

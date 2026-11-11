@@ -321,9 +321,14 @@ export function chooseCandidate(candidates, { label, currentArea = 0, tapInside 
  * `ask`: whether the customer must confirm it before stone is laid — unless it meets the photo's
  * bottom edge broadly (MASK_LIMITS.floorContact) it may be a bed, a sofa, a table top or a rug:
  * 'RAISED' (it doesn't meet the bottom edge at all) or 'PARTLY' (only part of it).
- * @returns {{ choice: number, ask: null | 'RAISED' | 'PARTLY' }}
+ *
+ * `options`: every proposal "Try another" may swap to — the pick first, then the rest largest first,
+ * each with its own `ask`; never one refused here (a wall, a chair, a strip). `pick` (a swap, or its
+ * replay): that proposal instead of the automatic one, if it is still among the options (a different
+ * engine after a tier drop: the automatic one).
+ * @returns {{ choice: number, ask: null | 'RAISED' | 'PARTLY', options: { index: number, ask: null | 'RAISED' | 'PARTLY' }[] }}
  */
-export function chooseFirstTap(candidates, ow, oh) {
+export function chooseFirstTap(candidates, ow, oh, pick = null) {
   let choice = chooseCandidate(candidates, { label: 'pos', currentArea: 0 })
   const known = new Map()
   const facts = (i) => { if (!known.has(i)) known.set(i, proposalFacts(candidates[i].probAt(ow, oh), ow, oh)); return known.get(i) }
@@ -342,8 +347,11 @@ export function chooseFirstTap(candidates, ow, oh) {
       .sort(bySize).find((i) => !facts(i).top && !facts(i).reason)
     if (floorOnly !== undefined) choice = floorOnly
   }
-  const { contactShare } = facts(choice)
-  return { choice, ask: contactShare >= MASK_LIMITS.floorContact ? null : contactShare > 0 ? 'PARTLY' : 'RAISED' }
+  const askOf = (i) => { const { contactShare } = facts(i); return contactShare >= MASK_LIMITS.floorContact ? null : contactShare > 0 ? 'PARTLY' : 'RAISED' }
+  const others = candidates.map((_, i) => i).filter((i) => i !== choice && plausible(i) && !facts(i).reason).sort(bySize)
+  const options = [choice, ...others].map((index) => ({ index, ask: askOf(index) }))
+  if (pick != null && pick !== choice && others.includes(pick)) choice = pick
+  return { choice, ask: askOf(choice), options }
 }
 
 /**
@@ -612,7 +620,8 @@ export class MaskEditor {
 
   /**
    * Add (`pos`) or remove (`neg`) one region. `region` = Uint8Array/Uint8ClampedArray (0–255) or
-   * Float32Array (0–1) at the mask size. `point` = the tap [x, y] in mask pixels.
+   * Float32Array (0–1) at the mask size. `point` = the tap [x, y] in mask pixels. `meta.stroke`: a brush stroke, the
+   * customer's own word on those pixels.
    */
   apply(label, region, point, meta = {}) {
     if (label !== 'pos' && label !== 'neg') throw new MaskError('BAD_LABEL', label)
@@ -678,7 +687,23 @@ export class MaskEditor {
       for (let i = 0; i < mask.length; i++) mask[i] = this.soft[i] >= 0.5 ? 1 : 0
     }
     const keepPoints = this.ops.filter((o) => o.label === 'pos').map((o) => o.point)
+    const before = this.ops.some((o) => o.label === 'neg') ? mask.slice() : null
     const cleanup = { ...cleanMask(mask, w, h, { keepPoints, guide: this.guide, rgb: this.rgb }), shadowAdded, ...(cleanupParams || {}) }
+    // what the customer said goes: the cleanup's hole and gap filling never paints back what a tap took out, and a brush
+    // stroke overrules it both ways. A later tap still wins over either.
+    // ponytail: ops folded into `base` (past maxOps) lose this; keep them apart if 40-tap floors ever matter
+    if (before || this.ops.some((o) => o.meta.stroke)) {
+      const IN = 1, OUT = 2, TAKEN = 3
+      const said = new Uint8Array(w * h)
+      for (const o of this.ops) {
+        const v = o.meta.stroke ? (o.label === 'pos' ? IN : OUT) : o.label === 'neg' ? TAKEN : 0
+        for (let i = 0; i < said.length; i++) if (o.region[i] >= 128) said[i] = v
+      }
+      for (let i = 0; i < mask.length; i++) {
+        if (said[i] === IN) mask[i] = 1
+        else if (said[i] === OUT || (said[i] === TAKEN && (!before?.[i] || this.soft[i] < 0.1))) mask[i] = 0 // (deep inside a removal: even the edge snap can't smooth it back)
+      }
+    }
     let on = 0, x0 = w, y0 = h, x1 = -1, y1 = -1
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {

@@ -103,5 +103,3 @@ export function sampleLowResLogits(family, pre, logits, lw, lh, outW, outH) {
   const up = upsampleLogits(family, pre, logits, lw, lh, outW, outH)
   return Uint8Array.from(up, (v) => (v > 0 ? 1 : 0))
 }
-
-export const sigmoid = (v) => 1 / (1 + Math.exp(-v))

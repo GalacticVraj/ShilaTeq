@@ -1,7 +1,15 @@
 // What this device can do for StoneX Vision — tested, never guessed from the phone's name or GPU
 // string. Tier A: a GPU model + WebGL2 rendering. Tier B: a CPU model + WebGL2. Tier C: no model
 // (colour-region taps) + WebGL2. Without WebGL2 there is no preview at all, and the screen says so.
+// The one exception to "never from the phone's name" is iOS: it hides its memory (no deviceMemory) and
+// closes a tab that holds too much, with nothing the page can catch. Reading a photo with the model takes
+// about 2.2 GB (measured on a PC), and a real iPhone reloaded and showed "can't open this page".
 import { webgl2Available } from './renderer/VisionRenderer.js'
+
+/** Every browser on iOS is WebKit, Chrome included. An iPad asking for desktop pages says "Macintosh", with touch. */
+export function isIOS(nav = globalThis.navigator || {}) {
+  return /iPhone|iPad|iPod/.test(nav.userAgent || '') || (/Macintosh/.test(nav.userAgent || '') && (nav.maxTouchPoints || 0) > 1)
+}
 
 async function webgpuUsable() {
   const gpu = globalThis.navigator?.gpu
@@ -27,6 +35,7 @@ export async function detectCapabilities() {
     saveData: !!nav.connection?.saveData,
     connection: nav.connection?.effectiveType || null,
     moduleWorkers: typeof Worker !== 'undefined',
+    ios: isIOS(nav),
   }
 }
 
@@ -35,6 +44,7 @@ export function chooseTier(caps, override = null) {
   const reasons = []
   if (!caps.webgl2?.ok) return { tier: 'none', reasons: ['no WebGL2 — the preview cannot be drawn on this device'] }
   if (override && ['A', 'B', 'C'].includes(override)) return { tier: override, reasons: ['forced (dev override)'] }
+  if (caps.ios) { reasons.push('iOS closes a tab that holds the model — no model'); return { tier: 'C', reasons } }
   if (caps.saveData) { reasons.push('Save-Data is on — no model download'); return { tier: 'C', reasons } }
   if (caps.deviceMemoryGB != null && caps.deviceMemoryGB < 3) { reasons.push(`${caps.deviceMemoryGB} GB device memory — too little for a model`); return { tier: 'C', reasons } }
   if (caps.webgpu?.usable && !caps.webgpu.fallbackAdapter) { reasons.push('WebGPU usable'); return { tier: 'A', reasons } }
@@ -43,4 +53,4 @@ export function chooseTier(caps, override = null) {
 }
 
 /** Long edge for the working photo: smaller on low-memory phones. */
-export const renderEdgeFor = (caps, edges) => (caps.deviceMemoryGB != null && caps.deviceMemoryGB <= 4 ? edges.lowMemory : edges.normal)
+export const renderEdgeFor = (caps, edges) => (caps.ios || (caps.deviceMemoryGB != null && caps.deviceMemoryGB <= 4) ? edges.lowMemory : edges.normal)
