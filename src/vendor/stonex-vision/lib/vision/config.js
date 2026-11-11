@@ -59,6 +59,12 @@ export function segmenterForTier(tier, { production = !import.meta.env?.DEV } = 
 }
 /** When a tier's segmenter fails (load error, out of memory, GPU lost, timeout), drop to this one. */
 export const NEXT_TIER = Object.freeze({ A: 'B', B: 'C', C: null })
+/** The next tier that isn't the same segmenter again: reloading the model that just failed helps nobody. */
+export function nextTier(tier, { production = !import.meta.env?.DEV } = {}) {
+  let next = NEXT_TIER[tier]
+  while (next && segmenterForTier(next, { production }) === segmenterForTier(tier, { production })) next = NEXT_TIER[next]
+  return next || null
+}
 
 /** Long edge of the working photo the customer sees and exports (lower on low-memory phones). */
 export const RENDER_MAX_EDGE = Object.freeze({ normal: 1600, lowMemory: 1280 })

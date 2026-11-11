@@ -108,6 +108,9 @@ void main() {
     vec2 tuv = A.xy + l.x * A.zw + l.y * B.xy;
     vec2 gx = (dgx.x / sz.x) * A.zw + (dgx.y / sz.y) * B.xy;
     vec2 gy = (dgy.x / sz.x) * A.zw + (dgy.y / sz.y) * B.xy;
+    // the floor's y runs away from the camera (up the photo), a picture's v runs down it: the twin's top row belongs
+    // at the slab's far edge, or the stone shows mirrored. Once, here, where every slab and repeat cell samples.
+    tuv.y = 1.0 - tuv.y; gx.y = -gx.y; gy.y = -gy.y;
     float k = 1.0 - 2.0 * u_inset;
     // that slab's own twin; a neutral grey for the moment its picture is still loading
     stone = B.w > 0.5 ? textureGrad(u_slabs, vec3(u_inset + tuv * k, B.z), gx * k, gy * k).rgb : vec3(0.42);

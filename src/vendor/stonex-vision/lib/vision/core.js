@@ -12,6 +12,7 @@ import { SEGMENTERS, MODEL_VARIANTS, RUNTIME_FILES, VISION_ASSET_BASE, assertSeg
 import { createRegionAdapter } from './segment/regionGrow.js'
 import { downloadFailed } from './segment/assets.js'
 import { MaskEditor, chooseCandidate, chooseFirstTap, chooseAddCandidate, addVerdict, MaskError, MASK_LIMITS } from './mask.js'
+import { strokeRegion } from './stroke.js'
 import { lumaPlane, resizeMask, resizeImage, fitLongEdge } from './image.js'
 // the CPU runtime's Wasm, as the build emits it: ONE content-hashed copy beside the app (the same file
 // ORT's own bundle points at), still checked against its pin before ORT sees it
@@ -164,8 +165,8 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
       return { ...timings, totalMs: performance.now() - t0, linesMs: performance.now() - t1, lineCount: segments.length }
     },
 
-    /** A tap in render-resolution pixels. label 'pos' adds, 'neg' removes. */
-    async tap({ label, x, y }) {
+    /** A tap in render-resolution pixels. label 'pos' adds, 'neg' removes. `pick`: a first tap's proposal chosen by "Try another". */
+    async tap({ label, x, y, pick = null }) {
       requireImage()
       const { width: W, height: H } = maskSize
       if (!Number.isFinite(x) || !Number.isFinite(y)) throw Object.assign(new MaskError('BAD_TAP'), { kind: 'error' })
@@ -189,8 +190,8 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
       // surface that may not be the floor (a bed, a table top) comes back with `ask`. A later add never
       // climbs the wall with the floor (chooseAddCandidate).
       const oh = Math.max(1, Math.round((640 * H) / W))
-      const { choice, ask } = firstLike
-        ? chooseFirstTap(candidates, 640, oh)
+      const { choice, ask, options = null } = firstLike
+        ? chooseFirstTap(candidates, 640, oh, pick)
         : label === 'pos'
           // (its top-edge check at 320 px: an Add shouldn't wait for the first tap's 640 px shape tests)
           ? { choice: chooseAddCandidate(candidates, { currentArea: last.coverage, tapInside, covers, floorTop: last.bbox[1] < Math.max(1, Math.round(0.02 * H)), ow: 320, oh: Math.max(1, Math.round((320 * H) / W)) }), ask: null }
@@ -205,12 +206,26 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
       last = editor.result()
       return summary(last, {
         timing: { decodeMs, regionMs, cleanupMs: performance.now() - t2, totalMs: performance.now() - t0 },
-        choice: { index: choice, count: candidates.length, scores: candidates.map((c) => c.score), areas: candidates.map((c) => c.area) },
+        choice: { index: choice, count: candidates.length, scores: candidates.map((c) => c.score), areas: candidates.map((c) => c.area), options },
         // an add that isn't more of the same floor (a spot apart from it, a bed, a wall) is shown and
         // asked about like a first tap's doubtful surface (addVerdict)
         ask: ask || (label === 'pos' && !firstLike ? addVerdict(before.mask, last.mask, W, H) : null),
         extra: extra || null,
       })
+    },
+
+    /** A brush stroke in render px: 'pos' paints floor in, 'neg' takes an area out. Edge-aware (stroke.js). One undoable step. */
+    stroke({ label, points, radius }) {
+      requireImage()
+      const { width: W, height: H } = maskSize
+      if (label !== 'pos' && label !== 'neg') throw Object.assign(new MaskError('BAD_LABEL', label), { kind: 'error' })
+      if (!Array.isArray(points) || !points.length || points.some((p) => !Number.isFinite(p?.[0]) || !Number.isFinite(p?.[1])) || !(radius > 0)) throw Object.assign(new MaskError('BAD_STROKE'), { kind: 'error' })
+      const t0 = performance.now()
+      const inside = points.filter(([x, y]) => x >= 0 && y >= 0 && x < W && y < H)
+      if (!inside.length) throw Object.assign(new MaskError('TAP_OUTSIDE'), { kind: 'error' })
+      editor.apply(label, strokeRegion(points, radius, photoRgb, W, H), inside[0], { stroke: true })
+      last = editor.result()
+      return summary(last, { timing: { totalMs: performance.now() - t0 } })
     },
 
     undo() {

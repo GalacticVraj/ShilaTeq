@@ -14,7 +14,7 @@ import { classifySlabs, orderSlabs, planFloor, sampleFloor, layerSize, fromFrame
 import { exposureFor } from './lighting.js'
 import { photoHeadOfFile, focalPixels } from './exif.js'
 import { imageFileToCanvas } from '../../utils/image.js'
-import { segmenterForTier, segmenterLicensed, NEXT_TIER, SEGMENTERS, RENDER_MAX_EDGE, ANALYSIS_MAX_EDGE, PHOTO_LIMITS } from './config.js'
+import { segmenterForTier, segmenterLicensed, nextTier, SEGMENTERS, RENDER_MAX_EDGE, ANALYSIS_MAX_EDGE, PHOTO_LIMITS } from './config.js'
 import { detectCapabilities, chooseTier, renderEdgeFor } from './capabilities.js'
 import { fitLongEdge } from './image.js'
 
@@ -60,6 +60,9 @@ const INITIAL = Object.freeze({
   // it is shown, nothing is laid, until the customer says it is the floor — { ask: 'RAISED' | 'PARTLY', at }
   // (`at`: that tap's place in the tap log)
   floorCheck: null,
+  // the first selection can swap to another of the model's shapes ("Try another"): { at, of } — the shape
+  // shown (1-based) and how many there are; null when there's nothing to swap to
+  tryAnother: null,
 })
 
 /**
@@ -67,6 +70,9 @@ const INITIAL = Object.freeze({
  * anything else is approximate.
  */
 export const isTrueScale = (st) => st?.surface?.scale?.mode === SCALE_MODES.entered && st?.plan?.exactSizes === true
+
+// where findFloor looks, in order: shares of the photo's width and height
+const FIND_FLOOR_AT = [[0.5, 0.9], [0.3, 0.9], [0.7, 0.9]]
 
 /**
  * The rest of the floor as repeats of the slabs on screen (the renderer's setFill). Every placed slab of the
@@ -105,7 +111,7 @@ export function photoRefusal(head, decoded = null) {
  * A twin as one texture-array layer: resampled to the layer size, long side along u. A portrait
  * twin is turned a quarter turn clockwise — a rotation, never a mirror.
  */
-async function layerSource(bitmap, w, h) {
+export async function layerSource(bitmap, w, h) {
   if (!(bitmap.height > bitmap.width)) return createImageBitmap(bitmap, { resizeWidth: w, resizeHeight: h, resizeQuality: 'high' })
   const c = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h })
   const ctx = c.getContext('2d')
@@ -238,7 +244,7 @@ export class VisionSession {
         // a file that didn't arrive whole (missing, damaged, the connection gone): the next photo downloads
         // it again, past the HTTP cache — also when this was the download started before any photo
         if (err.kind === 'asset') this.reloadModel = true
-        const next = NEXT_TIER[tier]
+        const next = nextTier(tier)
         // a model file missing or damaged (asset), or a model this build may not run (licence): said
         // plainly — never a quiet drop to a lesser tier (the colour-only one in the end)
         if (!next || this.segmenterOverride || err.kind === 'asset' || err.kind === 'licence') throw Object.assign(err, { kind: err.kind || 'error' })
@@ -265,7 +271,7 @@ export class VisionSession {
   }
 
   async #dropTierNow(reason, message, resend) {
-    const next = NEXT_TIER[this.state.tier]
+    const next = nextTier(this.state.tier)
     if (!next) throw Object.assign(new Error(message || reason), { kind: reason })
     await this.client?.dispose()
     this.#set({ tier: next, downgrades: [...this.state.downgrades, { from: this.state.tier, to: next, reason, message: String(message || '').slice(0, 160) }] })
@@ -274,7 +280,20 @@ export class VisionSession {
     await this.segmenterReady
     if (!resend) return
     if (this.photoCanvas) await this.#sendImage()
-    for (const t of this.tapLog) await this.#rawTap(t.label, t.x, t.y)
+    for (const t of this.tapLog) await this.#replay(t)
+  }
+
+  /** One logged step again (a tier drop, a marked area put back): a tap or a brush stroke. */
+  #replay(t) {
+    return t.kind === 'stroke' ? this.client.stroke({ label: t.label, points: t.points, radius: t.radius }) : this.#loggedTap(t)
+  }
+
+  /** A logged tap run (again), with the shape "Try another" chose for it; it keeps the shapes it can swap to (another engine: other shapes). */
+  async #loggedTap(t) {
+    const r = await this.#rawTap(t.label, t.x, t.y, t.pick)
+    t.options = r?.choice?.options || null
+    t.pick = r?.choice?.index ?? null
+    return r
   }
 
   /**
@@ -323,7 +342,7 @@ export class VisionSession {
 
   /** The taps as the photo shows them: done, then running or queued — in order. */
   #syncTaps() {
-    this.#set({ taps: [...this.tapLog, ...this.waiting, ...this.pendingTaps].map(({ label, x, y }) => ({ label, x, y })) })
+    this.#set({ taps: [...this.tapLog, ...this.waiting, ...this.pendingTaps].map(({ label, x, y, kind }) => ({ label, x, y, ...(kind ? { kind } : {}) })) })
   }
 
   /**
@@ -494,7 +513,7 @@ export class VisionSession {
         if (this.gpuLost) await this.#dropTier('device-lost', 'the GPU was lost', { resend })
         return await fn()
       } catch (err) {
-        if (!wanted() || !RUNTIME_FAILURES.has(err.kind) || !NEXT_TIER[this.state.tier] || this.segmenterOverride) throw err
+        if (!wanted() || !RUNTIME_FAILURES.has(err.kind) || !nextTier(this.state.tier) || this.segmenterOverride) throw err
         await this.#dropTier(err.kind, err.message, { resend })
       }
     }
@@ -529,7 +548,7 @@ export class VisionSession {
           replaced = { check: this.state.floorCheck, taps: this.tapLog.slice(this.state.floorCheck.at) }
           await this.#dropSince(replaced.check.at)
         }
-        const r = await this.#withRecovery(() => this.#rawTap(t.label, t.x, t.y))
+        const r = await this.#withRecovery(() => this.#loggedTap(t))
         this.tapLog.push(t)
         replaced = null // this tap now holds the place: a later failure doesn't bring the old area back over it
         if (r?.ask) this.#set({ floorCheck: { ask: r.ask, at: this.tapLog.length - 1 } })
@@ -549,33 +568,56 @@ export class VisionSession {
   }
 
   /**
-   * The floor without a tap: one try where photos show the floor (the bottom centre — the same spot as
-   * "Select the floor at the bottom of the photo"), kept only if the engine lays it without a question.
-   * Unsure (it would ask "Is this the floor?") or refused (a rug, a chair): nothing is marked and nothing
-   * is said — the screen asks for a tap as before. Never runs over a tap the customer made.
+   * A brush stroke on the photo (render px): 'pos' paints floor in, 'neg' takes an area out. It answers a pending
+   * "Is this the floor?": the customer is correcting it by hand. One undoable step, no marks on the photo.
+   */
+  brush(label, points, radius) {
+    if (!points?.length) return Promise.resolve(this.state)
+    const t = { kind: 'stroke', label, points, radius, x: points[0][0], y: points[0][1], gen: this.photoGen }
+    return this.#serial(async () => {
+      if (!this.photoCanvas || t.gen !== this.photoGen || this.state.phase === 'preparing') return this.state
+      this.#set({ phase: 'working', stage: label === 'neg' ? 'remove' : 'floor', error: null })
+      try {
+        const t0 = now()
+        await this.#withRecovery(() => this.#replay(t))
+        this.tapLog.push(t)
+        this.#set({ floorCheck: null })
+        await this.#afterMaskChange({ tapMs: Math.round(now() - t0) })
+      } catch (err) {
+        this.#set({ phase: 'ready', stage: null, error: { code: err.code || err.kind || 'TAP_FAILED', message: String(err.message) } })
+      } finally {
+        this.#syncTaps()
+      }
+      return this.state
+    })
+  }
+
+  /**
+   * The floor without a tap: tries where photos show the floor (the bottom centre — the same spot as
+   * "Select the floor at the bottom of the photo" — then either side of it), and the first the engine lays
+   * without a question is kept. Unsure (it would ask "Is this the floor?") or refused (a rug, a chair) at every
+   * spot: nothing is marked and nothing is said — the screen asks for a tap as before. Never runs over a tap the customer made.
    */
   findFloor() {
     const gen = this.photoGen
     return this.#serial(async () => {
       const photo = this.state.photo
       if (!this.photoCanvas || !photo || gen !== this.photoGen || this.tapLog.length || this.waiting.length || this.state.phase !== 'ready') return this.state
-      const t = { label: 'pos', x: 0.5 * photo.width, y: 0.9 * photo.height, gen }
       this.#set({ phase: 'working', stage: 'floor', error: null })
-      try {
-        const t0 = now()
-        const r = await this.#withRecovery(() => this.#rawTap(t.label, t.x, t.y))
-        if (r?.ask) {
-          await this.client.undo() // not sure it is the floor: leave the choice to the customer
-          this.#set({ phase: 'ready', stage: null })
+      const t0 = now()
+      for (const [fx, fy] of FIND_FLOOR_AT) {
+        const t = { label: 'pos', x: fx * photo.width, y: fy * photo.height, gen }
+        try {
+          const r = await this.#withRecovery(() => this.#loggedTap(t))
+          if (r?.ask) { await this.client.undo(); continue } // not sure it is the floor: the next spot
+          this.tapLog.push(t)
+          this.#syncTaps()
+          this.#set({ autoFound: true })
+          await this.#afterMaskChange({ tapMs: Math.round(now() - t0) })
           return this.state
-        }
-        this.tapLog.push(t)
-        this.#syncTaps()
-        this.#set({ autoFound: true })
-        await this.#afterMaskChange({ tapMs: Math.round(now() - t0) })
-      } catch {
-        this.#set({ phase: 'ready', stage: null })
+        } catch { /* refused here (a rug, a chair): the next spot */ }
       }
+      this.#set({ phase: 'ready', stage: null }) // leave the choice to the customer
       return this.state
     })
   }
@@ -597,7 +639,7 @@ export class VisionSession {
   async #putBack({ check, taps }) {
     try {
       for (const p of taps) {
-        await this.#rawTap(p.label, p.x, p.y)
+        await this.#loggedTap(p)
         this.tapLog.push(p)
       }
       this.#set({ floorCheck: check })
@@ -638,8 +680,56 @@ export class VisionSession {
     })
   }
 
-  async #rawTap(label, x, y) {
-    const r = label === 'neg' ? await this.client.addNegativeTap({ x, y }) : await this.client.addPositiveTap({ x, y })
+  /**
+   * The shapes the first selection can swap to: only while it is the only step; a floor found by
+   * itself only to shapes that need no question (it was laid without one).
+   */
+  #anotherOptions() {
+    const t = this.tapLog.length === 1 ? this.tapLog[0] : null
+    if (!t || t.kind === 'stroke' || t.label !== 'pos' || !t.options) return []
+    return this.state.autoFound ? t.options.filter((o) => !o.ask) : t.options
+  }
+
+  /**
+   * "Try another": the first selection becomes the model's next shape for the same tap (round to the
+   * first again). One undoable step in place of the old one; a shape that may not be the floor is
+   * asked about, like any first tap.
+   */
+  tryAnother() {
+    return this.#serial(async () => {
+      const opts = this.#anotherOptions()
+      if (opts.length < 2 || this.waiting.length) return this.state
+      const t = this.tapLog[0]
+      const at = opts.findIndex((o) => o.index === t.pick)
+      const next = opts[(at + 1) % opts.length].index
+      this.#set({ phase: 'working', stage: 'floor', error: null })
+      try {
+        await this.client.undo()
+        this.tapLog.pop()
+        const nt = { ...t, pick: next }
+        let r
+        try {
+          r = await this.#withRecovery(() => this.#loggedTap(nt))
+        } catch (err) {
+          // the swap failed: the shape the customer had comes back, as it was
+          await this.#loggedTap(t).then(() => this.tapLog.push(t)).catch(() => {})
+          await this.#afterMaskChange({}).catch(() => {})
+          throw err
+        }
+        this.tapLog.push(nt)
+        this.#set({ floorCheck: r?.ask ? { ask: r.ask, at: 0 } : null })
+        await this.#afterMaskChange({})
+      } catch (err) {
+        this.#set({ phase: 'ready', stage: null, error: { code: err.code || err.kind || 'TAP_FAILED', message: String(err.message) } })
+      } finally {
+        this.#syncTaps()
+      }
+      return this.state
+    })
+  }
+
+  async #rawTap(label, x, y, pick = null) {
+    const r = label === 'neg' ? await this.client.addNegativeTap({ x, y }) : await this.client.addPositiveTap(pick == null ? { x, y } : { x, y, pick })
     this.lastTap = r
     if (r.timing) {
       const t = r.timing
@@ -690,7 +780,9 @@ export class VisionSession {
     const m = this.client.getMask()
     this.renderer.uploadMask(m.alpha, m.width, m.height)
     const mask = { coverage: m.coverage, bbox: m.bbox, taps: m.taps, choice: this.lastTap?.choice || null }
-    this.#set({ mask, stage: m.coverage > 0 ? 'room' : null })
+    const opts = this.#anotherOptions()
+    const tryAnother = opts.length >= 2 ? { at: Math.max(0, opts.findIndex((o) => o.index === this.tapLog[0].pick)) + 1, of: opts.length } : null
+    this.#set({ mask, stage: m.coverage > 0 ? 'room' : null, tryAnother })
     if (m.coverage > 0) {
       const tg = now()
       if (!this.state.manualGeometry) {
@@ -1097,6 +1189,24 @@ export class VisionSession {
   }
 
   /** Dev: a hand-placed perspective quad (any rectangle on the floor), or null to go back to automatic. */
+  /**
+   * Where "Line up with the room" starts: a rectangle on this floor, in perspective, that fits inside the photo so every
+   * corner can be reached (TL, TR, BR, BL in render px). The points already placed, when there are any.
+   */
+  perspectiveHandles() {
+    const surface = this.state.surface
+    if (!surface) return null
+    if (this.state.manualGeometry) return [0, 2, 4, 6].map((i) => [surface.quad[i], surface.quad[i + 1]])
+    const { width: W, height: H } = surface
+    const c = imageToFloor(surface, W / 2, 0.72 * H)
+    if (!c) return null
+    for (let s = 150; s >= 5; s *= 0.8) {
+      const pts = [[-s, s], [s, s], [s, -s], [-s, -s]].map(([dx, dy]) => floorToImage(surface, c[0] + dx, c[1] + dy))
+      if (pts.every((p) => p && p[0] >= 0.06 * W && p[0] <= 0.94 * W && p[1] >= 0.06 * H && p[1] <= 0.94 * H)) return pts
+    }
+    return null
+  }
+
   setPerspectiveQuad(quad) {
     return this.#serial(async () => {
       if (!this.photoCanvas) return this.state
@@ -1105,7 +1215,13 @@ export class VisionSession {
         if (this.state.mask?.coverage > 0) await this.#afterMaskChange({})
         return this.state
       }
-      const surface = this.#withReference(floorFromQuad(quad, { width: this.photoCanvas.width, height: this.photoCanvas.height, focalPx: this.state.photo?.focalPx, yaw: 0 }))
+      let surface
+      try {
+        surface = this.#withReference(floorFromQuad(quad, { width: this.photoCanvas.width, height: this.photoCanvas.height, focalPx: this.state.photo?.focalPx, yaw: 0 }))
+      } catch (err) { // four points no camera could see as a rectangle: the picture stays as it was, and says so
+        this.#set({ error: { code: 'PERSPECTIVE_FAILED', message: String(err.message) } })
+        return this.state
+      }
       this.#set({ surface, manualGeometry: true })
       this.#applyAll()
       this.#render()

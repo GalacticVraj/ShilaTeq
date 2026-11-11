@@ -1040,7 +1040,8 @@
 .v-demo__room:focus-visible,
 .v-demo__stone:focus-visible,
 .v-demo__tools button:focus-visible,
-.v-demo__check button:focus-visible {
+.v-demo__check button:focus-visible,
+.v-demo__another button:focus-visible {
   outline: 2px solid var(--color-acid);
   outline-offset: 2px;
 }
@@ -1102,7 +1103,8 @@
   }
 }
 .v-demo__tools button,
-.v-demo__check button {
+.v-demo__check button,
+.v-demo__another button {
   min-height: 2.75rem;
   padding: 0.4rem 0.6rem;
   border: 0;
@@ -1120,7 +1122,8 @@
   color: var(--color-obsidian);
 }
 .v-demo__tools button:disabled,
-.v-demo__check button:disabled {
+.v-demo__check button:disabled,
+.v-demo__another button:disabled {
   opacity: 0.4;
   cursor: default;
 }
@@ -1132,6 +1135,15 @@
   background: rgb(255 82 56 / 0.12);
   box-shadow: inset 0 0 0 1px rgb(255 82 56 / 0.4);
   font-size: 0.9375rem;
+}
+.v-demo__another {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--color-lichen);
+  font-size: 0.875rem;
 }
 .v-demo__check div {
   display: flex;

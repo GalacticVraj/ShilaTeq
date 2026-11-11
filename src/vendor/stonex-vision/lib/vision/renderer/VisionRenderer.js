@@ -206,7 +206,8 @@ export class VisionRenderer {
   /**
    * Where each real slab lies (layout frame, cm) and how its twin maps onto it:
    * [{ rect: [x0, y0, x1, y1], uv: { o: [u, v], ax: [du, dv], ay: [du, dv] }, layer }].
-   * A mapping that would mirror the stone (det(ax, ay) ≤ 0) is refused.
+   * A mapping that would mirror the stone (det(ax, ay) ≤ 0) is refused. These uv are in the floor's frame (y away
+   * from the camera); the shader turns v the picture's way round once, where it samples.
    */
   setPlacements(placements) {
     if (!Array.isArray(placements) || placements.length > MAX_SLABS) throw new RendererError('BAD_PLACEMENTS', { count: placements?.length, max: MAX_SLABS })

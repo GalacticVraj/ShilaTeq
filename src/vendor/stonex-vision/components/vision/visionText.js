@@ -7,6 +7,8 @@ export const VT = {
   upload: 'Upload room photo',
   takePhoto: 'Take photo',
   privacy: 'Your photo stays on this phone.',
+  photoTip: 'Stand back and show as much of the floor as you can.',
+  gettingReady: 'Getting ready…',
   // what the long steps are doing (session state.stage) — named, never a made-up percentage
   stages: {
     photo: 'Preparing your photo…',
@@ -17,7 +19,7 @@ export const VT = {
     room: 'Creating your visualization…',
     stone: 'Preparing your stone…',
   },
-  tapAhead: 'You can tap the floor already',
+  tapAhead: 'This takes a few seconds. We\'ll look for the floor, or tap it now.',
   tapQueued: 'Got it — your floor comes next',
   tapFloor: 'Tap the floor',
   findFloor: 'Select the floor at the bottom of the photo',
@@ -35,6 +37,17 @@ export const VT = {
     hint: 'Or tap the floor somewhere else.',
   },
   removeHint: 'Tap anything that is not floor to take it out',
+  // the brush: what a tap can't reach (no model involved, so it works on any phone and any photo)
+  paintFloor: 'Paint floor',
+  eraseFloor: 'Erase',
+  paintAddHint: 'Paint over floor that is missing',
+  paintRemoveHint: 'Paint over anything that is not floor',
+  // the stone lies the wrong way, or the floor's lines don't match the room's
+  turnStone: 'Turn the stone 90°',
+  fixPerspective: 'Line up with the room',
+  perspectiveHint: 'Drag the four points onto a rectangle on your floor, such as tile lines or a floor corner.',
+  perspectiveDone: 'Done',
+  perspectiveAuto: 'Use automatic',
   floorTools: 'Floor',
   pictureTools: 'Picture',
   add: 'Add floor',
@@ -68,7 +81,12 @@ export const VT = {
     notNow: 'Not now',
   },
   // the floor was marked without a tap (session autoFound): say so, and how to put it right
-  autoFound: 'We found the floor for you. Not the floor? Tap Undo, then tap your floor.',
+  autoFound: 'Is this your floor? If not, tap Undo, then tap your floor. Tap more of it to add it, or Remove to take something out.',
+  // the first selection, swapped to the model's next shape for the same spot (session tryAnother)
+  tryAnother: 'Try another shape',
+  notRight: 'Not the right area?',
+  shapeOf: (at, of) => `${at} of ${of}`,
+  shapeShown: (at, of) => `Shape ${at} of ${of} shown`,
   // scale: a preview needs no measurement; size and fill are optional ("Adjust appearance")
   previewScale: 'Preview scale',
   entered: 'Scaled to your measurement',
@@ -117,6 +135,7 @@ export const VT = {
   tapFailed: 'We could not pick out the floor there. Try tapping another spot.',
   // a tap meant to replace the marked area was refused (session error.kept): the marked area is back
   keptAsked: 'That spot doesn\'t look like the floor, so the area marked before is kept. Answer the question above, or tap open floor.',
+  reload: 'Reload the page',
   retryDownload: 'Try again', // the floor finder's download, again (the same photo: nothing to choose again)
   errors: {
     PHOTO_UNREADABLE: 'This photo could not be opened. Please choose another room photo with the floor visible.',
@@ -127,6 +146,9 @@ export const VT = {
     PHOTO_TOO_SMALL: 'This photo is too small. Please choose a clearer room photo with the floor visible.',
     PHOTO_TOO_WIDE: 'This photo is too wide or too tall (a panorama?). Please choose a normal photo of the room with the floor visible.',
     SEGMENTER_UNAVAILABLE: 'The floor finder could not start on this phone. Reload the page to try again.',
+    UNDO_FAILED: 'That could not be undone. Tap Start over, or choose your photo again.',
+    RESET_FAILED: 'That could not be cleared. Please choose your photo again.',
+    TAP_OUTSIDE: 'That was outside the photo. Tap on the floor in your photo.',
     // a model file missing, damaged or cut off on the way (session: asset error) — "Try again" downloads it afresh
     MODEL_UNAVAILABLE: 'The floor finder didn\'t download correctly. Check your connection, then try again.',
     // (when another stone is already on the floor it stays, and the page names it)
@@ -135,6 +157,7 @@ export const VT = {
     MEASURE_FAILED: 'That measurement did not work. Tap two points on the floor and try again.',
     NOT_FLOOR: 'That doesn\'t look like the floor — it may be a chair, a rope or a wall. Tap an open part of the floor.',
     EXPORT_FAILED: 'The image could not be saved. Try again.',
+    PERSPECTIVE_FAILED: 'Those four points can\'t be a rectangle on the floor. Move them a little and try again.',
     SLABS_FAILED: 'Some slab photos could not be shown. Choose the stone again to retry.',
     GPU_LOST: 'The preview stopped working on this phone. Reload the page and choose your photo again.',
   },
@@ -217,7 +240,11 @@ export const VT = {
   gpuRestoring: 'Bringing the preview back…',
   noPreview: 'This phone cannot draw the preview. You can still see the slab in true colour below.',
   slab: 'Slab', block: 'Block', size: 'Size', finish: 'Finish', grade: 'Grade', status: 'Status',
-  availability: { available: 'Available', reserved: 'Reserved', sold: 'Sold', unknown: '—' },
+  availability: { available: 'Available', reserved: 'Reserved', sold: 'Sold', damaged: 'Damaged', unknown: '—' },
+  // one photo for a set of identical slabs (lib/vision/stones oneStonePerSet)
+  alike: (n) => `${n} identical slab${n === 1 ? '' : 's'} for sale`,
+  photoOf: (code) => `Photo of ${code}, an identical slab from the same bundle`,
+  photoFromBlock: 'Photo of the block these slabs were cut from: the polished slab may look a little different',
 }
 
 /** "9 × 5 ft" from feet values (either may be missing). */

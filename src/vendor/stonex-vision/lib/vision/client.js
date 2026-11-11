@@ -9,7 +9,7 @@ import { createVisionCore, failureKind } from './core.js'
 // from its last piece of download — a model still arriving never times out, a stalled one is a
 // download that didn't arrive (ASSET_STALLED)
 export const TIMEOUTS = Object.freeze({
-  init: 180000, setImage: 180000, tap: 60000, undo: 20000, reset: 20000, geometry: 30000, lighting: 30000, status: 10000, lines: 10000, dispose: 20000,
+  init: 180000, setImage: 180000, tap: 60000, stroke: 20000, undo: 20000, reset: 20000, geometry: 30000, lighting: 30000, status: 10000, lines: 10000, dispose: 20000,
 })
 
 export class VisionClient {
@@ -123,8 +123,10 @@ export class VisionClient {
     return r
   }
 
-  addPositiveTap({ x, y }) { return this.#mask(this.#call('tap', { label: 'pos', x, y })) }
+  addPositiveTap({ x, y, pick = null }) { return this.#mask(this.#call('tap', { label: 'pos', x, y, pick })) }
   addNegativeTap({ x, y }) { return this.#mask(this.#call('tap', { label: 'neg', x, y })) }
+  /** A brush stroke: { label: 'pos' | 'neg', points: [[x, y]…] in render px, radius }. */
+  stroke(args) { return this.#mask(this.#call('stroke', args)) }
   undo() { return this.#mask(this.#call('undo')) }
   reset() { return this.#mask(this.#call('reset')) }
   /** The last mask result (alpha 0–255 at the render size, coverage, bbox) or null. */

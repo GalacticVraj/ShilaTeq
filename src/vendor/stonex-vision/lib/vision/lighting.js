@@ -40,7 +40,7 @@ export const LIGHTING_DEFAULTS = Object.freeze({
   clipHi: 0.985,
   minShade: 0.12,
   maxShade: 2.2, // the light's cap; darkening applies below it (see floorLighting)
-  exposureMin: 0.5,
+  exposureMin: 0.8, // a dark floor in the photo is the old floor's colour, not the room's light: it must not darken a white marble
   exposureMax: 1.1,
   maxSigmaPx: 96,
 })
