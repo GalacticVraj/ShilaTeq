@@ -25,7 +25,7 @@ type SvState = {
   mask: { coverage: number } | null;
   floorCheck: { ask: string } | null;
   tryAnother: { at: number; of: number } | null; // the first selection's other shapes: the one shown, of how many
-  taps: { label: string; x: number; y: number }[];
+  taps: { label: string; x: number; y: number; kind?: string }[]; // kind 'stroke': a brush stroke
   modelLoad: { loaded: number; total: number } | null;
   error: { code: string; kept?: boolean } | null;
 };
@@ -35,6 +35,8 @@ type Session = {
   setStone(stone: DemoStone, load: typeof loadStoneImage): Promise<unknown>;
   tap(label: "pos" | "neg", x: number, y: number): Promise<unknown>;
   undo(): Promise<unknown>;
+  reset(): Promise<unknown>;
+  brush(label: "pos" | "neg", points: number[][], radius: number): Promise<unknown>;
   confirmFloor(): Promise<unknown>;
   rejectFloor(): Promise<unknown>;
   tryAnother(): Promise<unknown>;
@@ -45,6 +47,7 @@ const STAGES = VT.stages as Record<string, string>;
 const ERRORS = VT.errors as Record<string, string>;
 const FLOOR_CHECK = VT.floorCheck as Record<string, string>;
 const TAP_SLOP = 10; // px a press may wander and still be a tap (more is a drag: never a mark)
+const BRUSH_CSS_PX = 18; // the brush's radius on screen: a fingertip (as in StoneX)
 const isLaid = (st: SvState | null) => (st?.mask?.coverage || 0) > 0 && !st?.floorCheck;
 const reduced = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -61,6 +64,10 @@ export default function StoneVisionDemo() {
   const session = useRef<Session | null>(null);
   const starting = useRef<Promise<Session> | null>(null);
   const press = useRef<{ id: number; x: number; y: number } | null>(null);
+  // the brush picked up (StoneX's Paint floor / Erase) and the stroke being painted, in render px
+  const [brush, setBrush] = useState<"pos" | "neg" | null>(null);
+  const [stroke, setStroke] = useState<{ id: number; points: number[][]; radius: number } | null>(null);
+  const strokeRef = useRef<{ id: number; points: number[][]; radius: number } | null>(null);
   const revealed = useRef<string | null>(null); // the photo whose stone was last revealed
   const [s, setS] = useState<SvState | null>(null);
   const [room, setRoom] = useState<string>(DEMO_ROOMS[0].id);
@@ -124,6 +131,7 @@ export default function StoneVisionDemo() {
   const fresh = () => {
     setCompare(null);
     setMode("add");
+    setBrush(null);
     setFade(null);
     showStage();
   };
@@ -201,7 +209,17 @@ export default function StoneVisionDemo() {
     !s || !hasPhoto || compare != null || s.phase === "error"
       ? null
       : stageText ||
-        (s.floorCheck ? VT.floorCheck.prompt : !hasFloor ? VT.tapFloor : mode === "remove" ? VT.removeHint : null);
+        (s.floorCheck
+          ? VT.floorCheck.prompt
+          : brush
+            ? brush === "neg"
+              ? VT.paintRemoveHint
+              : VT.paintAddHint
+            : !hasFloor
+              ? VT.tapFloor
+              : mode === "remove"
+                ? VT.removeHint
+                : null);
   // The engine reads the room (its long step): a scan line passes over the photo meanwhile.
   const scanning = busy && (s?.stage === "analyse" || s?.stage === "floor" || s?.stage === "room");
   const left = Math.max(0, OWN_PHOTO_TRIES - used);
@@ -268,11 +286,29 @@ export default function StoneVisionDemo() {
         {hasPhoto && (
           <div
             className="v-demo__touch"
+            data-brush={brush && compare == null ? "" : undefined}
             onPointerDown={(e) => {
               if (compare != null) return moveSplit(e, true);
+              if (e.pointerType === "mouse" && e.button !== 0) return;
+              if (brush) {
+                // the finger paints; the page doesn't scroll under it. Nothing to paint on while the photo is read.
+                if (s?.phase === "preparing" || s?.decoding) return;
+                const r = canvas.current!.getBoundingClientRect();
+                strokeRef.current = { id: e.pointerId, points: [toPx(e)], radius: (BRUSH_CSS_PX * canvas.current!.width) / r.width };
+                setStroke(strokeRef.current);
+                e.currentTarget.setPointerCapture?.(e.pointerId);
+                return;
+              }
               press.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
             }}
             onPointerUp={(e) => {
+              const st = strokeRef.current;
+              if (st && st.id === e.pointerId) {
+                strokeRef.current = null;
+                setStroke(null);
+                if (brush) session.current?.brush(brush, st.points, st.radius);
+                return;
+              }
               const p = press.current;
               press.current = null;
               if (compare != null || !p || p.id !== e.pointerId || Math.hypot(e.clientX - p.x, e.clientY - p.y) > TAP_SLOP) return;
@@ -280,8 +316,20 @@ export default function StoneVisionDemo() {
               const [x, y] = toPx(e);
               session.current?.tap(mode === "remove" ? "neg" : "pos", x, y);
             }}
-            onPointerCancel={() => (press.current = null)}
-            onPointerMove={moveSplit}
+            onPointerCancel={() => {
+              press.current = null;
+              strokeRef.current = null;
+              setStroke(null);
+            }}
+            onPointerMove={(e) => {
+              const st = strokeRef.current;
+              if (st && st.id === e.pointerId) {
+                st.points = [...st.points, toPx(e)];
+                setStroke({ ...st });
+                return;
+              }
+              moveSplit(e);
+            }}
             {...(compare != null
               ? {
                   role: "slider",
@@ -300,7 +348,23 @@ export default function StoneVisionDemo() {
               : { role: "presentation" })}
           >
             {/* the visitor's taps (not the engine's own, when it found the floor by itself) */}
-            {(s?.taps || []).slice(s?.autoFound ? 1 : 0).map((m, i) => (
+            {stroke && (
+              <svg className="v-demo__stroke" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+                <polyline
+                  points={stroke.points.map((q) => q.join(",")).join(" ")}
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2 * stroke.radius}
+                  stroke={brush === "neg" ? "#DC2626" : "#16A34A"}
+                  strokeOpacity="0.45"
+                />
+              </svg>
+            )}
+            {(s?.taps || [])
+              .slice(s?.autoFound ? 1 : 0)
+              .filter((m) => !m.kind)
+              .map((m, i) => (
               <span
                 key={i}
                 className="v-demo__mark"
@@ -422,11 +486,59 @@ export default function StoneVisionDemo() {
           <fieldset className="v-demo__group">
             <legend className="x-label">3 · Look closer</legend>
             <div className="v-demo__tools">
+              {/* the floor, as in StoneX (mark, take out, paint, erase, undo, start over), then the picture */}
+              <button
+                type="button"
+                aria-pressed={mode === "add" && !brush}
+                onClick={() => {
+                  setMode("add");
+                  setBrush(null);
+                }}
+              >
+                {VT.add}
+              </button>
+              <button
+                type="button"
+                aria-pressed={mode === "remove" && !brush}
+                disabled={!hasFloor}
+                onClick={() => {
+                  setMode("remove");
+                  setBrush(null);
+                }}
+              >
+                {VT.remove}
+              </button>
+              <button type="button" aria-pressed={brush === "pos"} disabled={compare != null} onClick={() => setBrush(brush === "pos" ? null : "pos")}>
+                {VT.paintFloor}
+              </button>
+              <button
+                type="button"
+                aria-pressed={brush === "neg"}
+                disabled={!hasFloor || compare != null}
+                onClick={() => setBrush(brush === "neg" ? null : "neg")}
+              >
+                {VT.eraseFloor}
+              </button>
+              <button type="button" disabled={!s?.taps.length || busy} onClick={() => session.current?.undo()}>
+                {VT.undo}
+              </button>
+              <button
+                type="button"
+                disabled={!s?.taps.length || busy}
+                onClick={async () => {
+                  await session.current?.reset();
+                  setMode("add");
+                  setBrush(null);
+                }}
+              >
+                {VT.startOver}
+              </button>
               <button
                 type="button"
                 aria-pressed={compare != null}
                 disabled={!laid}
                 onClick={() => {
+                  setBrush(null);
                   setCompare(compare == null ? 0.5 : null);
                   showStage();
                 }}
@@ -435,12 +547,6 @@ export default function StoneVisionDemo() {
               </button>
               <button type="button" disabled={!laid || saving} onClick={save}>
                 {saving ? VT.saving : VT.save}
-              </button>
-              <button type="button" aria-pressed={mode === "remove"} disabled={!hasFloor} onClick={() => setMode(mode === "remove" ? "add" : "remove")}>
-                {VT.remove}
-              </button>
-              <button type="button" disabled={!s?.taps.length || busy} onClick={() => session.current?.undo()}>
-                {VT.undo}
               </button>
             </div>
             {laid && s?.autoFound && <p className="v-demo__note">{VT.autoFound}</p>}
