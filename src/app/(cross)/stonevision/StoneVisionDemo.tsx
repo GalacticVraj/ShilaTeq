@@ -1,17 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent, type PointerEvent } from "react";
-import { VT } from "@/vendor/stonex-vision/components/vision/visionText.js";
 import {
-  DEMO_ROOMS,
-  DEMO_STONES,
-  OWN_PHOTO_TRIES,
-  countOwnPhoto,
-  loadStoneImage,
-  ownPhotosUsed,
-  thumb,
-  type DemoStone,
-} from "./demo";
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type CSSProperties,
+  type PointerEvent,
+} from "react";
+import { VT } from "@/vendor/stonex-vision/components/vision/visionText.js";
+import { DEMO_ROOMS, DEMO_STONES, loadStoneImage, thumb, type DemoStone } from "./demo";
+import { PEOPLE } from "@/components/cross/Contact";
+
+// The way on, once the visitor has seen their stone laid: talk to us about their own yard.
+const waYard = (stone: string) =>
+  `https://wa.me/${PEOPLE[0].number}?text=${encodeURIComponent(`Hi ShilaTeq, I just tried StoneVision with ${stone}. I'd like it for my yard's slabs.`)}`;
 
 // The parts of StoneX's VisionSession state this screen reads (session.js INITIAL).
 type SvState = {
@@ -27,6 +30,7 @@ type SvState = {
   tryAnother: { at: number; of: number } | null; // the first selection's other shapes: the one shown, of how many
   taps: { label: string; x: number; y: number; kind?: string }[]; // kind 'stroke': a brush stroke
   modelLoad: { loaded: number; total: number } | null;
+  segmenter: { id: string } | null; // the floor finder, once loaded
   error: { code: string; kept?: boolean } | null;
 };
 type Session = {
@@ -49,7 +53,8 @@ const FLOOR_CHECK = VT.floorCheck as Record<string, string>;
 const TAP_SLOP = 10; // px a press may wander and still be a tap (more is a drag: never a mark)
 const BRUSH_CSS_PX = 18; // the brush's radius on screen: a fingertip (as in StoneX)
 const isLaid = (st: SvState | null) => (st?.mask?.coverage || 0) > 0 && !st?.floorCheck;
-const reduced = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduced = () =>
+  typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
  * StoneVision, live: StoneX's own engine (src/vendor/stonex-vision) on two demo rooms and two demo
@@ -66,27 +71,28 @@ export default function StoneVisionDemo() {
   const press = useRef<{ id: number; x: number; y: number } | null>(null);
   // the brush picked up (StoneX's Paint floor / Erase) and the stroke being painted, in render px
   const [brush, setBrush] = useState<"pos" | "neg" | null>(null);
-  const [stroke, setStroke] = useState<{ id: number; points: number[][]; radius: number } | null>(null);
+  const [stroke, setStroke] = useState<{ id: number; points: number[][]; radius: number } | null>(
+    null,
+  );
   const strokeRef = useRef<{ id: number; points: number[][]; radius: number } | null>(null);
   const revealed = useRef<string | null>(null); // the photo whose stone was last revealed
   const [s, setS] = useState<SvState | null>(null);
+  const [begun, setBegun] = useState(false); // the visitor has done something (picked a room, a stone, their photo)
+  // Until the demo has run itself on the first room, its finished picture covers the stage: no wait is ever seen.
+  const [ghost, setGhost] = useState(true);
+  const ghostRef = useRef(true);
+  const unGhost = () => {
+    ghostRef.current = false;
+    setGhost(false);
+  };
   const [room, setRoom] = useState<string>(DEMO_ROOMS[0].id);
   const [stone, setStone] = useState<DemoStone>(DEMO_STONES[0]);
   const [compare, setCompare] = useState<number | null>(null);
   const [mode, setMode] = useState<"add" | "remove">("add");
-  const [used, setUsed] = useState(0);
   const [saving, setSaving] = useState(false);
   // the photo over the stage once the floor is found; `go`: the stone is ready, wipe it away
   const [reveal, setReveal] = useState<{ url: string; go: boolean } | null>(null);
   const [fade, setFade] = useState<{ url: string; out: boolean } | null>(null); // the stone before, fading
-
-  useEffect(() => {
-    setUsed(ownPhotosUsed()); // eslint-disable-line react-hooks/set-state-in-effect -- browser-only count
-    return () => {
-      session.current?.dispose();
-      session.current = null;
-    };
-  }, []);
 
   // Each state the engine reports. The first time a photo's floor is found, the photo itself covers the
   // stage (so nothing half-made shows) and wipes away once the stone is fully laid.
@@ -95,6 +101,13 @@ export default function StoneVisionDemo() {
     const url = st.photo?.url;
     // (an error ends the wait too: the cover never stays over the picture)
     const ready = (st.phase === "ready" && !st.stage) || !!st.error;
+    if (ghostRef.current) {
+      // the run on its own: no wipe; the cover lifts once the live picture is the finished one
+      if (url) revealed.current = url;
+      if (url && isLaid(st) && ready) unGhost();
+      else if (st.error) unGhost();
+      return;
+    }
     if (url && isLaid(st) && revealed.current !== url) {
       revealed.current = url;
       if (!reduced()) setReveal({ url, go: ready });
@@ -111,7 +124,11 @@ export default function StoneVisionDemo() {
       canvas.current = c;
       // (its JSDoc predates autoFloor, which the constructor takes)
       const Engine = VisionSession as unknown as new (o: object) => Session;
-      const ss = new Engine({ canvas: c, autoFloor: true, onChange: (st: unknown) => onChange(st as SvState) });
+      const ss = new Engine({
+        canvas: c,
+        autoFloor: true,
+        onChange: (st: unknown) => onChange(st as SvState),
+      });
       session.current = ss;
       ss.start();
       ss.setStone(stone, loadStoneImage);
@@ -126,7 +143,8 @@ export default function StoneVisionDemo() {
     const el = stageRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    if (r.top < 0 || r.bottom > innerHeight) el.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "center" });
+    if (r.top < 0 || r.bottom > innerHeight)
+      el.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "center" });
   };
   const fresh = () => {
     setCompare(null);
@@ -135,20 +153,56 @@ export default function StoneVisionDemo() {
     setFade(null);
     showStage();
   };
-  const openRoom = async (id: string) => {
+  // `own`: the demo running itself (nothing on screen changes, the page doesn't move)
+  const openRoom = async (id: string, own = false) => {
+    if (!own) {
+      setBegun(true);
+      unGhost();
+      fresh();
+    }
     setRoom(id);
-    fresh();
     const r = DEMO_ROOMS.find((x) => x.id === id)!;
     const ss = await ensure();
     const blob = await (await fetch(r.src)).blob();
     await ss.loadPhoto(new File([blob], `${r.id}.jpg`, { type: "image/jpeg" }));
   };
+  useEffect(() => {
+    // The floor finder (~27 MB, kept by the browser after the first visit) starts downloading as soon as
+    // the page has loaded, and the demo runs itself on the first room when it comes near the screen: by the
+    // time a visitor reaches it, it is live. Only a browser set to save data waits to be asked.
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
+      ?.saveData;
+    let live = true;
+    const warm = () => {
+      if (live && holder.current && !saveData) ensure();
+    };
+    if (document.readyState === "complete") warm();
+    else addEventListener("load", warm, { once: true });
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting || saveData) return;
+        io.disconnect();
+        if (ghostRef.current) openRoom(DEMO_ROOMS[0].id, true);
+      },
+      { rootMargin: "100% 0px" },
+    );
+    if (stageRef.current) io.observe(stageRef.current);
+    return () => {
+      live = false;
+      io.disconnect();
+      removeEventListener("load", warm);
+      session.current?.dispose();
+      session.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
+  }, []);
+
   const openOwn = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (!file || ownPhotosUsed() >= OWN_PHOTO_TRIES) return;
-    countOwnPhoto();
-    setUsed(ownPhotosUsed());
+    if (!file) return;
+    setBegun(true);
+    unGhost();
     setRoom("own");
     fresh();
     const ss = await ensure();
@@ -157,6 +211,8 @@ export default function StoneVisionDemo() {
   // Another stone on the same floor: the one on screen fades out over the new one once it is laid.
   const pickStone = async (st: DemoStone) => {
     if (st.slabId === stone.slabId) return;
+    setBegun(true);
+    if (ghostRef.current && !isLaid(s)) unGhost(); // its cover shows the first stone: show the live one
     setStone(st);
     setCompare(null);
     showStage();
@@ -189,7 +245,6 @@ export default function StoneVisionDemo() {
     }
   };
 
-  const started = !!s;
   const hasPhoto = !!s?.photo;
   const busy = !!s && (s.phase === "working" || s.phase === "preparing" || s.decoding);
   const hasFloor = (s?.mask?.coverage || 0) > 0;
@@ -197,7 +252,8 @@ export default function StoneVisionDemo() {
   const W = s?.photo?.width || 3,
     H = s?.photo?.height || 2;
   // Real progress only: the model's bytes while it downloads; otherwise the step, named.
-  const progress = s?.stage === "model" && s.modelLoad?.total ? s.modelLoad.loaded / s.modelLoad.total : null;
+  const progress =
+    s?.stage === "model" && s.modelLoad?.total ? s.modelLoad.loaded / s.modelLoad.total : null;
   const stageText = s?.gpuLost
     ? VT.gpuRestoring
     : s?.decoding
@@ -206,7 +262,7 @@ export default function StoneVisionDemo() {
         ? STAGES[s.stage] + (progress != null ? ` ${Math.floor(progress * 100)}%` : "")
         : null;
   const prompt =
-    !s || !hasPhoto || compare != null || s.phase === "error"
+    !s || !hasPhoto || ghost || compare != null || s.phase === "error"
       ? null
       : stageText ||
         (s.floorCheck
@@ -221,8 +277,8 @@ export default function StoneVisionDemo() {
                 ? VT.removeHint
                 : null);
   // The engine reads the room (its long step): a scan line passes over the photo meanwhile.
-  const scanning = busy && (s?.stage === "analyse" || s?.stage === "floor" || s?.stage === "room");
-  const left = Math.max(0, OWN_PHOTO_TRIES - used);
+  const scanning =
+    !ghost && busy && (s?.stage === "analyse" || s?.stage === "floor" || s?.stage === "room");
   // "Try another": the model's next shape for the first selection, with how many there are (as in StoneX)
   const another = s?.tryAnother;
   const anotherButton = another && (
@@ -235,7 +291,10 @@ export default function StoneVisionDemo() {
 
   const toPx = (e: PointerEvent) => {
     const r = canvas.current!.getBoundingClientRect();
-    return [((e.clientX - r.left) / r.width) * canvas.current!.width, ((e.clientY - r.top) / r.height) * canvas.current!.height];
+    return [
+      ((e.clientX - r.left) / r.width) * canvas.current!.width,
+      ((e.clientY - r.top) / r.height) * canvas.current!.height,
+    ];
   };
   const moveSplit = (e: PointerEvent, pressed = false) => {
     if (compare == null || !(pressed || e.buttons || e.pointerType === "touch")) return;
@@ -245,13 +304,28 @@ export default function StoneVisionDemo() {
 
   return (
     <div className="v-demo" data-state={laid ? "laid" : hasPhoto ? "photo" : "none"}>
-      <div ref={stageRef} className="v-demo__stage" style={{ aspectRatio: `${W} / ${H}` }} data-scan={scanning ? "" : undefined}>
-        {/* Before the engine starts: the demo room, and the way in. */}
-        {!hasPhoto && (
+      <div
+        ref={stageRef}
+        className="v-demo__stage"
+        style={{ aspectRatio: `${W} / ${H}`, "--ar": W / H } as CSSProperties}
+        data-scan={scanning ? "" : undefined}
+      >
+        {!hasPhoto && !ghost && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview.src} alt="" className="v-demo__preview" />
         )}
-        <div ref={holder} className="v-demo__holder" role="img" aria-label={laid ? VT.altResult(stone.name) : VT.altPhoto} hidden={!hasPhoto} />
+        <div
+          ref={holder}
+          className="v-demo__holder"
+          role="img"
+          aria-label={laid ? VT.altResult(stone.name) : VT.altPhoto}
+          hidden={!hasPhoto}
+        />
+        {/* Until the demo has run itself: its finished picture (the same one the engine makes). */}
+        {ghost && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={DEMO_ROOMS[0].result} alt="" className="v-demo__preview v-demo__ghost" />
+        )}
         {/* The stone just laid: the photo wipes away from left to right, once. */}
         {reveal && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -280,7 +354,13 @@ export default function StoneVisionDemo() {
         )}
         {compare != null && s?.photo?.url && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={s.photo.url} alt={VT.before} draggable={false} className="v-demo__before" style={{ clipPath: `inset(0 ${100 - compare * 100}% 0 0)` }} />
+          <img
+            src={s.photo.url}
+            alt={VT.before}
+            draggable={false}
+            className="v-demo__before"
+            style={{ clipPath: `inset(0 ${100 - compare * 100}% 0 0)` }}
+          />
         )}
         {scanning && <span className="v-demo__scan" aria-hidden="true" />}
         {hasPhoto && (
@@ -294,7 +374,11 @@ export default function StoneVisionDemo() {
                 // the finger paints; the page doesn't scroll under it. Nothing to paint on while the photo is read.
                 if (s?.phase === "preparing" || s?.decoding) return;
                 const r = canvas.current!.getBoundingClientRect();
-                strokeRef.current = { id: e.pointerId, points: [toPx(e)], radius: (BRUSH_CSS_PX * canvas.current!.width) / r.width };
+                strokeRef.current = {
+                  id: e.pointerId,
+                  points: [toPx(e)],
+                  radius: (BRUSH_CSS_PX * canvas.current!.width) / r.width,
+                };
                 setStroke(strokeRef.current);
                 e.currentTarget.setPointerCapture?.(e.pointerId);
                 return;
@@ -311,7 +395,13 @@ export default function StoneVisionDemo() {
               }
               const p = press.current;
               press.current = null;
-              if (compare != null || !p || p.id !== e.pointerId || Math.hypot(e.clientX - p.x, e.clientY - p.y) > TAP_SLOP) return;
+              if (
+                compare != null ||
+                !p ||
+                p.id !== e.pointerId ||
+                Math.hypot(e.clientX - p.x, e.clientY - p.y) > TAP_SLOP
+              )
+                return;
               if (s?.phase === "error") return;
               const [x, y] = toPx(e);
               session.current?.tap(mode === "remove" ? "neg" : "pos", x, y);
@@ -339,7 +429,14 @@ export default function StoneVisionDemo() {
                   "aria-valuemax": 100,
                   "aria-valuenow": Math.round(compare * 100),
                   onKeyDown: (e) => {
-                    const step = ({ ArrowLeft: -0.05, ArrowDown: -0.05, ArrowRight: 0.05, ArrowUp: 0.05 } as Record<string, number>)[e.key];
+                    const step = (
+                      {
+                        ArrowLeft: -0.05,
+                        ArrowDown: -0.05,
+                        ArrowRight: 0.05,
+                        ArrowUp: 0.05,
+                      } as Record<string, number>
+                    )[e.key];
                     if (!step) return;
                     e.preventDefault();
                     setCompare(Math.min(1, Math.max(0, compare + step)));
@@ -349,7 +446,12 @@ export default function StoneVisionDemo() {
           >
             {/* the visitor's taps (not the engine's own, when it found the floor by itself) */}
             {stroke && (
-              <svg className="v-demo__stroke" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+              <svg
+                className="v-demo__stroke"
+                viewBox={`0 0 ${W} ${H}`}
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
                 <polyline
                   points={stroke.points.map((q) => q.join(",")).join(" ")}
                   fill="none"
@@ -365,19 +467,25 @@ export default function StoneVisionDemo() {
               .slice(s?.autoFound ? 1 : 0)
               .filter((m) => !m.kind)
               .map((m, i) => (
-              <span
-                key={i}
-                className="v-demo__mark"
-                data-neg={m.label === "neg" ? "" : undefined}
-                style={{ left: `${(100 * m.x) / W}%`, top: `${(100 * m.y) / H}%` }}
-              />
-            ))}
+                <span
+                  key={i}
+                  className="v-demo__mark"
+                  data-neg={m.label === "neg" ? "" : undefined}
+                  style={{ left: `${(100 * m.x) / W}%`, top: `${(100 * m.y) / H}%` }}
+                />
+              ))}
             {compare != null && (
               <>
-                <span className="v-demo__tag" style={{ left: "0.75rem", opacity: compare > 0.15 ? 1 : 0 }}>
+                <span
+                  className="v-demo__tag"
+                  style={{ left: "0.75rem", opacity: compare > 0.15 ? 1 : 0 }}
+                >
                   {VT.before}
                 </span>
-                <span className="v-demo__tag" style={{ right: "0.75rem", opacity: compare < 0.85 ? 1 : 0 }}>
+                <span
+                  className="v-demo__tag"
+                  style={{ right: "0.75rem", opacity: compare < 0.85 ? 1 : 0 }}
+                >
                   {VT.after}
                 </span>
                 <span className="v-demo__split" style={{ left: `${compare * 100}%` }}>
@@ -387,7 +495,7 @@ export default function StoneVisionDemo() {
             )}
           </div>
         )}
-        {laid && compare == null && !reveal && (
+        {(laid || ghost) && compare == null && !reveal && (
           <p className="v-demo__label" aria-hidden="true">
             {stone.name} · on this floor
           </p>
@@ -400,24 +508,47 @@ export default function StoneVisionDemo() {
             </p>
           )}
         </div>
-        {progress != null && (
+        {progress != null && begun && (
           <span className="v-demo__bar" aria-hidden="true">
             <span style={{ transform: `scaleX(${progress})` }} />
           </span>
         )}
-        {!started && (
-          <div className="v-demo__start">
-            <button type="button" className="x-btn x-btn--signal v-demo__go" onClick={() => openRoom(room)}>
-              Try it live <span aria-hidden="true">→</span>
-            </button>
-            <p>Runs in your browser. The first time, it downloads about 28 MB.</p>
+        {/* on the picture: look before/after, keep it */}
+        {(laid || compare != null) && !busy && !reveal && (
+          <div className="v-demo__quick">
+            {compare == null ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBrush(null);
+                    setCompare(0.5);
+                  }}
+                >
+                  <span aria-hidden="true">⇆</span> {VT.compare}
+                </button>
+                <button type="button" disabled={saving} onClick={save}>
+                  <span aria-hidden="true">↓</span> {saving ? VT.saving : VT.save}
+                </button>
+              </>
+            ) : (
+              <button type="button" onClick={() => setCompare(null)}>
+                Done
+              </button>
+            )}
           </div>
+        )}
+        {compare == null && !brush && (!busy || ghost) && (
+          <label className="v-demo__own-btn">
+            <input type="file" accept="image/*" className="sr-only" onChange={openOwn} />
+            <span aria-hidden="true">+</span> Your room photo
+          </label>
         )}
       </div>
 
       <div className="v-demo__panel">
         <fieldset className="v-demo__group">
-          <legend className="x-label">1 · A room</legend>
+          <legend className="x-label">Room</legend>
           <div className="v-demo__rooms">
             {DEMO_ROOMS.map((r) => (
               <button
@@ -425,7 +556,7 @@ export default function StoneVisionDemo() {
                 type="button"
                 className="v-demo__room"
                 aria-pressed={room === r.id}
-                disabled={busy && started}
+                disabled={busy && begun}
                 onClick={() => openRoom(r.id)}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -433,21 +564,27 @@ export default function StoneVisionDemo() {
                 <span>{r.label}</span>
               </button>
             ))}
-            <label className="v-demo__room v-demo__own" aria-disabled={left === 0} data-on={room === "own" ? "" : undefined}>
-              <input type="file" accept="image/*" className="sr-only" disabled={left === 0} onChange={openOwn} />
+            <label className="v-demo__room v-demo__own" data-on={room === "own" ? "" : undefined}>
+              <input type="file" accept="image/*" className="sr-only" onChange={openOwn} />
               <span className="v-demo__plus" aria-hidden="true">
                 +
               </span>
-              <span>{left > 0 ? `Your room · ${left} ${left === 1 ? "try" : "tries"}` : "Tries used"}</span>
+              <span>Your room</span>
             </label>
           </div>
         </fieldset>
 
         <fieldset className="v-demo__group">
-          <legend className="x-label">2 · A stone</legend>
+          <legend className="x-label">Stone</legend>
           <div className="v-demo__stones">
             {DEMO_STONES.map((st) => (
-              <button key={st.slabId} type="button" className="v-demo__stone" aria-pressed={stone.slabId === st.slabId} onClick={() => pickStone(st)}>
+              <button
+                key={st.slabId}
+                type="button"
+                className="v-demo__stone"
+                aria-pressed={stone.slabId === st.slabId}
+                onClick={() => pickStone(st)}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={thumb(st.thumbUrl, 128)} alt="" />
                 <span>
@@ -475,51 +612,32 @@ export default function StoneVisionDemo() {
             </div>
           </div>
         )}
-        {another && !s?.floorCheck && (
-          <div className="v-demo__another">
-            <span>{VT.notRight}</span>
-            {anotherButton}
-          </div>
-        )}
 
-        {hasPhoto && (
-          <fieldset className="v-demo__group">
-            <legend className="x-label">3 · Look closer</legend>
-            <div className="v-demo__tools">
-              {/* the floor, as in StoneX (mark, take out, paint, erase, undo, start over), then the picture */}
+        {/* Putting the floor right, as in StoneX, folded away until wanted: another shape, a tap to add or
+            take out, undo, start over. */}
+        {hasPhoto && !s?.floorCheck && (
+          <details className="v-demo__fix">
+            <summary>Floor not quite right?</summary>
+            <div className="v-demo__fixes">
+              {anotherButton}
+              <span className="v-demo__seg" role="group" aria-label="A tap on the picture">
+                <button type="button" aria-pressed={mode === "add"} onClick={() => setMode("add")}>
+                  Tap to add
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={mode === "remove"}
+                  disabled={!hasFloor}
+                  onClick={() => setMode("remove")}
+                >
+                  Tap to remove
+                </button>
+              </span>
               <button
                 type="button"
-                aria-pressed={mode === "add" && !brush}
-                onClick={() => {
-                  setMode("add");
-                  setBrush(null);
-                }}
+                disabled={!s?.taps.length || busy}
+                onClick={() => session.current?.undo()}
               >
-                {VT.add}
-              </button>
-              <button
-                type="button"
-                aria-pressed={mode === "remove" && !brush}
-                disabled={!hasFloor}
-                onClick={() => {
-                  setMode("remove");
-                  setBrush(null);
-                }}
-              >
-                {VT.remove}
-              </button>
-              <button type="button" aria-pressed={brush === "pos"} disabled={compare != null} onClick={() => setBrush(brush === "pos" ? null : "pos")}>
-                {VT.paintFloor}
-              </button>
-              <button
-                type="button"
-                aria-pressed={brush === "neg"}
-                disabled={!hasFloor || compare != null}
-                onClick={() => setBrush(brush === "neg" ? null : "neg")}
-              >
-                {VT.eraseFloor}
-              </button>
-              <button type="button" disabled={!s?.taps.length || busy} onClick={() => session.current?.undo()}>
                 {VT.undo}
               </button>
               <button
@@ -528,29 +646,29 @@ export default function StoneVisionDemo() {
                 onClick={async () => {
                   await session.current?.reset();
                   setMode("add");
-                  setBrush(null);
                 }}
               >
                 {VT.startOver}
               </button>
-              <button
-                type="button"
-                aria-pressed={compare != null}
-                disabled={!laid}
-                onClick={() => {
-                  setBrush(null);
-                  setCompare(compare == null ? 0.5 : null);
-                  showStage();
-                }}
-              >
-                {VT.compare}
-              </button>
-              <button type="button" disabled={!laid || saving} onClick={save}>
-                {saving ? VT.saving : VT.save}
-              </button>
             </div>
             {laid && s?.autoFound && <p className="v-demo__note">{VT.autoFound}</p>}
-          </fieldset>
+          </details>
+        )}
+
+        {laid && !busy && (
+          <div className="v-demo__next">
+            <p>
+              <b>Your buyers can do this with your own slabs.</b>
+            </p>
+            <a
+              href={waYard(stone.name)}
+              className="x-btn x-btn--signal"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Get it for my yard <span aria-hidden="true">→</span>
+            </a>
+          </div>
         )}
 
         {s?.error && s.phase !== "no-webgl" && (
@@ -560,12 +678,13 @@ export default function StoneVisionDemo() {
         )}
         {s?.phase === "no-webgl" && (
           <p role="alert" className="v-demo__error">
-            This browser can’t draw the preview (it needs WebGL2). Try it on a recent phone or computer.
+            This browser can’t draw the preview (it needs WebGL2). Try it on a recent phone or
+            computer.
           </p>
         )}
         <p className="v-demo__fine">
-          {VT.privacy.replace("this phone", "this device")} Demo rooms: free Unsplash photos. Demo stones: sample
-          slabs, not a yard’s stock.
+          {VT.privacy.replace("this phone", "this device")} Demo rooms: free Unsplash photos. Demo
+          stones: sample slabs, not a yard’s stock.
         </p>
       </div>
     </div>

@@ -1,17 +1,19 @@
-import type { CSSProperties, ReactNode } from "react";
 import type { Metadata } from "next";
 import { getImageProps } from "next/image";
-import { Contact } from "@/components/cross/Contact";
+import { Contact, waLink } from "@/components/cross/Contact";
 import { SiteHeader } from "@/components/cross/SiteHeader";
-import BeforeAfter from "./BeforeAfter";
+import HeroCompare from "./HeroCompare";
+import HowItWorks from "./HowItWorks";
+import BacklitStone from "./BacklitStone";
+import { DEMO_STONES, thumb } from "./demo";
 import StoneVisionDemo from "./StoneVisionDemo";
 import "./vision.css";
 
 /**
  * the StoneVision product page (/stonevision).
  *   Hero     the promise, on the home page's marble; a real result, before and after
- *   Steps    the slab, their room, their floor: each with a real picture
  *   Demo     StoneVision itself, live (StoneX's engine, src/vendor/stonex-vision)
+ *   How      one scrolled scene: the slab, their room, the slab laid on their floor
  *   FAQ      as a conversation, beside Book a demo
  * Every claim is checked against StoneX's code (read-only, eb9a0d8). Pictures: free Unsplash rooms
  * and sample slabs, laid by StoneVision itself (public/vision-demo).
@@ -21,14 +23,10 @@ export const metadata: Metadata = {
   title: "StoneVision — ShilaTeq",
 };
 
-const DEMO_MAIL = "mailto:shilateq@gmail.com?subject=" + encodeURIComponent("StoneVision demo request");
+const DEMO_MAIL =
+  "mailto:shilateq@gmail.com?subject=" + encodeURIComponent("StoneVision demo request");
+const WA = waLink("Hi ShilaTeq, I'd like a demo of StoneVision for my yard.");
 const V = "/vision-demo";
-
-// A window on the StoneX inventory screenshot (fictional demo yard), its "Visualize in your space"
-// button marked: in its own pixels.
-const INV = { src: "/product/stonex/inventory-demo.png", w: 2880, h: 1716 };
-const INV_VIEW = { x: 900, y: 20, w: 1800, h: 1200 }; // 3:2, the step pictures' shape
-const INV_BUTTON = { x: 1917, y: 177, w: 406, h: 78 };
 
 const FAQ: [string, string][] = [
   [
@@ -49,35 +47,34 @@ const FAQ: [string, string][] = [
   ],
 ];
 
-const pc = (n: number) => `${+(n * 100).toFixed(3)}%`;
+// The hero's results, one per demo stone (in DEMO_STONES' order): public/vision-demo/result-hall-*.jpg
+const HERO_RESULT = ["statuarietto", "azul", "black-galaxy", "calacatta-gold"];
+const HERO_SIZES = "(min-width: 64rem) 55vw, 100vw";
+const STORY_SIZES = "(min-width: 64rem) 60vw, 100vw";
+// How it works: the slabs on the rack (name, public/stone file, its size); the third is picked.
+const RACK: [string, string, number, number][] = [
+  ["Azul Macaubas", "azul-macaubas", 2048, 1639],
+  ["Black Galaxy", "black-galaxy", 2048, 1113],
+  ["Statuarietto", "statuarietto-slab", 1240, 2214],
+  ["Calacatta Gold", "calacatta-gold", 2048, 767],
+  ["Rockville White", "rockville-white", 1600, 1163],
+];
 
 /** An image at the sizes it is shown at (Next's optimiser picks the file for each screen). */
 const pic = (src: string, w: number, h: number, sizes: string, eager = false) =>
-  getImageProps({ src, width: w, height: h, alt: "", sizes, ...(eager ? { loading: "eager", fetchPriority: "high" } : {}) }).props;
+  getImageProps({
+    src,
+    width: w,
+    height: h,
+    alt: "",
+    sizes,
+    ...(eager ? { loading: "eager", fetchPriority: "high" } : {}),
+  }).props;
 // The demo pictures: 2000 × 1333 photos; StoneVision's results at its 1600 px render size.
-const room = (name: string, sizes: string, eager = false) => pic(`${V}/${name}.jpg`, 2000, 1333, sizes, eager);
-const result = (name: string, sizes: string, eager = false) => pic(`${V}/${name}.jpg`, 1600, 1066, sizes, eager);
-
-/** A window on a screenshot: just the part `v` (its pixels), at its own shape. */
-function Window({ w, h, v, sizes, children }: { w: number; h: number; v: { x: number; y: number; w: number; h: number }; sizes: string; children?: ReactNode }) {
-  const img = pic(INV.src, w, h, sizes);
-  return (
-    <span className="v-win" style={{ aspectRatio: `${v.w} / ${v.h}` }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img {...img} alt="" loading="lazy" style={{ width: pc(w / v.w), left: pc(-v.x / v.w), top: pc(-v.y / v.h) }} />
-      {children}
-    </span>
-  );
-}
-
-/** A red label on a picture, at a point given as fractions of it. */
-function Chip({ x, y, children, end }: { x: number; y: number; children: ReactNode; end?: boolean }) {
-  return (
-    <span className="v-chip" data-end={end ? "" : undefined} style={{ left: pc(x), top: pc(y) } as CSSProperties}>
-      {children}
-    </span>
-  );
-}
+const room = (name: string, sizes: string, eager = false) =>
+  pic(`${V}/${name}.jpg`, 2000, 1333, sizes, eager);
+const result = (name: string, sizes: string, eager = false) =>
+  pic(`${V}/${name}.jpg`, 1600, 1066, sizes, eager);
 
 export default function StoneVisionPage() {
   return (
@@ -99,7 +96,7 @@ export default function StoneVisionPage() {
             ],
           },
         ]}
-        demo={DEMO_MAIL}
+        demo={WA}
       />
 
       <main id="main">
@@ -107,7 +104,16 @@ export default function StoneVisionPage() {
         <section className="v-hero" aria-labelledby="v-title">
           <div className="v-hero__ground" aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img {...pic("/stone/statuarietto.jpg", 2400, 2214, "(min-width: 64rem) 100vw, 150vw", true)} alt="" />
+            <img
+              {...pic(
+                "/stone/statuarietto.jpg",
+                2400,
+                2214,
+                "(min-width: 64rem) 100vw, 150vw",
+                true,
+              )}
+              alt=""
+            />
           </div>
           <div className="v-hero__copy">
             <p className="v-hero__kicker x-label">
@@ -116,98 +122,31 @@ export default function StoneVisionPage() {
             <h1 id="v-title" className="v-hero__title">
               <span>Your slab, on their floor.</span> <span>Before they visit.</span>
             </h1>
-            <p className="v-hero__lede">
-              Buyers try your real slab on a photo of their room.
-            </p>
+            <p className="v-hero__lede">Buyers try your real slab on a photo of their room.</p>
             <div className="v-hero__ctas">
-              <a href={DEMO_MAIL} className="x-btn x-btn--signal v-cta">
-                Book a demo <span aria-hidden="true">→</span>
+              <a href="#try" className="x-btn x-btn--signal v-cta">
+                Try it on a room <span aria-hidden="true">↓</span>
               </a>
-              <a href="#try" className="x-link-cut">
-                Try it live <span aria-hidden="true">↓</span>
+              <a href={WA} className="x-link-cut" target="_blank" rel="noopener noreferrer">
+                <span className="v-wide">Book a demo on WhatsApp</span>
+                <span className="v-narrow">WhatsApp us</span> <span aria-hidden="true">→</span>
               </a>
             </div>
           </div>
           <figure className="v-hero__visual">
-            <BeforeAfter
-              before={room("room-hall", "(min-width: 64rem) 55vw, 100vw", true)}
-              after={result("result-hall-statuarietto", "(min-width: 64rem) 55vw, 100vw", true)}
-              alt="An open hall with its wooden floor replaced by Statuarietto marble slabs, laid by StoneVision, with the window light kept on the stone."
-              w={1600}
-              h={1066}
-              start={38}
-              intro
-            >
-              <Chip x={0.97} y={0.83} end>
-                Statuarietto · its own slab photo
-              </Chip>
-              <Chip x={0.66} y={0.61}>
-                Window light, kept
-              </Chip>
-            </BeforeAfter>
+            <HeroCompare
+              before={room("room-hall", HERO_SIZES, true)}
+              stones={DEMO_STONES.map((st, k) => ({
+                name: st.name,
+                type: st.type,
+                swatch: thumb(st.thumbUrl, 128),
+                after: result(`result-hall-${HERO_RESULT[k]}`, HERO_SIZES, k === 0),
+              }))}
+            />
             <figcaption className="x-label">
-              Made by StoneVision · demo room and slab · drag to compare
+              Made by StoneVision · demo room and slabs · drag to compare, tap a stone
             </figcaption>
           </figure>
-        </section>
-
-        {/* ---------- How it works ---------- */}
-        <section id="how" className="v-sec v-sec--light" aria-labelledby="v-how">
-          <div className="v-head v-reveal">
-            <p className="x-label v-head__no">How it works</p>
-            <h2 id="v-how" className="v-head__title">
-              From your stock to their room.
-            </h2>
-          </div>
-          <div className="v-steps-scroll">
-          <ol className="v-steps">
-            <li className="v-step" style={{ "--i": 0 } as CSSProperties}>
-              <div className="v-step__pic">
-                <Window w={INV.w} h={INV.h} v={INV_VIEW} sizes="(min-width: 56rem) 60vw, 160vw">
-                  <span
-                    className="v-mark"
-                    style={{
-                      left: pc((INV_BUTTON.x - INV_VIEW.x) / INV_VIEW.w),
-                      top: pc((INV_BUTTON.y - INV_VIEW.y) / INV_VIEW.h),
-                      width: pc(INV_BUTTON.w / INV_VIEW.w),
-                      height: pc(INV_BUTTON.h / INV_VIEW.h),
-                    }}
-                  >
-                    <span>Opens StoneVision</span>
-                  </span>
-                </Window>
-              </div>
-              <p className="x-label v-step__no">1 · You</p>
-              <h3 className="v-step__title">Pick the slab</h3>
-            </li>
-            <li className="v-step" style={{ "--i": 1 } as CSSProperties}>
-              <div className="v-step__pic">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img {...room("room-bright", "(min-width: 56rem) 32vw, 85vw")} alt="A bright, empty room with a wooden floor." loading="lazy" />
-                <Chip x={0.04} y={0.08}>
-                  Their photo
-                </Chip>
-              </div>
-              <p className="x-label v-step__no">2 · Your buyer</p>
-              <h3 className="v-step__title">Adds their room</h3>
-            </li>
-            <li className="v-step" style={{ "--i": 2 } as CSSProperties}>
-              <div className="v-step__pic">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  {...result("result-bright-statuarietto", "(min-width: 56rem) 32vw, 85vw")}
-                  alt="The same room with Statuarietto marble slabs laid on its floor by StoneVision."
-                  loading="lazy"
-                />
-                <Chip x={0.04} y={0.08}>
-                  Floor found · slab laid
-                </Chip>
-              </div>
-              <p className="x-label v-step__no">3 · StoneVision</p>
-              <h3 className="v-step__title">Lays it on their floor</h3>
-            </li>
-          </ol>
-          </div>
         </section>
 
         {/* ---------- Live demo ---------- */}
@@ -215,11 +154,49 @@ export default function StoneVisionPage() {
           <div className="v-head v-reveal">
             <p className="x-label v-head__no">Live demo</p>
             <h2 id="v-try" className="v-head__title">
-              Try it now. Our room, or yours.
+              Now try your own room.
             </h2>
-            <p className="v-head__text">The real StoneVision, in your browser.</p>
+            <p className="v-head__text">
+              Take a photo of any room and pick a stone. This is the real StoneVision, the one your
+              buyers would use.
+            </p>
           </div>
           <StoneVisionDemo />
+        </section>
+
+        {/* ---------- How it works ---------- */}
+        <section id="how" className="v-sec v-how" aria-labelledby="v-how">
+          <div className="v-head v-reveal">
+            <p className="x-label v-head__no">How it works</p>
+            <h2 id="v-how" className="v-head__title">
+              From your stock to their room.
+            </h2>
+          </div>
+          <HowItWorks
+            pick={2}
+            rack={RACK.map(([name, file, w, h]) => ({
+              name,
+              img: pic(`/stone/${file}.jpg`, w, h, "(min-width: 64rem) 16vw, 40vw"),
+            }))}
+            room={room("room-living", STORY_SIZES)}
+            laid={result("result-living-statuarietto", STORY_SIZES)}
+          />
+        </section>
+
+        {/* ---------- Backlit stone ---------- */}
+        <section className="v-sec v-glowsec" aria-labelledby="v-glow">
+          <div className="v-glowsec__head">
+            <p className="x-label v-head__no">Stone, alive</p>
+            <h2 id="v-glow" className="v-head__title">
+              Put a lamp behind it.
+            </h2>
+            <p className="v-head__text">
+              Onyx and thin marble let light through. Move the lamp, or drag it on your phone, and
+              watch the stone glow from within.
+            </p>
+          </div>
+          {/* ponytail: stand-in slab until the owner's onyx photo arrives; add it to this list (first) */}
+          <BacklitStone stones={[{ name: "Calacatta Gold", src: "/stone/calacatta-gold.jpg" }]} />
         </section>
 
         {/* ---------- FAQ + Book a demo ---------- */}
@@ -229,9 +206,19 @@ export default function StoneVisionPage() {
             <h2 id="v-faq" className="v-head__title">
               Let buyers see it at home.
             </h2>
-            <a href={DEMO_MAIL} className="x-btn x-btn--signal v-cta">
-              Book a demo <span aria-hidden="true">→</span>
-            </a>
+            <div className="v-faq__ctas">
+              <a
+                href={WA}
+                className="x-btn x-btn--signal v-cta"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp us <span aria-hidden="true">→</span>
+              </a>
+              <a href={DEMO_MAIL} className="x-link-cut">
+                Or email
+              </a>
+            </div>
           </div>
           <div className="v-chat">
             {FAQ.map(([q, a]) => (

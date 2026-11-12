@@ -3,14 +3,16 @@ import { stoneMeanLin } from "@/vendor/stonex-vision/lib/vision/lighting.js";
 /** The live demo's rooms: free Unsplash photos (Unsplash License), not anyone's real enquiry. */
 export const DEMO_ROOMS = [
   {
-    id: "bright",
-    src: "/vision-demo/room-bright.jpg",
-    label: "Bright room",
-    credit: "Lisa Anna / Unsplash",
+    id: "living",
+    src: "/vision-demo/room-living.jpg",
+    result: "/vision-demo/result-living-statuarietto.jpg", // shown before the demo starts
+    label: "Living room",
+    credit: "Steven Ungermann / Unsplash",
   },
   {
     id: "hall",
     src: "/vision-demo/room-hall.jpg",
+    result: "/vision-demo/result-hall-statuarietto.jpg",
     label: "Open hall",
     credit: "Salvo Media / Unsplash",
   },
@@ -67,6 +69,52 @@ export const DEMO_STONES = [
     source: "demo",
     isLot: false,
   },
+  {
+    slabId: "demo-black-galaxy-s01",
+    slabCode: "DEMO-B03-S01",
+    slabNo: 1,
+    blockId: "demo-b03",
+    blockCode: "DEMO-B03",
+    name: "Black Galaxy",
+    type: "Granite",
+    colour: "Black",
+    lengthFt: 9,
+    widthFt: 4.9,
+    thicknessIn: 0.75,
+    finish: "Polished",
+    grade: null,
+    availability: "available",
+    twinUrl: "/stone/black-galaxy.jpg",
+    thumbUrl: "/stone/black-galaxy.jpg",
+    twinConfidence: null,
+    twinId: null,
+    twinSize: [2048, 1113],
+    source: "demo",
+    isLot: false,
+  },
+  {
+    slabId: "demo-calacatta-gold-s01",
+    slabCode: "DEMO-B04-S01",
+    slabNo: 1,
+    blockId: "demo-b04",
+    blockCode: "DEMO-B04",
+    name: "Calacatta Gold",
+    type: "Marble",
+    colour: "White",
+    lengthFt: 10,
+    widthFt: 3.75,
+    thicknessIn: 0.75,
+    finish: "Polished",
+    grade: null,
+    availability: "available",
+    twinUrl: "/stone/calacatta-gold.jpg",
+    thumbUrl: "/stone/calacatta-gold.jpg",
+    twinConfidence: null,
+    twinId: null,
+    twinSize: [2048, 767],
+    source: "demo",
+    isLot: false,
+  },
 ] as const;
 export type DemoStone = (typeof DEMO_STONES)[number];
 
@@ -109,22 +157,5 @@ export async function loadStoneImage(url: string, { maxSide = 4096 } = {}) {
 }
 
 /** A small copy of a public image, through Next's image optimiser (its default sizes; quality 75). */
-export const thumb = (src: string, w: 128 | 256 | 384) => `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=75`;
-
-/** Own-photo tries a visitor gets in the demo (counted in this browser only: a teaser, not a lock). */
-export const OWN_PHOTO_TRIES = 2;
-const KEY = "sv-own-photos";
-export const ownPhotosUsed = () => {
-  try {
-    return Number(localStorage.getItem(KEY)) || 0;
-  } catch {
-    return 0;
-  }
-};
-export const countOwnPhoto = () => {
-  try {
-    localStorage.setItem(KEY, String(ownPhotosUsed() + 1));
-  } catch {
-    /* private mode: not counted */
-  }
-};
+export const thumb = (src: string, w: 128 | 256 | 384) =>
+  `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=75`;

@@ -1,11 +1,14 @@
 import "./contact.css";
 
-const PEOPLE = [
+export const PEOPLE = [
   { name: "Vraj Talati", display: "+91 70437 65580", number: "917043765580" },
   { name: "Lakshya Jain", display: "+91 8078 686 994", number: "918078686994" },
 ];
-const EMAIL = "shilateq@gmail.com";
+export const EMAIL = "shilateq@gmail.com";
 const WA_TEXT = encodeURIComponent("Hi ShilaTeq, I'd like to know more about StoneX.");
+/** A WhatsApp chat with the first person, opened with `text`. */
+export const waLink = (text = "Hi ShilaTeq, I'd like a demo of StoneX and StoneVision for my yard.") =>
+  `https://wa.me/${PEOPLE[0].number}?text=${encodeURIComponent(text)}`;
 
 /** Direct contact, the same on every page: call or WhatsApp a person, or email. */
 export function Contact() {

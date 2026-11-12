@@ -7,12 +7,14 @@ type Img = ImgHTMLAttributes<HTMLImageElement>;
 /**
  * A photo and StoneVision's result, split by a handle the visitor drags. The control is a native
  * range input laid over the picture, so keys, touch and screen readers work as they do anywhere.
+ * `afters`: one result per stone; `shown` picks one (the others crossfade out).
  * `intro`: the split sweeps across once on arrival (CSS, never with reduced motion), until touched.
  * `children`: labels drawn over the result (they show on the result's side only).
  */
 export default function BeforeAfter({
   before,
-  after,
+  afters,
+  shown = 0,
   alt,
   w,
   h,
@@ -21,7 +23,8 @@ export default function BeforeAfter({
   children,
 }: {
   before: Img;
-  after: Img;
+  afters: Img[];
+  shown?: number;
   alt: string;
   w: number;
   h: number;
@@ -37,8 +40,16 @@ export default function BeforeAfter({
       data-intro={intro && !touched ? "" : undefined}
       style={{ aspectRatio: `${w} / ${h}`, "--at": `${at}%` } as CSSProperties}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img {...after} alt={alt} className="v-ba__img" />
+      {afters.map((a, i) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={i}
+          {...a}
+          alt={i === shown ? alt : ""}
+          className="v-ba__img v-ba__after"
+          data-on={i === shown ? "" : undefined}
+        />
+      ))}
       <div className="v-ba__labels" aria-hidden="true">
         {children}
       </div>

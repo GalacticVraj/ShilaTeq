@@ -109,7 +109,19 @@
   padding-inline: 1.6rem;
   font-size: 1.0625rem;
 }
+.v-narrow {
+  display: none;
+}
+@media (width < 40rem) {
+  .v-wide {
+    display: none;
+  }
+  .v-narrow {
+    display: inline;
+  }
+}
 .v-hero .x-link-cut {
+  white-space: nowrap;
   color: var(--color-obsidian);
 }
 .v-hero__visual {
@@ -135,27 +147,39 @@
     order: 2;
   }
   .v-hero__ctas {
-    order: 3;
+    order: 4;
     flex-wrap: nowrap;
     gap: 1.25rem;
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
   }
   .v-hero__visual {
-    order: 4;
-    margin: 1.5rem calc(-1 * var(--g)) 0;
+    order: 3;
+    margin: 1.25rem calc(-1 * var(--g)) 0;
+  }
+  .v-hero__visual .v-swap {
+    padding-inline: var(--g);
+  }
+  .v-hero__title {
+    font-size: clamp(2.1rem, 1rem + 6vw, 2.6rem);
   }
   .v-hero__visual .v-ba {
     border-radius: 0;
   }
   .v-hero__visual figcaption {
-    padding-inline: var(--g);
+    display: none; /* the picture's own labels say it; the call stays on the first screen */
   }
   .v-hero__lede {
     order: 5;
+    margin-top: 1rem;
   }
   .v-hero__ctas .v-cta {
     flex: 1;
     justify-content: center;
+    padding-inline: 0.9rem;
+    font-size: 1rem;
+  }
+  .v-hero__ctas {
+    gap: 1rem;
   }
 }
 @media (min-width: 64rem) {
@@ -206,6 +230,87 @@
 }
 .v-ba__before {
   clip-path: inset(0 calc(100% - var(--at)) 0 0);
+}
+.v-ba__after {
+  transition: opacity 450ms var(--ease-settle, ease);
+}
+.v-ba__after:not([data-on]) {
+  opacity: 0;
+}
+.v-swap {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+.v-swap__stone {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem;
+  border: 1px solid rgb(17 23 21 / 0.14);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.72);
+  color: var(--color-obsidian);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms,
+    background 160ms;
+}
+.v-swap__stone:hover {
+  background: #fff;
+}
+.v-swap__stone[aria-pressed="true"] {
+  border-color: var(--color-obsidian);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--color-obsidian);
+}
+.v-swap__stone img {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 6px;
+  object-fit: cover;
+}
+.v-swap__stone span {
+  display: grid;
+  min-width: 0;
+  line-height: 1.2;
+}
+.v-swap__stone b {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.v-swap__stone small {
+  color: #4a5550;
+  font-size: 0.6875rem;
+}
+@media (width < 40rem) {
+  /* A phone: four small tiles in a row, the swatch over its name. */
+  .v-swap {
+    gap: 0.4rem;
+  }
+  .v-swap__stone {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.25rem;
+    text-align: center;
+  }
+  .v-swap__stone img {
+    width: 100%;
+    height: 2.5rem;
+  }
+  .v-swap__stone b {
+    font-size: 0.6875rem;
+    white-space: normal;
+  }
+  .v-swap__stone small {
+    display: none;
+  }
 }
 .v-ba__labels {
   position: absolute;
@@ -325,6 +430,14 @@
   position: relative;
   padding: clamp(4.5rem, 11svh, 7.5rem) var(--g);
 }
+@media (width < 40rem) {
+  .v-sec {
+    padding-block: 3.25rem;
+  }
+  .v-head {
+    margin-bottom: 1.5rem;
+  }
+}
 .v-sec--light {
   background: var(--color-bone);
   color: var(--color-obsidian);
@@ -370,77 +483,325 @@
 .v-sec--light .v-head__text {
   color: var(--color-slate);
 }
-/* ---------- How it works: three pictures ---------- */
-.v-steps {
-  display: grid;
-  gap: 2.5rem 1.5rem;
-  list-style: none;
+/* ---------- How it works: one scene, scrolled through (HowItWorks.tsx) ---------- */
+/* --p (0 → 1) is how far the page has scrolled through the scene. From it, in turn:
+   --s a finger runs along the rack and picks · --c the others leave, the pick comes forward ·
+   --a their room appears, the slab tips onto its floor · --o it opens into a book-matched pair ·
+   --b the stone spreads over the floor from where the slab landed. */
+.v-how {
+  background: linear-gradient(#f1ede5, #e6e0d4);
+  color: var(--color-obsidian);
+  padding-bottom: 0;
 }
-.v-step {
-  display: grid;
-  align-content: start;
-  gap: 0.45rem;
+.v-how .v-head__no {
+  color: var(--red-on-light);
 }
-.v-step__pic {
+.v-scene {
+  --p: 0;
+  --s: clamp(0, calc(var(--p) / 0.14), 1);
+  --c: clamp(0, calc((var(--p) - 0.15) / 0.14), 1);
+  --a: clamp(0, calc((var(--p) - 0.3) / 0.2), 1);
+  --o: clamp(0, calc((var(--p) - 0.5) / 0.12), 1);
+  --b: clamp(0, calc((var(--p) - 0.64) / 0.22), 1);
+  position: relative;
+  height: 340svh;
+}
+.v-scene__sticky {
+  position: sticky;
+  top: 0;
+  display: grid;
+  align-content: center;
+  gap: 1.5rem 3.5rem;
+  height: 100svh;
+  padding-block: 1.5rem;
+}
+@media (min-width: 64rem) {
+  .v-scene__sticky {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+.v-scene__stage {
   position: relative;
   overflow: hidden;
-  border-radius: 14px;
   aspect-ratio: 3 / 2;
-  background: #d9d3c8;
-  box-shadow: 0 1.5rem 3rem -1.5rem rgb(17 23 21 / 0.45);
+  max-height: 72svh;
+  border-radius: 18px;
+  perspective: 1100px;
+  perspective-origin: 50% 35%;
+  background:
+    radial-gradient(60% 12% at 50% 89%, rgb(40 30 20 / 0.22), transparent 70%),
+    linear-gradient(#f7f4ee 0 64%, #ddd5c7 64% 100%);
+  box-shadow:
+    0 0 0 1px rgb(17 23 21 / 0.08),
+    0 3rem 6rem -2.5rem rgb(40 30 20 / 0.45);
 }
-.v-step__pic > img,
-.v-step__pic > .v-win {
+.v-scene__room,
+.v-scene__laid {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.v-step__no {
-  margin-top: 0.9rem;
-  color: var(--red-on-light);
+.v-scene__room {
+  opacity: var(--a);
+  scale: calc(1.06 - var(--a) * 0.06);
 }
-.v-step__title {
+.v-scene__laid {
+  clip-path: circle(calc(var(--b) * 115%) at 50% 88%);
+}
+/* the wall behind the rack, until their room takes its place */
+.v-scene__wall {
+  position: absolute;
+  inset: 17% 0 auto;
+  text-align: center;
   font-family: var(--font-display);
   font-stretch: 112%;
   font-weight: 700;
-  font-size: 1.4rem;
+  font-size: clamp(2.75rem, 1rem + 8vw, 7rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(17 23 21 / 0.16);
+  opacity: calc(1 - var(--a) * 3);
+  translate: 0 calc(var(--c) * -12%);
+}
+/* the rack: slabs standing side by side, as in the yard */
+.v-scene__rack,
+.v-scene__slab {
+  position: absolute;
+  bottom: 12%;
+  width: 14.5%;
+  aspect-ratio: 9 / 16;
+}
+.v-scene__rack {
+  left: calc(50% + var(--i) * 17.5%);
+  translate: calc(-50% + var(--i) * var(--c) * 110%) calc(var(--c) * 25%);
+  opacity: calc(1 - var(--c) * 1.4);
+}
+.v-scene__rack img,
+.v-scene__leaf {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.5) inset,
+    0 1.25rem 2rem -0.75rem rgb(30 20 10 / 0.55);
+}
+.v-scene__rack span,
+.v-scene__name {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  left: 50%;
+  translate: -50% 0;
+  color: #4a5550;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+/* the pick: lifted when chosen, forward, onto the floor, then opened */
+.v-scene__slab {
+  left: 50%;
+  translate: calc(-50% - var(--o) * 50%) calc(var(--s) * -5% * (1 - var(--a)));
+  transform-origin: 50% 100%;
+  transform: rotateX(calc(var(--a) * 74deg)) scale(calc(1 + var(--c) * 0.3 + var(--a) * 1.1));
+  transform-style: preserve-3d;
+  opacity: calc(1 - var(--b) * 1.6);
+}
+.v-scene__book {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.v-scene__book::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 3px solid var(--color-signal);
+  border-radius: 6px;
+  opacity: calc((var(--s) - 0.75) * 4 - var(--a) * 4);
+}
+.v-scene__leaf--b {
+  left: 100%;
+  overflow: hidden;
+  transform-origin: 0 50%;
+  transform: rotateY(calc((1 - var(--o)) * -180deg));
+  backface-visibility: hidden;
+}
+.v-scene__leaf--b img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  scale: -1 1; /* mirrored, as a book-matched pair */
+}
+.v-scene__name {
+  color: var(--color-obsidian);
+  opacity: calc(1 - var(--a) * 4);
+}
+/* the finger that picks */
+.v-scene__finger {
+  position: absolute;
+  left: calc(15% + var(--s) * 35%);
+  bottom: 30%;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-left: -1.2rem;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.9);
+  box-shadow:
+    0 0 0 2px var(--color-obsidian),
+    0 0.5rem 1rem rgb(0 0 0 / 0.3);
+  scale: calc(1 - clamp(0, calc((var(--s) - 0.85) * 6), 1) * 0.25);
+  opacity: calc(var(--s) * 5 - var(--c) * 6);
+}
+.v-scene__tag {
+  position: absolute;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.v-scene__tag--slab {
+  left: 50%;
+  top: 6%;
+  translate: -50% 0;
+  opacity: calc((var(--s) - 0.8) * 5 - var(--a) * 4);
+}
+.v-scene__tag--laid {
+  left: 4%;
+  top: 6%;
+  opacity: calc((var(--b) - 0.7) * 3.4);
+}
+/* how far through: a thin line along the picture's foot */
+.v-scene__stage::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: calc(var(--p) * 100%);
+  background: var(--color-signal);
+}
+.v-scene__steps {
+  display: grid;
+  gap: 1.25rem;
+  list-style: none;
+}
+.v-scene__steps li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 1rem;
+  opacity: 0.32;
+  transition: opacity 400ms var(--ease-settle, ease);
+}
+.v-scene__steps li[data-on] {
+  opacity: 1;
+}
+.v-scene__no {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: clamp(2.5rem, 1.5rem + 2.6vw, 4.5rem);
+  line-height: 0.9;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--color-obsidian);
+}
+.v-scene__steps li[data-on] .v-scene__no {
+  color: var(--red-on-light);
+  -webkit-text-stroke-color: var(--red-on-light);
+}
+.v-scene__steps b {
+  display: block;
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-size: clamp(1.25rem, 1rem + 0.9vw, 1.75rem);
   line-height: 1.1;
 }
-.v-step > p:last-child {
+.v-scene__steps li > span:last-child > span {
+  display: block;
+  margin-top: 0.3rem;
   max-width: 24rem;
   color: var(--color-slate);
-  line-height: 1.5;
+  line-height: 1.45;
 }
-.v-steps-scroll:focus-visible {
-  outline: 2px solid var(--color-signal);
-  outline-offset: 6px;
-  border-radius: 14px;
-}
-@media (width < 56rem) {
-  /* Phones and small tablets: the steps one under the other, simple to scroll. */
-  .v-steps {
-    gap: 2.25rem;
+@media (width < 64rem) {
+  .v-scene__sticky {
+    align-content: start;
+    padding-top: 4.5rem; /* under the site header */
+    gap: 1.25rem;
+  }
+  .v-scene__stage {
+    margin-inline: calc(-1 * var(--g));
+    border-radius: 0;
   }
 }
-@media (min-width: 56rem) {
-  .v-steps {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+@media (width < 40rem) {
+  /* a phone: the scene tall, filling the screen above its three steps */
+  .v-scene__stage {
+    aspect-ratio: 4 / 5;
+    max-height: 62svh;
+    background:
+      radial-gradient(70% 10% at 50% 89%, rgb(40 30 20 / 0.22), transparent 70%),
+      linear-gradient(#f7f4ee 0 58%, #ddd5c7 58% 100%);
   }
-  /* A red thread from one picture to the next. */
-  .v-step {
-    position: relative;
-    container-type: inline-size;
+  .v-scene__rack,
+  .v-scene__slab {
+    width: 15.5%;
   }
-  .v-step:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: calc(33.33cqi - 1px);
-    right: -1.5rem;
-    width: 1.5rem;
-    height: 2px;
-    background: var(--color-signal);
+  .v-scene__rack {
+    left: calc(50% + var(--i) * 18.5%);
+  }
+  .v-scene__finger {
+    left: calc(10% + var(--s) * 40%);
+    bottom: 26%;
+  }
+  .v-scene__steps {
+    gap: 0.75rem;
+  }
+  .v-scene__no {
+    font-size: 2rem;
+    min-width: 2.6rem;
+  }
+  .v-scene__steps b {
+    font-size: 1.15rem;
+  }
+  /* a phone: only the step on screen tells its line */
+  .v-scene__steps li:not([data-on]) > span:last-child > span {
+    display: none;
+  }
+  .v-scene__tag {
+    font-size: 0.75rem;
+  }
+  .v-scene__rack span {
+    display: none;
+  }
+  .v-scene__name {
+    font-size: 0.6875rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* no scrolled scene: the finished picture beside the three steps */
+  .v-scene {
+    --p: 1 !important;
+    height: auto;
+  }
+  .v-scene__sticky {
+    position: static;
+    height: auto;
+  }
+  .v-scene__steps li {
+    opacity: 1;
+  }
+  .v-scene__steps li > span:last-child > span {
+    display: block !important;
   }
 }
 
@@ -458,8 +819,15 @@
 .v-faq__lead .v-head__title {
   max-width: 12ch;
 }
-.v-faq__lead .v-cta {
+.v-faq__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
   margin-top: 1.75rem;
+}
+.v-faq__ctas .x-link-cut {
+  color: var(--color-obsidian);
 }
 .v-chat {
   display: grid;
@@ -613,20 +981,6 @@
       animation: v-in linear both;
       animation-timeline: view();
       animation-range: entry 5% entry 70%;
-    }
-    .v-step {
-      animation: v-in linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 55%;
-    }
-    .v-step {
-      animation-range: entry calc(var(--i) * 6%) entry calc(50% + var(--i) * 6%);
-    }
-    /* In the sideways row a step's view() would follow that row, not the page: no reveal there. */
-    @media (width < 56rem) {
-      .v-step {
-        animation: none;
-      }
     }
   }
 }
@@ -883,6 +1237,7 @@
 /* The stone's name on the result: the site's red chip. */
 .v-demo__label {
   position: absolute;
+  z-index: 2;
   left: 0.75rem;
   bottom: 0.75rem;
   padding: 0.35rem 0.65rem;
@@ -927,30 +1282,6 @@
   to {
     rotate: 1turn;
   }
-}
-.v-demo__start {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: linear-gradient(rgb(9 12 11 / 0.1), rgb(9 12 11 / 0.55));
-  text-align: center;
-}
-.v-demo__start p {
-  max-width: 22rem;
-  padding: 0.3rem 0.7rem;
-  border-radius: 8px;
-  background: rgb(9 12 11 / 0.6);
-  color: rgb(243 246 242 / 0.9);
-  font-size: 0.875rem;
-}
-.v-demo__go {
-  min-height: 3.25rem;
-  padding-inline: 1.6rem;
-  font-size: 1.0625rem;
 }
 
 /* The panel: room, stone, tools. */
@@ -1016,10 +1347,6 @@
   justify-items: center;
   text-align: center;
 }
-.v-demo__own[aria-disabled="true"] {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
 .v-demo__own:focus-within {
   outline: 2px solid var(--color-acid);
   outline-offset: 2px;
@@ -1052,22 +1379,29 @@
 .v-demo__stone:focus-visible,
 .v-demo__tools button:focus-visible,
 .v-demo__check button:focus-visible,
-.v-demo__another button:focus-visible {
+.v-demo__fix button:focus-visible,
+.v-demo__fix summary:focus-visible,
+.v-demo__quick button:focus-visible {
   outline: 2px solid var(--color-acid);
   outline-offset: 2px;
 }
 .v-demo__tools {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
 }
 @media (min-width: 64rem) {
-  /* Beside the picture: one stone a row, two tools a row. */
-  .v-demo__stones {
-    grid-template-columns: 1fr;
+  /* Beside the picture: two stones a row, small swatches, so the panel stays the picture's height. */
+  .v-demo__stone {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0.55rem;
   }
-  .v-demo__tools {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .v-demo__stone img {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .v-demo__stone b {
+    font-size: 0.875rem;
   }
 }
 @media (width < 40rem) {
@@ -1115,7 +1449,7 @@
 }
 .v-demo__tools button,
 .v-demo__check button,
-.v-demo__another button {
+.v-demo__fix button {
   min-height: 2.75rem;
   padding: 0.4rem 0.6rem;
   border: 0;
@@ -1128,13 +1462,14 @@
   font-weight: 600;
   cursor: pointer;
 }
-.v-demo__tools button[aria-pressed="true"] {
+.v-demo__tools button[aria-pressed="true"],
+.v-demo__fix button[aria-pressed="true"] {
   background: var(--color-bone);
   color: var(--color-obsidian);
 }
 .v-demo__tools button:disabled,
 .v-demo__check button:disabled,
-.v-demo__another button:disabled {
+.v-demo__fix button:disabled {
   opacity: 0.4;
   cursor: default;
 }
@@ -1147,14 +1482,94 @@
   box-shadow: inset 0 0 0 1px rgb(255 82 56 / 0.4);
   font-size: 0.9375rem;
 }
-.v-demo__another {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+/* Putting the floor right: one quiet line, opened when wanted */
+.v-demo__fix {
+  border-top: 1px solid rgb(243 246 242 / 0.12);
+  padding-top: 0.75rem;
   color: var(--color-lichen);
   font-size: 0.875rem;
+}
+.v-demo__fix summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+}
+.v-demo__fix summary::-webkit-details-marker {
+  display: none;
+}
+.v-demo__fix summary::after {
+  content: "+";
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: rotate 200ms;
+}
+.v-demo__fix[open] summary::after {
+  rotate: 45deg;
+}
+.v-demo__fix[open] .v-demo__fixes {
+  margin-top: 0.75rem;
+}
+.v-demo__seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 12px;
+  background: rgb(243 246 242 / 0.08);
+}
+.v-demo__seg button {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+.v-demo__seg button[aria-pressed="true"] {
+  background: var(--color-bone) !important;
+}
+.v-demo__fixes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.v-demo__fixes button {
+  min-height: 2.4rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.v-demo__fix .v-demo__note {
+  margin-top: 0.6rem;
+}
+/* After the stone is laid: the way on, for a yard owner. */
+.v-demo__next {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 14px;
+  background: rgb(226 251 107 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(226 251 107 / 0.35);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  animation: v-next-in 0.5s ease-out both;
+}
+.v-demo__next b {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--color-acid);
+  font-size: 1.0625rem;
+}
+.v-demo__next .x-btn {
+  justify-self: start;
+}
+@keyframes v-next-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v-demo__next {
+    animation: none;
+  }
 }
 .v-demo__check div {
   display: flex;
@@ -1182,5 +1597,198 @@
   .v-page *::before,
   .v-page *::after {
     animation-timeline: auto !important;
+  }
+}
+
+/* The demo's own run, under its finished picture until the live one matches it. */
+.v-demo__ghost {
+  z-index: 1;
+  pointer-events: none;
+}
+/* A way to the visitor's own room, on the picture itself. */
+.v-demo__own-btn {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.6rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+  background: var(--color-signal);
+  color: var(--color-obsidian);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.35);
+  cursor: pointer;
+}
+.v-demo__own-btn span {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+.v-demo__own-btn:has(:focus-visible) {
+  outline: 2px solid var(--color-acid);
+  outline-offset: 2px;
+}
+@media (width < 40rem) {
+  .v-demo__own-btn {
+    right: 0.6rem;
+    bottom: 0.6rem;
+    min-height: 2.3rem;
+    padding: 0 0.8rem;
+    font-size: 0.8125rem;
+  }
+}
+@media (min-width: 64rem) {
+  /* a laptop: the picture never taller than the screen, so its controls stay beside it in view */
+  .v-demo__stage {
+    width: min(100%, calc((100svh - 7rem) * var(--ar, 1.5)));
+    justify-self: center;
+  }
+}
+@media (width < 22.5rem) {
+  /* the smallest phones (320 px): the headline a size down, the two calls one under the other */
+  .v-hero__title {
+    font-size: 1.85rem;
+  }
+  .v-hero__ctas {
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- Backlit stone (BacklitStone.tsx) ---------- */
+.v-glowsec {
+  overflow: clip;
+  background: #030303;
+  text-align: center;
+}
+.v-glowsec__head {
+  max-width: 44rem;
+  margin: 0 auto clamp(2.5rem, 7svh, 4rem);
+}
+.v-glowsec .v-head__text {
+  margin-inline: auto;
+}
+.v-glow {
+  --lx: 0.5;
+  --ly: 0.5;
+  --lp: 0;
+  position: relative;
+  isolation: isolate;
+  max-width: 72rem;
+  margin-inline: auto;
+  touch-action: pan-y; /* a sideways drag moves the lamp; up and down still scrolls */
+}
+/* the wall around the panel, warmed by the light coming through */
+.v-glow__spill {
+  position: absolute;
+  inset: -18% -12%;
+  z-index: -1;
+  background: radial-gradient(
+    closest-side at calc(12% + var(--lx) * 76%) calc(18% + var(--ly) * 64%),
+    rgb(255 150 60 / calc(0.22 * var(--lp))),
+    rgb(255 120 40 / calc(0.08 * var(--lp))) 55%,
+    transparent
+  );
+  filter: blur(30px);
+  pointer-events: none;
+}
+.v-glow__panel {
+  position: relative;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #0b0906;
+  box-shadow:
+    0 0 0 1px rgb(255 220 170 / 0.06),
+    0 2rem 8rem -2rem rgb(255 170 80 / 0.18);
+  cursor: none;
+}
+.v-glow__canvas,
+.v-glow__flat {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.v-glow__tag {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  color: rgb(255 236 210 / 0.55);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+.v-glow__stones {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.v-glow__stones button {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid rgb(255 236 210 / 0.18);
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(255 236 210 / 0.75);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.v-glow__stones button[aria-pressed="true"] {
+  border-color: rgb(255 200 140 / 0.7);
+  color: #fff;
+}
+@media (width < 48rem) {
+  .v-glow__panel {
+    aspect-ratio: 4 / 5;
+    margin-inline: calc(-1 * var(--g));
+    border-radius: 0;
+    cursor: auto;
+  }
+}
+
+/* On the picture: before/after and save, once the stone is laid */
+.v-demo__quick {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 3;
+  display: flex;
+  gap: 0.4rem;
+}
+.v-demo__quick button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.3rem;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  background: rgb(9 12 11 / 0.62);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.v-demo__quick button:hover {
+  background: rgb(9 12 11 / 0.8);
+}
+.v-demo__quick button:disabled {
+  opacity: 0.6;
+}
+@media (width < 40rem) {
+  .v-demo__quick {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  .v-demo__quick button {
+    min-height: 2.1rem;
+    padding: 0 0.7rem;
+    font-size: 0.75rem;
   }
 }
