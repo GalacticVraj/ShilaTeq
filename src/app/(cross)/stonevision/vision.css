@@ -811,6 +811,17 @@
   user-select: none;
   cursor: crosshair;
 }
+.v-demo__touch[data-brush] {
+  touch-action: none; /* the finger paints; the page doesn't scroll under it */
+  cursor: cell;
+}
+.v-demo__stroke {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
 .v-demo__touch[role="slider"] {
   cursor: ew-resize;
 }
