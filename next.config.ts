@@ -56,7 +56,15 @@ const nextConfig: NextConfig = {
     }));
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // StoneVision's floor finder (~27 MB): every path carries its version, so a browser keeps it for good
+      // and a returning visitor's demo is ready at once, with no request at all.
+      {
+        source: "/vision-assets/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+    ];
   },
 };
 

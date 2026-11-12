@@ -74,14 +74,28 @@
   outline-offset: 2px;
 }
 @media (width < 48rem) {
+  /* a phone: each person on one line, name and number beside their buttons */
   .x-contact__card {
-    padding: 1rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.1rem 0.75rem;
+    padding: 0.8rem 0.9rem;
   }
   .x-contact__line {
-    font-size: 1.15rem;
+    grid-column: 1;
+    font-size: 1.05rem;
   }
   .x-contact__do {
-    margin-top: 0.5rem;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-top: 0;
+    gap: 0.4rem;
+  }
+  .x-contact__btn {
+    flex: none;
+    min-height: 2.6rem;
+    padding-inline: 0.85rem;
+    font-size: 0.875rem;
   }
 }
 @media (min-width: 48rem) {
