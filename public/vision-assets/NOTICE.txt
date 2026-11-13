@@ -4,7 +4,10 @@ ort-wasm-simd-threaded.wasm, ort.wasm.bundle.min.mjs
   ONNX Runtime Web 1.30.0 — Copyright (c) Microsoft Corporation.
   MIT License: https://github.com/microsoft/onnxruntime/blob/main/LICENSE
 
-models/slimsam-77-uniform/5850ab45/*.onnx
+models/slimsam-77-uniform/5850ab45/prompt_encoder_mask_decoder_quantized.onnx
+models/slimsam-77-uniform/5850ab45-heads/vision_encoder_quantized.onnx (MODIFIED by ShilaTeq: the upstream
+  vision_encoder_quantized.onnx with its 4 global-attention blocks computed one head at a time, an ONNX Loop;
+  same weights, same output, far less memory. Made by StoneX's scripts/vision-assets/headloop.py)
   SlimSAM-77 (uniform), ONNX export by Xenova (huggingface.co/Xenova/slimsam-77-uniform,
   revision 5850ab45f587c112167512ffef949107115e26a0), from SlimSAM by Zigeng Chen et al.,
   based on Segment Anything by Meta AI.

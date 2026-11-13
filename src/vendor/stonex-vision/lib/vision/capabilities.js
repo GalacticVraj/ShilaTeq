@@ -1,9 +1,11 @@
 // What this device can do for StoneX Vision — tested, never guessed from the phone's name or GPU
 // string. Tier A: a GPU model + WebGL2 rendering. Tier B: a CPU model + WebGL2. Tier C: no model
 // (colour-region taps) + WebGL2. Without WebGL2 there is no preview at all, and the screen says so.
-// The one exception to "never from the phone's name" is iOS: it hides its memory (no deviceMemory) and
-// closes a tab that holds too much, with nothing the page can catch. Reading a photo with the model takes
-// about 2.2 GB (measured on a PC), and a real iPhone reloaded and showed "can't open this page".
+// iOS hides its memory (no deviceMemory) and closes a tab that holds too much, with nothing the page can catch.
+// Reading a photo with the original SlimSAM encoder took about 1.75 GB, and a real iPhone reloaded and showed
+// "can't open this page", so iPhones ran without a model. The encoder customers get now computes its global
+// attention one head at a time (models.json slimsam77-int8-heads): the same result in about 340 MB, so iOS
+// gets the model like every other phone. iOS still uses the smaller working photo (renderEdgeFor).
 import { webgl2Available } from './renderer/VisionRenderer.js'
 
 /** Every browser on iOS is WebKit, Chrome included. An iPad asking for desktop pages says "Macintosh", with touch. */
@@ -44,7 +46,6 @@ export function chooseTier(caps, override = null) {
   const reasons = []
   if (!caps.webgl2?.ok) return { tier: 'none', reasons: ['no WebGL2 — the preview cannot be drawn on this device'] }
   if (override && ['A', 'B', 'C'].includes(override)) return { tier: override, reasons: ['forced (dev override)'] }
-  if (caps.ios) { reasons.push('iOS closes a tab that holds the model — no model'); return { tier: 'C', reasons } }
   if (caps.saveData) { reasons.push('Save-Data is on — no model download'); return { tier: 'C', reasons } }
   if (caps.deviceMemoryGB != null && caps.deviceMemoryGB < 3) { reasons.push(`${caps.deviceMemoryGB} GB device memory — too little for a model`); return { tier: 'C', reasons } }
   if (caps.webgpu?.usable && !caps.webgpu.fallbackAdapter) { reasons.push('WebGPU usable'); return { tier: 'A', reasons } }

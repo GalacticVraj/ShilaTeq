@@ -171,6 +171,32 @@
         }
       }
     },
+    "slimsam77-int8-heads": {
+      "candidate": "slimsam",
+      "precision": "int8",
+      "fullPrecisionBaseline": "slimsam77-fp32",
+      "source": "https://huggingface.co/Xenova/slimsam-77-uniform/tree/5850ab45f587c112167512ffef949107115e26a0",
+      "modified": "The encoder of slimsam77-int8 with its 4 global-attention blocks computed one head at a time (an ONNX Loop over the 12 heads; scripts/vision-assets/headloop.py): the same weights and the same embedding to the bit, reading a photo in ~340 MB instead of ~1.75 GB (iOS closes a tab that big). The decoder is the upstream file.",
+      "files": {
+        "encoder": {
+          "derived": {
+            "from": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/vision_encoder_quantized.onnx",
+            "fromSha256": "cce23c7b2e5d4f330932738fb67ba518e04b0d99ccdd1cccd22a7da4e01f2971",
+            "by": "scripts/vision-assets/headloop.py",
+            "file": "scripts/vision-assets/derived/slimsam-77-uniform/5850ab45-heads/vision_encoder_quantized.onnx"
+          },
+          "to": "models/slimsam-77-uniform/5850ab45-heads/vision_encoder_quantized.onnx",
+          "sha256": "5ffd50eb1eadec452bbd38cb1ef00a6942e773601a559da1e3d90330f9d957cc",
+          "bytes": 8865587
+        },
+        "decoder": {
+          "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/prompt_encoder_mask_decoder_quantized.onnx",
+          "to": "models/slimsam-77-uniform/5850ab45/prompt_encoder_mask_decoder_quantized.onnx",
+          "sha256": "cb90b279f549d2cab7fd6e20c38522438c65d84bdcca3d2a764cff7d857fdce2",
+          "bytes": 4903810
+        }
+      }
+    },
     "slimsam77-fp16": {
       "candidate": "slimsam",
       "precision": "fp16",

@@ -21,7 +21,7 @@ export const VISION_ASSET_BASE = '/vision-assets/'
 export const SEGMENTERS = Object.freeze({
   'sam21-gpu': { kind: 'sam', family: 'sam21', variant: { any: 'sam21tiny-q4f16' }, backend: 'webgpu', tier: 'A', licence: 'BLOCKED — LICENCE UNRESOLVED', devOnly: true },
   // depth: the floor-level helper (floorDepth.js) loaded beside the segmenter, when its own licence is verified
-  'slimsam-cpu': { kind: 'sam', family: 'slimsam', variant: { any: 'slimsam77-int8' }, depth: 'dav2small-uint8', backend: 'wasm', tier: 'B', licence: 'verified' },
+  'slimsam-cpu': { kind: 'sam', family: 'slimsam', variant: { any: 'slimsam77-int8-heads' }, depth: 'dav2small-uint8', backend: 'wasm', tier: 'B', licence: 'verified' },
   'slimsam-gpu': { kind: 'sam', family: 'slimsam', variant: { any: 'slimsam77-fp32' }, backend: 'webgpu', tier: 'A', licence: 'verified (experiment: dev builds only)', experimental: true, devOnly: true },
   region: { kind: 'region', tier: 'C', licence: 'none (no model)' },
 })
