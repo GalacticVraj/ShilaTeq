@@ -45,6 +45,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Renames every content-hashed /_next/static file once. Browsers keep those files for a year (immutable),
+  // and a copy fetched before /stonevision was cross-origin isolated has no COEP header: the isolated page
+  // can't start a worker from it (the engine's turbopack-worker bootstrap has the same name in every build).
+  // Change it again only if a header that a worker script needs changes.
+  outputHashSalt: "coep-1",
   // Two root layouts ((site) legacy, (kerf) redesign) need a global 404.
   experimental: { globalNotFound: true },
   // The ERP app links to /privacy, /terms and /refund (VITE_LEGAL_BASE_URL).
@@ -64,6 +69,24 @@ const nextConfig: NextConfig = {
         source: "/vision-assets/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
+      // StoneVision's page only: cross-origin isolated, so the floor model runs on 4 Wasm threads
+      // (samOrt.js checks self.crossOriginIsolated). Safe here because the page loads nothing from
+      // another origin (the CSP above: no frames, images or fonts from elsewhere, no analytics on (cross)).
+      // 'require-corp', not 'credentialless': Safari supports only require-corp.
+      {
+        source: "/stonevision",
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
+        ],
+      },
+      // An isolated page may only start workers whose script says require-corp too: the engine's worker
+      // (a /_next/static chunk) and ORT's thread workers (/vision-assets/ort). On a script or model file the
+      // header changes nothing else, so every other page is unaffected.
+      ...["/_next/static/:path*", "/vision-assets/:path*"].map((source) => ({
+        source,
+        headers: [{ key: "Cross-Origin-Embedder-Policy", value: "require-corp" }],
+      })),
     ];
   },
 };
