@@ -1,7 +1,7 @@
 {
   "upstream": {
     "repo": "GalacticVraj/stonevl",
-    "commit": "886d481a8256fa6549678a59d8a8cb0c739ecdc5"
+    "commit": "656cbe524b0f6b1049b98920cb9e9e7894b928ec"
   },
   "edits": [
     "lib/vision/config.js",
