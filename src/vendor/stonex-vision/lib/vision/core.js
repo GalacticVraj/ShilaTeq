@@ -215,10 +215,22 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
     },
 
     /** A brush stroke in render px: 'pos' paints floor in, 'neg' takes an area out. Edge-aware (stroke.js). One undoable step. */
-    stroke({ label, points, radius }) {
+    stroke({ label, points, radius, region = null }) {
       requireImage()
       const { width: W, height: H } = maskSize
       if (label !== 'pos' && label !== 'neg') throw Object.assign(new MaskError('BAD_LABEL', label), { kind: 'error' })
+      // SHILATEQ EDIT: `region`, a ready-made floor ({ width, height, data: 0/1 per pixel }, any size) in place of a
+      // brush: the website's demo rooms, whose floor the model found beforehand (session.loadPhoto's `floor`)
+      if (region) {
+        if (!(region.width > 0 && region.height > 0) || region.data?.length !== region.width * region.height) throw Object.assign(new MaskError('BAD_STROKE'), { kind: 'error' })
+        const m = resizeMask(region.data, region.width, region.height, W, H)
+        for (let i = 0; i < m.length; i++) m[i] *= 255
+        const k = m.lastIndexOf(255)
+        if (k < 0) throw Object.assign(new MaskError('TAP_OUTSIDE'), { kind: 'error' })
+        editor.apply(label, m, [k % W, Math.floor(k / W)], { stroke: true })
+        last = editor.result()
+        return summary(last)
+      }
       if (!Array.isArray(points) || !points.length || points.some((p) => !Number.isFinite(p?.[0]) || !Number.isFinite(p?.[1])) || !(radius > 0)) throw Object.assign(new MaskError('BAD_STROKE'), { kind: 'error' })
       const t0 = performance.now()
       const inside = points.filter(([x, y]) => x >= 0 && y >= 0 && x < W && y < H)
