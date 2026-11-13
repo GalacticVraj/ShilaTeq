@@ -7,6 +7,7 @@
 // the composition goes through StoneX cleanup: edges snapped to the photo (guided filter), stray
 // specks and pin-holes removed, 1 px feather for compositing. The photo itself is never touched.
 import { stonexPostprocess, featherAlpha, boxMean } from './segment/postprocess.js'
+import { depthFacts } from './floorDepth.js'
 
 export { featherAlpha }
 
@@ -326,9 +327,12 @@ export function chooseCandidate(candidates, { label, currentArea = 0, tapInside 
  * each with its own `ask`; never one refused here (a wall, a chair, a strip). `pick` (a swap, or its
  * replay): that proposal instead of the automatic one, if it is still among the options (a different
  * engine after a tier drop: the automatic one).
+ * `depth` (floorDepth.js floorMap, when the depth model ran): among the shapes that can be the floor, the one
+ * matching the depth floor best is the app's pick (when clearly better), and a shape lying mostly on a raised
+ * flat surface (a table, a bed) is asked about. It never lays a shape the checks above refuse, and never drops a question.
  * @returns {{ choice: number, ask: null | 'RAISED' | 'PARTLY', options: { index: number, ask: null | 'RAISED' | 'PARTLY' }[] }}
  */
-export function chooseFirstTap(candidates, ow, oh, pick = null) {
+export function chooseFirstTap(candidates, ow, oh, pick = null, depth = null) {
   let choice = chooseCandidate(candidates, { label: 'pos', currentArea: 0 })
   const known = new Map()
   const facts = (i) => { if (!known.has(i)) known.set(i, proposalFacts(candidates[i].probAt(ow, oh), ow, oh)); return known.get(i) }
@@ -347,11 +351,28 @@ export function chooseFirstTap(candidates, ow, oh, pick = null) {
       .sort(bySize).find((i) => !facts(i).top && !facts(i).reason)
     if (floorOnly !== undefined) choice = floorOnly
   }
-  const askOf = (i) => { const { contactShare } = facts(i); return contactShare >= MASK_LIMITS.floorContact ? null : contactShare > 0 ? 'PARTLY' : 'RAISED' }
+  const dk = new Map()
+  const dfacts = (i) => { if (!dk.has(i)) dk.set(i, depthFacts(candidates[i].probAt(depth.w, depth.h), depth)); return dk.get(i) }
+  const useDepth = !!depth?.floor
+  if (useDepth) {
+    const pool = candidates.map((_, i) => i).filter((i) => plausible(i) && !facts(i).reason)
+    const best = pool.reduce((b, i) => (b < 0 || dfacts(i).iou > dfacts(b).iou ? i : b), -1)
+    // ponytail: 0.3 / +0.1 set by eye on 20 open-licence rooms; tune on outlined photos
+    if (best >= 0 && best !== choice && dfacts(best).iou >= 0.3 && dfacts(best).iou > dfacts(choice).iou + 0.1) choice = best
+  }
+  const askOf = (i) => {
+    const { contactShare } = facts(i)
+    const ask = contactShare >= MASK_LIMITS.floorContact ? null : contactShare > 0 ? 'PARTLY' : 'RAISED'
+    return ask || (useDepth && dfacts(i).raisedShare > 0.5 ? 'RAISED' : null)
+  }
   const others = candidates.map((_, i) => i).filter((i) => i !== choice && plausible(i) && !facts(i).reason).sort(bySize)
   const options = [choice, ...others].map((index) => ({ index, ask: askOf(index) }))
   if (pick != null && pick !== choice && others.includes(pick)) choice = pick
-  return { choice, ask: askOf(choice), options }
+  // the depth floor confirms this shape (most of it on the floor, a good part of that floor, nothing raised):
+  // findFloor may lay a PARTLY one it would otherwise skip — a customer's own tap is still asked (depth can't
+  // tell a rug from the floor). ponytail: 0.6 / 0.3 / 0.05 set by eye on 20 open-licence rooms
+  const depthFloor = useDepth && dfacts(choice).floorShare >= 0.6 && dfacts(choice).iou >= 0.3 && dfacts(choice).raisedShare <= 0.05
+  return { choice, ask: askOf(choice), options, depthFloor }
 }
 
 /**

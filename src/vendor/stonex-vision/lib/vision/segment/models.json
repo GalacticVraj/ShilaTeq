@@ -107,6 +107,31 @@
           "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/tree/814a066640debee5a91e70aa401fb8e17e030503"
         ]
       }
+    },
+    "depthanything": {
+      "label": "Depth Anything V2 Small (ORT Web WASM): the floor-level helper beside SlimSAM",
+      "runtime": "onnxruntime-web",
+      "backend": "wasm",
+      "defaultVariant": "dav2small-uint8",
+      "biggerSmaller": false,
+      "complexity": {
+        "score": 0.3,
+        "why": "One ONNX session on the runtime SlimSAM already loads; our own pre-processing (392 long edge (the model card: 518), multiple of 14, ImageNet mean/std) and floor map (floorDepth.js). It helps SlimSAM choose; it never lays stone itself."
+      },
+      "licence": {
+        "status": "verified",
+        "runtime": "MIT (onnxruntime-web 1.30.0; microsoft/onnxruntime LICENSE)",
+        "weights": "Apache-2.0: depth-anything/Depth-Anything-V2-Small (only the Small model; Base/Large/Giant are CC-BY-NC-4.0 and are NOT used) -> onnx-community/depth-anything-v2-small (ONNX, rev 4472b736, card: apache-2.0)",
+        "code": "Apache-2.0 (DepthAnything/Depth-Anything-V2, for the Small model)",
+        "redistribution": "permitted with notices (Apache-2.0)",
+        "commercialSaaS": "permitted (Apache-2.0)",
+        "caveats": "The authors trained it partly on public datasets, some with non-commercial terms; the weights themselves are licensed Apache-2.0 by the authors. Same open question as ADE20K: for the owner's lawyer.",
+        "sources": [
+          "https://github.com/DepthAnything/Depth-Anything-V2",
+          "https://huggingface.co/depth-anything/Depth-Anything-V2-Small",
+          "https://huggingface.co/onnx-community/depth-anything-v2-small/tree/4472b7362082ad9968fee890ca0f1e5aca36b93d"
+        ]
+      }
     }
   },
   "variants": {
@@ -316,6 +341,19 @@
           "to": "models/sam2.1-hiera-tiny/814a0666/prompt_encoder_mask_decoder.onnx_data",
           "sha256": "e9874d900dd4134ed60eab1e97910327c2419e0b2954485d8fd6e7f1a1470f47",
           "bytes": 20958208
+        }
+      }
+    },
+    "dav2small-uint8": {
+      "candidate": "depthanything",
+      "precision": "uint8",
+      "source": "https://huggingface.co/onnx-community/depth-anything-v2-small/tree/4472b7362082ad9968fee890ca0f1e5aca36b93d",
+      "files": {
+        "model": {
+          "url": "https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/4472b7362082ad9968fee890ca0f1e5aca36b93d/onnx/model_uint8.onnx",
+          "to": "models/depth-anything-v2-small/4472b736/model_uint8.onnx",
+          "sha256": "fcf51f1b230362b28690bb9d1809bf0431f29cad20534e3f589bd7285547f20d",
+          "bytes": 27258801
         }
       }
     }

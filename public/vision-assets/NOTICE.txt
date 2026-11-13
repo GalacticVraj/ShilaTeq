@@ -9,3 +9,9 @@ models/slimsam-77-uniform/5850ab45/*.onnx
   revision 5850ab45f587c112167512ffef949107115e26a0), from SlimSAM by Zigeng Chen et al.,
   based on Segment Anything by Meta AI.
   Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+models/depth-anything-v2-small/4472b736/model_uint8.onnx
+  Depth Anything V2 Small, ONNX export by onnx-community
+  (huggingface.co/onnx-community/depth-anything-v2-small, revision 4472b7362082ad9968fee890ca0f1e5aca36b93d),
+  from Depth Anything V2 by Lihe Yang et al.
+  Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0

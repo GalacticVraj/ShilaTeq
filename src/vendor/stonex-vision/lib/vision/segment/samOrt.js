@@ -9,6 +9,7 @@
 import { SAM_FAMILIES, preprocessSam, tapToModelPoint, upsampleLogits } from './sam.js'
 import { fetchAsset, downloadFailed } from './assets.js'
 import { VISION_ASSET_BASE } from '../config.js'
+import { preprocessDepth, floorMap } from '../floorDepth.js'
 
 const ORT_VERSION = '1.30.0'
 const WASM_FILE = { wasm: 'ort-wasm-simd-threaded.wasm', webgpu: 'ort-wasm-simd-threaded.asyncify.wasm' }
@@ -33,7 +34,10 @@ export const adapterInfo = (a) => {
 // byte (fetchAsset); `requireHash`: refuse a file this browser can't hash (production builds).
 // `runtimeUrl`: the runtime Wasm the app's build emitted beside its code (core.js); else the pinned copy
 // under `base` (the bake-off, the dev-only WebGPU runtime)
-export async function createAdapter({ base, candidate, variant, cold, reload = false, backend, onDeviceLost, onBytes = null, runtimeFile = null, runtimeUrl = null, requireHash = false }) {
+// `depthVariant` (config depthVariantFor): the depth helper. Downloaded and run only when asked for (floorMap:
+// the automatic guess found no floor the usual way), once per photo; its map then also helps that photo's first
+// taps (floorDepth.js). It never fails a photo: on any error, no map — everything works as without it.
+export async function createAdapter({ base, candidate, variant, cold, reload = false, backend, onDeviceLost, onBytes = null, runtimeFile = null, runtimeUrl = null, requireHash = false, depthVariant = null }) {
   const family = SAM_FAMILIES[candidate]
   const t0 = performance.now()
   const ort = await loadOrt(backend)
@@ -86,16 +90,22 @@ export async function createAdapter({ base, candidate, variant, cold, reload = f
   }
   const encoder = await ort.InferenceSession.create(files.encoder, { ...opts('encoder'), ...(device ? { preferredOutputLocation: 'gpu-buffer' } : {}) })
   const decoder = await ort.InferenceSession.create(files.decoder, opts('decoder'))
+  let depth = null // the depth helper's session, opened the first time it is needed
+  const openDepth = () => (depth ??= (async () => {
+    const f = depthVariant.files.model
+    const r = await fetchAsset(base, f.to, { cold, reload, expect: f, requireHash })
+    return ort.InferenceSession.create(r.bytes, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' })
+  })().catch(() => null)) // missing, offline, damaged (its pin checked it) or too big for this phone: no depth
   const initMs = performance.now() - t1
 
-  let enc = null, pre = null
+  let enc = null, pre = null, img0 = null, floor // floor: undefined until asked for, then the map or null
   const disposeEnc = () => {
     if (enc) for (const t of Object.values(enc)) t.dispose?.()
     enc = null
   }
 
   return {
-    info: { runtime: `onnxruntime-web@${ORT_VERSION}`, backend, family: candidate, precision: variant.precision, biggerSmaller: true, wasmThreads: threads, crossOriginIsolated: !!self.crossOriginIsolated, gpu },
+    info: { runtime: `onnxruntime-web@${ORT_VERSION}`, backend, family: candidate, precision: variant.precision, biggerSmaller: true, wasmThreads: threads, crossOriginIsolated: !!self.crossOriginIsolated, gpu, depth: depthVariant?.id || null },
     load: { totalMs: performance.now() - t0, fetchMs, initMs, downloads },
     async setImage(img) {
       disposeEnc()
@@ -105,7 +115,28 @@ export async function createAdapter({ base, candidate, variant, cold, reload = f
       t = performance.now()
       enc = await encoder.run({ [family.encoderInput]: new ort.Tensor('float32', pre.data, [1, 3, family.size, family.size]) })
       if (device) await device.queue.onSubmittedWorkDone() // count the GPU work, not just its submission
+      img0 = img
+      floor = undefined
       return { preprocessMs, encodeMs: performance.now() - t }
+    },
+    /** The depth floor map of the photo now set, if it was made (floorDepth.js); else null. */
+    floor: () => floor || null,
+    /** The depth floor map of the photo now set, made now if it wasn't (once per photo); null without depth. */
+    async floorMap() {
+      if (floor !== undefined || !depthVariant || !img0) return floor || null
+      const forImg = img0
+      let map = null
+      try {
+        const s = await openDepth()
+        if (s) {
+          const d = preprocessDepth(forImg)
+          const out = await s.run({ [s.inputNames[0]]: new ort.Tensor('float32', d.data, [1, 3, d.h, d.w]) })
+          map = floorMap(out[s.outputNames[0]].data, d.w, d.h)
+          for (const x of Object.values(out)) x.dispose?.()
+        }
+      } catch { map = null }
+      if (img0 === forImg) floor = map // (a newer photo meanwhile: this map isn't its)
+      return img0 === forImg ? map : null
     },
     async decode(x, y) {
       const [px, py] = tapToModelPoint(family, pre, x, y)
@@ -144,8 +175,11 @@ export async function createAdapter({ base, candidate, variant, cold, reload = f
     },
     dispose() {
       disposeEnc()
+      floor = undefined
+      img0 = null
       encoder.release?.()
       decoder.release?.()
+      depth?.then((s) => s?.release?.())
       device?.destroy()
     },
   }

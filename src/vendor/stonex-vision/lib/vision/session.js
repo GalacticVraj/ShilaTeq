@@ -607,17 +607,26 @@ export class VisionSession {
       if (!this.photoCanvas || !photo || gen !== this.photoGen || this.tapLog.length || this.waiting.length || this.state.phase !== 'ready') return this.state
       this.#set({ phase: 'working', stage: 'floor', error: null })
       const t0 = now()
-      for (const [fx, fy] of FIND_FLOOR_AT) {
-        const t = { label: 'pos', x: fx * photo.width, y: fy * photo.height, gen }
-        try {
-          const r = await this.#withRecovery(() => this.#loggedTap(t))
-          if (r?.ask) { await this.client.undo(); continue } // not sure it is the floor: the next spot
-          this.tapLog.push(t)
-          this.#syncTaps()
-          this.#set({ autoFound: true })
-          await this.#afterMaskChange({ tapMs: Math.round(now() - t0) })
-          return this.state
-        } catch { /* refused here (a rug, a chair): the next spot */ }
+      // the usual spots; if none is the floor, the depth helper runs (floorDepth.js: once, only for these photos)
+      // and the spots are tried again with its map, then its surest floor spot. A photo whose floor is found
+      // without it is found the same way, with no wait.
+      for (let pass = 0; pass < 2; pass++) {
+        const spot = pass && this.client.floorSpot ? await this.client.floorSpot().catch(() => null) : null
+        if (pass && !spot) break
+        for (const [fx, fy] of pass ? [...FIND_FLOOR_AT, spot] : FIND_FLOOR_AT) {
+          const t = { label: 'pos', x: fx * photo.width, y: fy * photo.height, gen }
+          try {
+            const r = await this.#withRecovery(() => this.#loggedTap(t))
+            // not sure it is the floor: the next spot — unless only partly sure and the depth floor confirms it
+            // (the screen still asks "Is this your floor?" with Undo: autoFound)
+            if (r?.ask && !(r.ask === 'PARTLY' && r.depthFloor)) { await this.client.undo(); continue }
+            this.tapLog.push(t)
+            this.#syncTaps()
+            this.#set({ autoFound: true })
+            await this.#afterMaskChange({ tapMs: Math.round(now() - t0) })
+            return this.state
+          } catch { /* refused here (a rug, a chair): the next spot */ }
+        }
       }
       this.#set({ phase: 'ready', stage: null }) // leave the choice to the customer
       return this.state
