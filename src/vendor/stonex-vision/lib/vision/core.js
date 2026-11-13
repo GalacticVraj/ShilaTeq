@@ -118,8 +118,30 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
   let last = null // last mask result
   let lightImg = null // ≤640 px copy for the lighting measurement
   let photoRgb = null // the photo's RGBA at the render size (edge snapping, colour checks)
+  let encoded = null // the model's timings once it has read the prepared photo (taps need that)
 
   const requireImage = () => { if (!editor) throw Object.assign(new MaskError('NO_IMAGE'), { kind: 'error' }) }
+  // a tap (and the depth helper) needs the model's reading of THIS photo, not only its prepared mask
+  const requireRead = () => { requireImage(); if (!encoded) throw Object.assign(new MaskError('NO_IMAGE'), { kind: 'error' }) }
+  const checkImage = (img, guide) => {
+    if (!segmenter) throw Object.assign(new Error('init first'), { kind: 'error' })
+    if (!img?.data || !guide?.data) throw Object.assign(new Error('BAD_IMAGE'), { kind: 'error' })
+  }
+  /** A photo's everything-but-the-model: its mask at the render size, edge guide and lines. Not read yet (encoded). */
+  const build = (img, guide) => {
+    encoded = null
+    analysis = { img, w: img.width, h: img.height }
+    lightImg = null
+    maskSize = { width: guide.width, height: guide.height }
+    photoRgb = guide.data
+    editor = new MaskEditor(guide.width, guide.height, { guide: lumaPlane(guide), rgb: photoRgb })
+    last = null
+    const t1 = performance.now()
+    const g = analysisGray(img)
+    const k = guide.width / g.w
+    segments = detectSegments(g.gray, g.w, g.h).map((s) => ({ ...s, x1: s.x1 * k, y1: s.y1 * k, x2: s.x2 * k, y2: s.y2 * k, len: s.len * k }))
+    return { linesMs: performance.now() - t1, lineCount: segments.length }
+  }
   const summary = (r, extra = {}) => ({
     alpha: r.alpha, coverage: r.coverage, bbox: r.bbox, taps: r.taps.length, width: maskSize.width, height: maskSize.height, ...extra,
   })
@@ -140,11 +162,10 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
 
     /**
      * analysis: the ≤1024 px copy for the model + lines; guide: the photo at the render size (its
-     * pixels only steer the mask edges, they are not kept).
+     * pixels only steer the mask edges, they are not kept). One op: the model's reading, then prepare's part.
      */
     async setImage({ analysis: img, guide }) {
-      if (!segmenter) throw Object.assign(new Error('init first'), { kind: 'error' })
-      if (!img?.data || !guide?.data) throw Object.assign(new Error('BAD_IMAGE'), { kind: 'error' })
+      checkImage(img, guide)
       // the previous photo goes first: if this one can't be read, a tap must find no photo — never the
       // previous one's (its floor was laid on the new photo)
       analysis = null
@@ -152,24 +173,37 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
       last = null
       lightImg = null
       photoRgb = null
+      encoded = null
       const t0 = performance.now()
       const timings = await segmenter.setImage(img)
-      analysis = { img, w: img.width, h: img.height }
-      lightImg = null
-      maskSize = { width: guide.width, height: guide.height }
-      photoRgb = guide.data
-      editor = new MaskEditor(guide.width, guide.height, { guide: lumaPlane(guide), rgb: photoRgb })
-      last = null
-      const t1 = performance.now()
-      const g = analysisGray(img)
-      const k = guide.width / g.w
-      segments = detectSegments(g.gray, g.w, g.h).map((s) => ({ ...s, x1: s.x1 * k, y1: s.y1 * k, x2: s.x2 * k, y2: s.y2 * k, len: s.len * k }))
-      return { ...timings, totalMs: performance.now() - t0, linesMs: performance.now() - t1, lineCount: segments.length }
+      const { linesMs, lineCount } = build(img, guide)
+      encoded = timings || {}
+      return { ...timings, totalMs: performance.now() - t0, linesMs, lineCount }
+    },
+
+    /**
+     * setImage in two ops, for a ready-made floor (session.loadPhoto's `floor`): prepare is the cheap part — the
+     * mask, its edge guide, the photo's lines — after which a stroke, undo, geometry and lighting work; encode is
+     * the model's reading, which a tap (and the depth helper) waits for.
+     */
+    prepare({ analysis: img, guide }) {
+      checkImage(img, guide)
+      return build(img, guide)
+    },
+
+    /** The model reads the prepared photo (the long step) — once: asked again, it answers at once. */
+    async encode() {
+      requireImage()
+      if (encoded) return encoded
+      const img = analysis.img
+      const timings = await segmenter.setImage(img)
+      if (analysis?.img === img) encoded = timings || {} // (prepared again meanwhile: that photo is still unread)
+      return timings
     },
 
     /** A tap in render-resolution pixels. label 'pos' adds, 'neg' removes. `pick`: a first tap's proposal chosen by "Try another". */
     async tap({ label, x, y, pick = null }) {
-      requireImage()
+      requireRead()
       const { width: W, height: H } = maskSize
       if (!Number.isFinite(x) || !Number.isFinite(y)) throw Object.assign(new MaskError('BAD_TAP'), { kind: 'error' })
       if (x < 0 || y < 0 || x >= W || y >= H) throw Object.assign(new MaskError('TAP_OUTSIDE'), { kind: 'error' })
@@ -222,26 +256,29 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
      * floor found). Runs the depth helper for this photo if it hasn't run; later first taps use its map too.
      */
     async floorSpot() {
-      requireImage()
+      requireRead()
       return floorSpot(segmenter.floorMap ? await segmenter.floorMap() : null)
     },
 
-    /** A brush stroke in render px: 'pos' paints floor in, 'neg' takes an area out. Edge-aware (stroke.js). One undoable step. */
+    /**
+     * A brush stroke in render px: 'pos' paints floor in, 'neg' takes an area out. Edge-aware (stroke.js). One undoable step.
+     * `region` in place of a brush: a ready-made floor ({ width, height, data: 0/1 per pixel }, any size) — a demo room's
+     * floor found beforehand (session.loadPhoto's `floor`). Needs no model: it can run before the photo is read.
+     */
     stroke({ label, points, radius, region = null }) {
       requireImage()
       const { width: W, height: H } = maskSize
       if (label !== 'pos' && label !== 'neg') throw Object.assign(new MaskError('BAD_LABEL', label), { kind: 'error' })
-      // SHILATEQ EDIT: `region`, a ready-made floor ({ width, height, data: 0/1 per pixel }, any size) in place of a
-      // brush: the website's demo rooms, whose floor the model found beforehand (session.loadPhoto's `floor`)
       if (region) {
         if (!(region.width > 0 && region.height > 0) || region.data?.length !== region.width * region.height) throw Object.assign(new MaskError('BAD_STROKE'), { kind: 'error' })
+        const t0 = performance.now()
         const m = resizeMask(region.data, region.width, region.height, W, H)
         for (let i = 0; i < m.length; i++) m[i] *= 255
-        const k = m.lastIndexOf(255)
+        const k = m.lastIndexOf(255) // its tap point: the floor's lowest pixel
         if (k < 0) throw Object.assign(new MaskError('TAP_OUTSIDE'), { kind: 'error' })
         editor.apply(label, m, [k % W, Math.floor(k / W)], { stroke: true })
         last = editor.result()
-        return summary(last)
+        return summary(last, { timing: { totalMs: performance.now() - t0 } })
       }
       if (!Array.isArray(points) || !points.length || points.some((p) => !Number.isFinite(p?.[0]) || !Number.isFinite(p?.[1])) || !(radius > 0)) throw Object.assign(new MaskError('BAD_STROKE'), { kind: 'error' })
       const t0 = performance.now()
@@ -304,6 +341,7 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
       analysis = null
       last = null
       photoRgb = null
+      encoded = null
       return { ok: true }
     },
   }

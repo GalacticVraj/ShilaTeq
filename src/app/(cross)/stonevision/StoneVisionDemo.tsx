@@ -122,8 +122,12 @@ export default function StoneVisionDemo() {
   const onChange = (st: SvState) => {
     setS(st);
     const url = st.photo?.url;
-    // (an error ends the wait too: the cover never stays over the picture)
-    const ready = (st.phase === "ready" && !st.stage) || !!st.error;
+    // (an error ends the wait too: the cover never stays over the picture; a demo room's ready-made floor
+    // is laid before the model has read the photo, its picture finished while the room is still being read)
+    const ready =
+      (st.phase === "ready" && !st.stage) ||
+      !!st.error ||
+      (st.phase === "preparing" && st.stage === "analyse" && isLaid(st));
     if (ghostRef.current) {
       // the run on its own: no wipe; the cover lifts once the live picture is the finished one
       if (url) revealed.current = url;

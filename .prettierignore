@@ -2,6 +2,9 @@
 node_modules
 src/content/docs-src
 *.md
+# copied byte for byte from elsewhere (src/vendor: checked against its manifest)
+src/vendor
+public/vision-assets
 package-lock.json
 playwright-report
 test-results
