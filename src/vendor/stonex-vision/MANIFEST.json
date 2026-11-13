@@ -1,0 +1,45 @@
+{
+  "upstream": {
+    "repo": "GalacticVraj/stonevl",
+    "commit": "656cbe524b0f6b1049b98920cb9e9e7894b928ec"
+  },
+  "edits": [
+    "lib/vision/config.js",
+    "lib/vision/core.js",
+    "lib/vision/segment/samOrt.js",
+    "lib/visualizer/twin.js"
+  ],
+  "files": {
+    "components/vision/visionText.js": "8146125428eeda7e23ba57d0baca4c79d334a53fe532c904a7cbb9d7fdd4e46c",
+    "lib/vision/capabilities.js": "4696f3a15f9109f179d2066e03ce593746387eb9af14f45c66b3eaf1042e28dd",
+    "lib/vision/client.js": "2ad3f2214601ba02c2c0e075cc5bb82ef59a9c6b526da9a845e137e3dffe22c8",
+    "lib/vision/config.js": "d0c7dce7e223850eb2c7f26e9219df7d8680d4bebb06cbd3a30830f5feb29a1e",
+    "lib/vision/core.js": "81867461512c01ef4e976ed457fba8760c2221e84ceea20a67eedc59a5362035",
+    "lib/vision/exif.js": "cd1be62ef9f7d3e9a66a9272a188628e09b4b72bc121029a3d21b502d990715e",
+    "lib/vision/floorDepth.js": "e9ca297833a87aba3e7adfa560372ea4719b372290cbc926ce6534991298162b",
+    "lib/vision/floorPlan.js": "1102ceb003655205b8d383f007f0132af32e015a32bb984b5ac7c1de4d40b41e",
+    "lib/vision/geometry/camera.js": "25dfa138877ac8f8b46adc4e6414a139af72561f9bfba0d05e6064ccb982dfd3",
+    "lib/vision/geometry/floor.js": "9080ee70add1454523dd366be35be6edee437b19e9a94e55f32ee2e847536988",
+    "lib/vision/geometry/lines.js": "e68aaf3517f3f54b9f42724e1b6f3d8c604217bf1e0b9300748dcf07f21ff7bb",
+    "lib/vision/geometry/vanishing.js": "5579f3ba09d960cef418e72685b530cdf903ff15cfbd8a2b056eb2bf2308773b",
+    "lib/vision/image.js": "3db60c029efe0f31f32a66901e93b87173ea6e32ba5db69699fa86239751f14c",
+    "lib/vision/layout.js": "93f33632856783485aaff7600938cd7c7c5bf4cc52bb0557438e9de621b2a005",
+    "lib/vision/lighting.js": "a06178fc6174cbc12c72425827b9a635da200d22b6443cca174e13630921f412",
+    "lib/vision/mask.js": "4ba506cdee2fd2ce544d47a587781aec615d5119610bb12741e6bbbbe3df87bd",
+    "lib/vision/renderer/VisionRenderer.js": "b03b28133972439aac5ee0c1452e1e52c43316c703c9aacf708bf2c2dc190d08",
+    "lib/vision/renderer/shaders.js": "1624be8246069917168f0ae62831fadfb17703b6464fa171a50ca2e147680751",
+    "lib/vision/segment/assets.js": "fc81d0d0414336bd24dc9391381f9bc77ea5a0fcd72d0068e9ffc532047e06da",
+    "lib/vision/segment/magicTouch.js": "577e620a6ec88b8b2ee9e55224321a7886b08b7e59fc284ef091b9d50767099d",
+    "lib/vision/segment/models.json": "a32eafc8a349826e9dc8574f01da0b998d312984b7414c09ccad4dfb60dabac8",
+    "lib/vision/segment/postprocess.js": "55295d11c0a9a249ff0a5de56c48865014f5ecbc60678b5b4a3a4a5675421743",
+    "lib/vision/segment/regionGrow.js": "b5a7b10717d572623aec7feaeb21a74c479ba6df3c7783622d49a0db59a1325f",
+    "lib/vision/segment/sam.js": "d1d8aef1623681b09c7745bd3f54ed24bae515f253a15df74c0cdb369b645757",
+    "lib/vision/segment/samOrt.js": "7b84c1f4dcb47e8de5c6dac8c3d41d465a30974e739044448cf1db0c3b185847",
+    "lib/vision/session.js": "032ac5e3caa166b907aedd8565d050c5de48b4743ad74afb296d6ac23d64087d",
+    "lib/vision/stroke.js": "74a897c4e938b4110c91bf908ddebeb565997d6eccbe0c79c8220799d5cb3421",
+    "lib/vision/vision.worker.js": "8d762065ab351d7868b4120f3c65fa54889b6981a98734b00fc02214650d3ab6",
+    "lib/visualizer/engine.js": "2cf7dbf622563c750b1629c98a9f3ba65fc651ee53d9eed8b243d284a8efe293",
+    "lib/visualizer/twin.js": "901e526929dc1ebc8ef0fb8d319c6e8c7b7d5cccc9d88280613c8d6a95641289",
+    "utils/image.js": "1d047c7ac2766dcd0452cde0059c3de2a5fca012e20b437f28113fbb45273e38"
+  }
+}

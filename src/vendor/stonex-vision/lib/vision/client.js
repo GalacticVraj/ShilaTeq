@@ -9,7 +9,7 @@ import { createVisionCore, failureKind } from './core.js'
 // from its last piece of download — a model still arriving never times out, a stalled one is a
 // download that didn't arrive (ASSET_STALLED)
 export const TIMEOUTS = Object.freeze({
-  init: 180000, setImage: 180000, tap: 60000, stroke: 20000, undo: 20000, reset: 20000, geometry: 30000, lighting: 30000, status: 10000, lines: 10000, dispose: 20000,
+  init: 180000, setImage: 180000, prepare: 30000, encode: 180000, tap: 60000, stroke: 20000, undo: 20000, reset: 20000, geometry: 30000, lighting: 30000, status: 10000, lines: 10000, dispose: 20000,
 })
 
 export class VisionClient {
@@ -116,6 +116,17 @@ export class VisionClient {
     this.mask = null
     return this.#call('setImage', { analysis, guide }, this.worker ? [guide.data.buffer] : [])
   }
+
+  /**
+   * setImage in two steps (a ready-made floor is laid between them, before the model's long read):
+   * prepareImage takes the same arguments and is quick; encodeImage is the model's reading.
+   */
+  prepareImage(analysis, guide) {
+    this.mask = null
+    return this.#call('prepare', { analysis, guide }, this.worker ? [guide.data.buffer] : [])
+  }
+
+  encodeImage() { return this.#call('encode') }
 
   async #mask(promise) {
     const r = await promise

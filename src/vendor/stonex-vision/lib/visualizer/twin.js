@@ -1,5 +1,5 @@
-// SHILATEQ EDIT: StoneX's twin.js is the slab-capture pipeline (2,700 lines); the floor geometry
-// needs only estimateAspect, copied here verbatim (StoneX src/lib/visualizer/twin.js, eb9a0d8).
+// SHILATEQ EDIT: StoneX's twin.js is the slab-capture pipeline (2,800 lines); the floor geometry
+// needs only estimateAspect, copied here verbatim by scripts/sync-stonevision.mjs.
 const round = (v, d = 3) => Math.round(v * 10 ** d) / 10 ** d
 
 /**

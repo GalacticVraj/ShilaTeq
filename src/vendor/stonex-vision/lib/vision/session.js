@@ -15,7 +15,7 @@ import { exposureFor } from './lighting.js'
 import { photoHeadOfFile, focalPixels } from './exif.js'
 import { imageFileToCanvas } from '../../utils/image.js'
 import { segmenterForTier, segmenterLicensed, nextTier, SEGMENTERS, RENDER_MAX_EDGE, ANALYSIS_MAX_EDGE, PHOTO_LIMITS } from './config.js'
-import { detectCapabilities, chooseTier, renderEdgeFor } from './capabilities.js'
+import { detectCapabilities, chooseTier, renderEdgeFor, startModelRead, modelOffAfterCrash } from './capabilities.js'
 import { fitLongEdge } from './image.js'
 
 const RUNTIME_FAILURES = new Set(['oom', 'device-lost', 'worker-crash', 'timeout', 'no-webgpu'])
@@ -167,6 +167,8 @@ export class VisionSession {
     this.twinMeta = new Map() // url → { naturalWidth, naturalHeight, meanLin }
     this.bitmaps = new Map() // url → bitmap (the last few, LRU)
     this.failedTwins = new Set() // slab ids whose twin would not load or upload (until the stone is chosen again)
+    this.readEnds = new Set() // the model reads running now, for the crash net (#modelStep)
+    this.floorFirst = null // the photo (its photoGen) whose ready-made floor is laid while the model still reads it
   }
 
   #set(patch) {
@@ -198,10 +200,12 @@ export class VisionSession {
   }
 
   async #start() {
-    const caps = await this.capabilities()
+    // the crash net (capabilities.js): a model read that closed this tab last time means no model here for now
+    const caps = { ...(await this.capabilities()), ...((await modelOffAfterCrash()) ? { modelOffAfterCrash: true } : {}) }
     if (this.disposed) return this.state // unmounted meanwhile (React StrictMode does this in dev)
-    const { tier, reasons } = chooseTier(caps, this.tierOverride)
-    this.#set({ caps, tier, tierReasons: reasons, ...(this.overrideRefused ? { warnings: [...this.state.warnings, 'SEGMENTER_OVERRIDE_REFUSED'] } : {}) })
+    const { tier, reasons, warning } = chooseTier(caps, this.tierOverride)
+    const warnings = [...this.state.warnings, ...(this.overrideRefused ? ['SEGMENTER_OVERRIDE_REFUSED'] : []), ...(warning ? [warning] : [])]
+    this.#set({ caps, tier, tierReasons: reasons, ...(warnings.length ? { warnings } : {}) })
     if (tier === 'none') { this.#set({ phase: 'no-webgl', error: { code: 'NO_WEBGL2', message: reasons[0] } }); return this.state }
     try {
       this.renderer = this.rendererFactory(this.canvas, {
@@ -349,8 +353,10 @@ export class VisionSession {
    * The customer's photo (File/Blob). Resolves when the photo is ready for taps. Only decoding and
    * showing it hold the session's queue: the model's long read of the room runs beside it (#analyse),
    * so the customer can change the stone — or the photo — meanwhile.
+   * `floor`: a ready-made floor for this photo ({ width, height, data: Uint8Array 0/1 per pixel }, any size — a demo
+   * room's floor found beforehand), laid as findFloor lays the one it finds (one undoable step, autoFound) as soon as
+   * the photo is prepared, while the model still reads it (#floorFirst). Without it, findFloor as ever (autoFloor).
    */
-  // SHILATEQ EDIT: `floor`, a ready-made floor ({ width, height, data: 0/1 }) laid instead of findFloor's search
   loadPhoto(file, { floor = null } = {}) {
     let shown = null
     return this.#serial(async () => {
@@ -447,7 +453,8 @@ export class VisionSession {
     try {
       // a reading nobody looks at any more never drops the engine to a lower tier (that stopped the
       // engine under the newer photo's own reading, which then never ended)
-      await this.#withRecovery(() => (current() ? this.#sendImage() : null), { wanted: current, resend: false })
+      if (floor) await this.#floorFirst(floor, gen, current)
+      else await this.#withRecovery(() => (current() ? this.#sendImage() : null), { wanted: current, resend: false })
     } catch (err) {
       return current() ? this.#fail('PHOTO_FAILED', err) : this.state
     }
@@ -457,15 +464,63 @@ export class VisionSession {
     this.pendingTaps = []
     // all into the queue at once (they still run in order): their marks stay on the photo meanwhile
     await Promise.all(queued.map((p) => this.tap(p.label, p.x, p.y)))
-    // nobody tapped yet: try to find the floor without a tap
-    if (!queued.length && floor) await this.#readyFloor(floor, gen)
-    else if (!queued.length && this.autoFloor) await this.findFloor()
+    // nobody tapped yet: try to find the floor without a tap (a ready-made floor is laid already)
+    if (!queued.length && this.autoFloor && !floor) await this.findFloor()
     return this.state
   }
 
-  async #sendImage() {
+  /**
+   * A ready-made floor: the photo is prepared (quick), the floor laid on it and shown, and only then does the model
+   * read the photo — behind the floor; the screen still says the room is being read meanwhile, and taps wait for it
+   * as ever. A runtime failure of the read drops a tier as #analyse's does, but `resend`: the next engine gets the
+   * photo and the floor again (#dropTier) — its read then answers at once (core.encode).
+   */
+  async #floorFirst(floor, gen, current) {
     const c = this.photoCanvas
     const t0 = now()
+    let t1 = t0
+    // (an engine that died meanwhile: the next tier prepares it — the photo's pixels taken again, the last ones went to the worker)
+    const prepared = await this.#withRecovery(() => {
+      if (!current()) return null
+      const { analysis, guide } = this.#imageArgs(c)
+      t1 = now()
+      return this.client.prepareImage(analysis, guide)
+    }, { wanted: current, resend: false })
+    if (!prepared) return
+    this.#photoUrl(c)
+    this.floorFirst = gen
+    try {
+      await this.#readyFloor(floor, gen)
+      const r = await this.#withRecovery(() => (current() ? this.#modelStep(() => this.client.encodeImage()) : null), { wanted: current })
+      if (r && current()) this.#readTimings(t0, t1, { ...prepared, ...r })
+    } finally {
+      if (this.floorFirst === gen) this.floorFirst = null
+    }
+  }
+
+  /** The ready-made floor laid, in the session's queue, as findFloor lays one: never over a tap the customer made. */
+  #readyFloor(region, gen) {
+    return this.#serial(async () => {
+      const photo = this.state.photo
+      if (!this.photoCanvas || !photo || gen !== this.photoGen || this.tapLog.length || this.waiting.length || this.pendingTaps.length) return this.state
+      const t = { kind: 'stroke', label: 'pos', region, x: photo.width / 2, y: photo.height - 1, gen }
+      this.#set({ stage: 'floor', error: null }) // (still 'preparing': a tap made now waits for the read)
+      try {
+        const t0 = now()
+        await this.#replay(t)
+        this.tapLog.push(t)
+        this.#syncTaps()
+        this.#set({ autoFound: true })
+        await this.#afterMaskChange({ tapMs: Math.round(now() - t0) })
+      } catch {
+        this.#set({ stage: 'analyse' }) // as findFloor: nothing laid, the customer taps once the photo is read
+      }
+      return this.state
+    })
+  }
+
+  /** The photo as the engine takes it: a ≤ ANALYSIS_MAX_EDGE copy for the model and lines, and the guide at the render size. */
+  #imageArgs(c) {
     const ctx = c.getContext('2d', { willReadFrequently: true })
     const guide = ctx.getImageData(0, 0, c.width, c.height)
     const { width: aw, height: ah } = fitLongEdge(c.width, c.height, ANALYSIS_MAX_EDGE)
@@ -479,11 +534,37 @@ export class VisionSession {
       actx.drawImage(c, 0, 0, aw, ah)
       analysis = actx.getImageData(0, 0, aw, ah)
     }
+    return { analysis: { width: analysis.width, height: analysis.height, data: analysis.data }, guide: { width: guide.width, height: guide.height, data: guide.data } }
+  }
+
+  async #sendImage() {
+    const c = this.photoCanvas
+    const t0 = now()
+    const { analysis, guide } = this.#imageArgs(c)
     const t1 = now()
-    const sent = this.client.setImage({ width: analysis.width, height: analysis.height, data: analysis.data }, { width: guide.width, height: guide.height, data: guide.data })
+    const sent = this.#modelStep(() => this.client.setImage(analysis, guide))
     this.#photoUrl(c) // while the worker encodes: nothing waits for this JPEG
     const r = await sent
     if (c !== this.photoCanvas) return // a newer photo is on screen; its own numbers will come
+    this.#readTimings(t0, t1, r)
+  }
+
+  /**
+   * A step in which the model reads (the photo, the depth helper): marked for the crash net while it runs
+   * (capabilities.js startModelRead) — in Tier C there is no model to mark.
+   */
+  async #modelStep(fn) {
+    const end = this.state.tier !== 'C' ? startModelRead() : null
+    if (end) this.readEnds.add(end)
+    try {
+      return await fn()
+    } finally {
+      end?.()
+      this.readEnds.delete(end)
+    }
+  }
+
+  #readTimings(t0, t1, r) {
     const ms = (v) => (v != null ? Math.round(v) : null)
     this.#set({
       timings: {
@@ -611,7 +692,7 @@ export class VisionSession {
       // and the spots are tried again with its map, then its surest floor spot. A photo whose floor is found
       // without it is found the same way, with no wait.
       for (let pass = 0; pass < 2; pass++) {
-        const spot = pass && this.client.floorSpot ? await this.client.floorSpot().catch(() => null) : null
+        const spot = pass && this.client.floorSpot ? await this.#modelStep(() => this.client.floorSpot()).catch(() => null) : null
         if (pass && !spot) break
         for (const [fx, fy] of pass ? [...FIND_FLOOR_AT, spot] : FIND_FLOOR_AT) {
           const t = { label: 'pos', x: fx * photo.width, y: fy * photo.height, gen }
@@ -629,30 +710,6 @@ export class VisionSession {
         }
       }
       this.#set({ phase: 'ready', stage: null }) // leave the choice to the customer
-      return this.state
-    })
-  }
-
-  /**
-   * SHILATEQ EDIT: a ready-made floor (loadPhoto's `floor`) laid as findFloor lays the one it finds — one undoable
-   * step, "found by itself" — with no model needed (iPhones run without one). Never over a tap the customer made.
-   */
-  #readyFloor(region, gen) {
-    return this.#serial(async () => {
-      const photo = this.state.photo
-      if (!this.photoCanvas || !photo || gen !== this.photoGen || this.tapLog.length || this.waiting.length || this.state.phase !== 'ready') return this.state
-      const t = { kind: 'stroke', label: 'pos', region, x: photo.width / 2, y: photo.height - 1, gen }
-      this.#set({ phase: 'working', stage: 'floor', error: null })
-      try {
-        const t0 = now()
-        await this.#withRecovery(() => this.#replay(t))
-        this.tapLog.push(t)
-        this.#syncTaps()
-        this.#set({ autoFound: true })
-        await this.#afterMaskChange({ tapMs: Math.round(now() - t0) })
-      } catch {
-        this.#set({ phase: 'ready', stage: null }) // as findFloor: the screen asks for a tap
-      }
       return this.state
     })
   }
@@ -839,8 +896,10 @@ export class VisionSession {
     }
     this.#applyAll()
     const devView = DEV_VIEWS.includes(this.state.view) // the developer panel's view stays put
+    // a ready-made floor laid while the model still reads the photo: the screen still says so (taps wait for it)
+    const reading = this.floorFirst === this.photoGen
     // while the customer is asked whether it is the floor, the marked area is shown — not laid
-    this.#set({ phase: 'ready', stage: null, view: devView ? this.state.view : this.state.stone && m.coverage > 0 && !this.state.floorCheck ? 'after' : 'selection' })
+    this.#set({ phase: reading ? 'preparing' : 'ready', stage: reading ? 'analyse' : null, view: devView ? this.state.view : this.state.stone && m.coverage > 0 && !this.state.floorCheck ? 'after' : 'selection' })
     this.#render()
   }
 
@@ -1335,6 +1394,8 @@ export class VisionSession {
     this.disposed = true
     clearTimeout(this.gpuTimer)
     try { await this.client?.dispose() } catch { /* already gone */ }
+    for (const end of this.readEnds) end() // the engine is stopped: no read is running any more
+    this.readEnds.clear()
     this.renderer?.dispose()
     for (const { bitmap } of this.bitmaps.values()) bitmap?.close?.()
     this.bitmaps.clear()

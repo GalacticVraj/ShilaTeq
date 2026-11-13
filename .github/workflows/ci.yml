@@ -28,6 +28,10 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # src/vendor/stonex-vision is StoneX's engine plus its listed edits: no hand edit drifts silently
+      - name: Vendored StoneVision engine matches its manifest
+        run: npm run vendor:check
+
       - name: Format check
         run: npm run format:check
 
