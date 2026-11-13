@@ -8,7 +8,8 @@
 //   decode(x, y)            → { candidates: [{ score, area, probAt(w, h) → Float32Array 0–1 }], extra }
 //   dispose()
 // plus `info` and `load`. The mask, geometry, layout and renderer never see which model ran.
-import { SEGMENTERS, MODEL_VARIANTS, RUNTIME_FILES, VISION_ASSET_BASE, assertSegmenterAllowed } from './config.js'
+import { SEGMENTERS, MODEL_VARIANTS, RUNTIME_FILES, VISION_ASSET_BASE, assertSegmenterAllowed, depthVariantFor } from './config.js'
+import { floorSpot } from './floorDepth.js'
 import { createRegionAdapter } from './segment/regionGrow.js'
 import { downloadFailed } from './segment/assets.js'
 import { MaskEditor, chooseCandidate, chooseFirstTap, chooseAddCandidate, addVerdict, MaskError, MASK_LIMITS } from './mask.js'
@@ -46,10 +47,11 @@ async function openSegmenter(id, { assetBase, onDeviceLost, onProgress = () => {
   const variantId = spec.variant.any
   const variant = { id: variantId, ...MODEL_VARIANTS[variantId] }
   const runtimeFile = RUNTIME_FILES[spec.backend === 'webgpu' ? 'ort-wasm-simd-threaded.asyncify.wasm' : 'ort-wasm-simd-threaded.wasm']
+  const depthVariant = depthVariantFor(id) // the floor-level helper, if this segmenter has a licensed one
   // the download's real progress against the pinned files' known sizes, told every 2 % or so — and at
   // least every 10 s while bytes still arrive: the client's init timeout counts silence (client.js), so
   // a very slow link that is still downloading is never taken for a stalled one
-  const total = (runtimeFile?.bytes || 0) + Object.values(variant.files).reduce((t, f) => t + (f.bytes || 0), 0)
+  const total = (runtimeFile?.bytes || 0) + Object.values(variant.files).reduce((t, f) => t + (f.bytes || 0), 0) // (the depth helper downloads later, if ever)
   let loaded = 0, told = 0, toldAt = performance.now()
   const onBytes = (n) => {
     loaded += n
@@ -58,7 +60,7 @@ async function openSegmenter(id, { assetBase, onDeviceLost, onProgress = () => {
   }
   // the adapter's code is a chunk of its own, fetched now: offline, that is a download that didn't arrive
   const { createAdapter } = await import('./segment/samOrt.js').catch((err) => { throw downloadFailed('segment/samOrt.js', err) })
-  const adapter = await createAdapter({ base: assetBase, candidate: spec.family, variant, cold: false, reload, backend: spec.backend, onDeviceLost, onBytes: total > 0 ? onBytes : null, runtimeFile, runtimeUrl: spec.backend === 'wasm' ? ortWasmUrl : null, requireHash: verify })
+  const adapter = await createAdapter({ base: assetBase, candidate: spec.family, variant, cold: false, reload, backend: spec.backend, onDeviceLost, onBytes: total > 0 ? onBytes : null, runtimeFile, runtimeUrl: spec.backend === 'wasm' ? ortWasmUrl : null, requireHash: verify, depthVariant })
   return Object.assign(adapter, { variantId })
 }
 
@@ -190,8 +192,8 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
       // surface that may not be the floor (a bed, a table top) comes back with `ask`. A later add never
       // climbs the wall with the floor (chooseAddCandidate).
       const oh = Math.max(1, Math.round((640 * H) / W))
-      const { choice, ask, options = null } = firstLike
-        ? chooseFirstTap(candidates, 640, oh, pick)
+      const { choice, ask, options = null, depthFloor = false } = firstLike
+        ? chooseFirstTap(candidates, 640, oh, pick, segmenter.floor?.() || null)
         : label === 'pos'
           // (its top-edge check at 320 px: an Add shouldn't wait for the first tap's 640 px shape tests)
           ? { choice: chooseAddCandidate(candidates, { currentArea: last.coverage, tapInside, covers, floorTop: last.bbox[1] < Math.max(1, Math.round(0.02 * H)), ow: 320, oh: Math.max(1, Math.round((320 * H) / W)) }), ask: null }
@@ -207,6 +209,7 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
       return summary(last, {
         timing: { decodeMs, regionMs, cleanupMs: performance.now() - t2, totalMs: performance.now() - t0 },
         choice: { index: choice, count: candidates.length, scores: candidates.map((c) => c.score), areas: candidates.map((c) => c.area), options },
+        depthFloor,
         // an add that isn't more of the same floor (a spot apart from it, a bed, a wall) is shown and
         // asked about like a first tap's doubtful surface (addVerdict)
         ask: ask || (label === 'pos' && !firstLike ? addVerdict(before.mask, last.mask, W, H) : null),
@@ -214,11 +217,32 @@ export function createVisionCore({ emit = () => {}, open = openSegmenter, produc
       })
     },
 
+    /**
+     * Where the depth floor is surest, as shares of the photo's width and height — or null (no depth helper, no
+     * floor found). Runs the depth helper for this photo if it hasn't run; later first taps use its map too.
+     */
+    async floorSpot() {
+      requireImage()
+      return floorSpot(segmenter.floorMap ? await segmenter.floorMap() : null)
+    },
+
     /** A brush stroke in render px: 'pos' paints floor in, 'neg' takes an area out. Edge-aware (stroke.js). One undoable step. */
-    stroke({ label, points, radius }) {
+    stroke({ label, points, radius, region = null }) {
       requireImage()
       const { width: W, height: H } = maskSize
       if (label !== 'pos' && label !== 'neg') throw Object.assign(new MaskError('BAD_LABEL', label), { kind: 'error' })
+      // SHILATEQ EDIT: `region`, a ready-made floor ({ width, height, data: 0/1 per pixel }, any size) in place of a
+      // brush: the website's demo rooms, whose floor the model found beforehand (session.loadPhoto's `floor`)
+      if (region) {
+        if (!(region.width > 0 && region.height > 0) || region.data?.length !== region.width * region.height) throw Object.assign(new MaskError('BAD_STROKE'), { kind: 'error' })
+        const m = resizeMask(region.data, region.width, region.height, W, H)
+        for (let i = 0; i < m.length; i++) m[i] *= 255
+        const k = m.lastIndexOf(255)
+        if (k < 0) throw Object.assign(new MaskError('TAP_OUTSIDE'), { kind: 'error' })
+        editor.apply(label, m, [k % W, Math.floor(k / W)], { stroke: true })
+        last = editor.result()
+        return summary(last)
+      }
       if (!Array.isArray(points) || !points.length || points.some((p) => !Number.isFinite(p?.[0]) || !Number.isFinite(p?.[1])) || !(radius > 0)) throw Object.assign(new MaskError('BAD_STROKE'), { kind: 'error' })
       const t0 = performance.now()
       const inside = points.filter(([x, y]) => x >= 0 && y >= 0 && x < W && y < H)

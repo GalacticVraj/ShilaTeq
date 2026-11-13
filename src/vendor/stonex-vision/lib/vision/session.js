@@ -285,7 +285,7 @@ export class VisionSession {
 
   /** One logged step again (a tier drop, a marked area put back): a tap or a brush stroke. */
   #replay(t) {
-    return t.kind === 'stroke' ? this.client.stroke({ label: t.label, points: t.points, radius: t.radius }) : this.#loggedTap(t)
+    return t.kind === 'stroke' ? this.client.stroke({ label: t.label, points: t.points, radius: t.radius, region: t.region }) : this.#loggedTap(t)
   }
 
   /** A logged tap run (again), with the shape "Try another" chose for it; it keeps the shapes it can swap to (another engine: other shapes). */
@@ -350,10 +350,11 @@ export class VisionSession {
    * showing it hold the session's queue: the model's long read of the room runs beside it (#analyse),
    * so the customer can change the stone — or the photo — meanwhile.
    */
-  loadPhoto(file) {
+  // SHILATEQ EDIT: `floor`, a ready-made floor ({ width, height, data: 0/1 }) laid instead of findFloor's search
+  loadPhoto(file, { floor = null } = {}) {
     let shown = null
     return this.#serial(async () => {
-      shown = await this.#showPhoto(file)
+      shown = await this.#showPhoto(file, floor)
       return this.state
     }).then((st) => shown?.analysis || st)
   }
@@ -363,7 +364,7 @@ export class VisionSession {
    * the promise itself would make the queue wait for it (and a tap queued meanwhile would wait
    * for the queue: a deadlock) — or null when the photo is refused.
    */
-  async #showPhoto(file) {
+  async #showPhoto(file, floor = null) {
     if (!this.renderer) return null // no WebGL2 here: the screen already says so
     // While it is checked and decoded (`decoding`), the photo on screen — and its reading, if it is
     // still being read — goes on as it was: a refused photo changes nothing but the message. (Saving
@@ -415,7 +416,7 @@ export class VisionSession {
       timings: { ...this.state.timings, photoDecodeMs: Math.round(tDecoded - t0), photoShownMs: Math.round(now() - t0) },
     })
     this.#syncTaps()
-    return { analysis: this.#analyse(gen, t0) }
+    return { analysis: this.#analyse(gen, t0, floor) }
   }
 
   /**
@@ -423,7 +424,7 @@ export class VisionSession {
    * reads one photo at a time, in order (vision.worker.js): a newer photo's reading starts when the
    * previous one is over, and the previous one's result is then dropped.
    */
-  async #analyse(gen, t0) {
+  async #analyse(gen, t0, floor = null) {
     const current = () => gen === this.photoGen && !this.disposed // a newer photo makes this one moot
     if (this.reloadModel) { // the last download failed (its checks, the connection): this photo fetches the files afresh
       this.reloadModel = false
@@ -457,7 +458,8 @@ export class VisionSession {
     // all into the queue at once (they still run in order): their marks stay on the photo meanwhile
     await Promise.all(queued.map((p) => this.tap(p.label, p.x, p.y)))
     // nobody tapped yet: try to find the floor without a tap
-    if (!queued.length && this.autoFloor) await this.findFloor()
+    if (!queued.length && floor) await this.#readyFloor(floor, gen)
+    else if (!queued.length && this.autoFloor) await this.findFloor()
     return this.state
   }
 
@@ -605,19 +607,52 @@ export class VisionSession {
       if (!this.photoCanvas || !photo || gen !== this.photoGen || this.tapLog.length || this.waiting.length || this.state.phase !== 'ready') return this.state
       this.#set({ phase: 'working', stage: 'floor', error: null })
       const t0 = now()
-      for (const [fx, fy] of FIND_FLOOR_AT) {
-        const t = { label: 'pos', x: fx * photo.width, y: fy * photo.height, gen }
-        try {
-          const r = await this.#withRecovery(() => this.#loggedTap(t))
-          if (r?.ask) { await this.client.undo(); continue } // not sure it is the floor: the next spot
-          this.tapLog.push(t)
-          this.#syncTaps()
-          this.#set({ autoFound: true })
-          await this.#afterMaskChange({ tapMs: Math.round(now() - t0) })
-          return this.state
-        } catch { /* refused here (a rug, a chair): the next spot */ }
+      // the usual spots; if none is the floor, the depth helper runs (floorDepth.js: once, only for these photos)
+      // and the spots are tried again with its map, then its surest floor spot. A photo whose floor is found
+      // without it is found the same way, with no wait.
+      for (let pass = 0; pass < 2; pass++) {
+        const spot = pass && this.client.floorSpot ? await this.client.floorSpot().catch(() => null) : null
+        if (pass && !spot) break
+        for (const [fx, fy] of pass ? [...FIND_FLOOR_AT, spot] : FIND_FLOOR_AT) {
+          const t = { label: 'pos', x: fx * photo.width, y: fy * photo.height, gen }
+          try {
+            const r = await this.#withRecovery(() => this.#loggedTap(t))
+            // not sure it is the floor: the next spot — unless only partly sure and the depth floor confirms it
+            // (the screen still asks "Is this your floor?" with Undo: autoFound)
+            if (r?.ask && !(r.ask === 'PARTLY' && r.depthFloor)) { await this.client.undo(); continue }
+            this.tapLog.push(t)
+            this.#syncTaps()
+            this.#set({ autoFound: true })
+            await this.#afterMaskChange({ tapMs: Math.round(now() - t0) })
+            return this.state
+          } catch { /* refused here (a rug, a chair): the next spot */ }
+        }
       }
       this.#set({ phase: 'ready', stage: null }) // leave the choice to the customer
+      return this.state
+    })
+  }
+
+  /**
+   * SHILATEQ EDIT: a ready-made floor (loadPhoto's `floor`) laid as findFloor lays the one it finds — one undoable
+   * step, "found by itself" — with no model needed (iPhones run without one). Never over a tap the customer made.
+   */
+  #readyFloor(region, gen) {
+    return this.#serial(async () => {
+      const photo = this.state.photo
+      if (!this.photoCanvas || !photo || gen !== this.photoGen || this.tapLog.length || this.waiting.length || this.state.phase !== 'ready') return this.state
+      const t = { kind: 'stroke', label: 'pos', region, x: photo.width / 2, y: photo.height - 1, gen }
+      this.#set({ phase: 'working', stage: 'floor', error: null })
+      try {
+        const t0 = now()
+        await this.#withRecovery(() => this.#replay(t))
+        this.tapLog.push(t)
+        this.#syncTaps()
+        this.#set({ autoFound: true })
+        await this.#afterMaskChange({ tapMs: Math.round(now() - t0) })
+      } catch {
+        this.#set({ phase: 'ready', stage: null }) // as findFloor: the screen asks for a tap
+      }
       return this.state
     })
   }

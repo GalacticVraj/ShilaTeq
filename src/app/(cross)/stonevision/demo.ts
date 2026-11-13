@@ -6,6 +6,7 @@ export const DEMO_ROOMS = [
     id: "living",
     src: "/vision-demo/room-living.jpg",
     result: "/vision-demo/result-living-statuarietto.jpg", // shown before the demo starts
+    floor: "/vision-demo/floor-living.png", // its floor, found beforehand by the model (genfloors)
     label: "Living room",
     credit: "Steven Ungermann / Unsplash",
   },
@@ -13,6 +14,7 @@ export const DEMO_ROOMS = [
     id: "hall",
     src: "/vision-demo/room-hall.jpg",
     result: "/vision-demo/result-hall-statuarietto.jpg",
+    floor: "/vision-demo/floor-hall.png",
     label: "Open hall",
     credit: "Salvo Media / Unsplash",
   },

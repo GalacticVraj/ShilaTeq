@@ -33,9 +33,10 @@ type SvState = {
   segmenter: { id: string } | null; // the floor finder, once loaded
   error: { code: string; kept?: boolean } | null;
 };
+type Floor = { width: number; height: number; data: Uint8Array };
 type Session = {
   start(): Promise<unknown>;
-  loadPhoto(file: Blob): Promise<unknown>;
+  loadPhoto(file: Blob, opts?: { floor?: Floor | null }): Promise<unknown>;
   setStone(stone: DemoStone, load: typeof loadStoneImage): Promise<unknown>;
   tap(label: "pos" | "neg", x: number, y: number): Promise<unknown>;
   undo(): Promise<unknown>;
@@ -62,6 +63,28 @@ const reduced = () =>
  * photo never leaves the browser. Around the engine, only presentation: real download progress, a
  * scan while it reads the room, a wipe when the stone is laid, a crossfade when the stone changes.
  */
+/**
+ * A demo room's floor as the model found it beforehand (white = floor), laid at once on every phone, iPhones
+ * (which run without the model) included. None (it didn't load): the engine looks for the floor itself.
+ */
+async function loadFloor(url: string): Promise<Floor | null> {
+  try {
+    const img = await createImageBitmap(await (await fetch(url)).blob());
+    const c = document.createElement("canvas");
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext("2d")!;
+    ctx.drawImage(img, 0, 0);
+    const px = ctx.getImageData(0, 0, c.width, c.height).data;
+    const data = new Uint8Array(c.width * c.height);
+    for (let i = 0; i < data.length; i++) data[i] = px[i * 4] > 127 ? 1 : 0;
+    img.close();
+    return { width: c.width, height: c.height, data };
+  } catch {
+    return null;
+  }
+}
+
 export default function StoneVisionDemo() {
   const stageRef = useRef<HTMLDivElement>(null);
   const holder = useRef<HTMLDivElement>(null);
@@ -163,8 +186,11 @@ export default function StoneVisionDemo() {
     setRoom(id);
     const r = DEMO_ROOMS.find((x) => x.id === id)!;
     const ss = await ensure();
-    const blob = await (await fetch(r.src)).blob();
-    await ss.loadPhoto(new File([blob], `${r.id}.jpg`, { type: "image/jpeg" }));
+    const [blob, floor] = await Promise.all([
+      fetch(r.src).then((x) => x.blob()),
+      loadFloor(r.floor),
+    ]);
+    await ss.loadPhoto(new File([blob], `${r.id}.jpg`, { type: "image/jpeg" }), { floor });
   };
   useEffect(() => {
     // The floor finder (~27 MB, kept by the browser after the first visit) starts downloading as soon as

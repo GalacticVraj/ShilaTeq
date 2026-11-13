@@ -20,7 +20,8 @@ export const VISION_ASSET_BASE = '/vision-assets/'
  */
 export const SEGMENTERS = Object.freeze({
   'sam21-gpu': { kind: 'sam', family: 'sam21', variant: { any: 'sam21tiny-q4f16' }, backend: 'webgpu', tier: 'A', licence: 'BLOCKED — LICENCE UNRESOLVED', devOnly: true },
-  'slimsam-cpu': { kind: 'sam', family: 'slimsam', variant: { any: 'slimsam77-int8' }, backend: 'wasm', tier: 'B', licence: 'verified' },
+  // depth: the floor-level helper (floorDepth.js) loaded beside the segmenter, when its own licence is verified
+  'slimsam-cpu': { kind: 'sam', family: 'slimsam', variant: { any: 'slimsam77-int8-heads' }, depth: 'dav2small-uint8', backend: 'wasm', tier: 'B', licence: 'verified' },
   'slimsam-gpu': { kind: 'sam', family: 'slimsam', variant: { any: 'slimsam77-fp32' }, backend: 'webgpu', tier: 'A', licence: 'verified (experiment: dev builds only)', experimental: true, devOnly: true },
   region: { kind: 'region', tier: 'C', licence: 'none (no model)' },
 })
@@ -81,5 +82,11 @@ export const PHOTO_LIMITS = Object.freeze({ maxPixels: 120e6, largePixels: 30e6,
 
 export const MODEL_VARIANTS = models.variants
 export const MODEL_CANDIDATES = models.candidates
+
+/** The depth helper a segmenter loads: its variant (with id), only if that model's own licence is verified; else null. */
+export function depthVariantFor(id) {
+  const v = SEGMENTERS[id]?.depth && models.variants[SEGMENTERS[id].depth]
+  return v && models.candidates[v.candidate]?.licence?.status === 'verified' ? { id: SEGMENTERS[id].depth, ...v } : null
+}
 /** Each pinned runtime file by file name: { to, bytes, sha256 } — its size (download progress) and hash (checked before use). */
 export const RUNTIME_FILES = Object.fromEntries(models.runtimes['onnxruntime-web'].files.map((f) => [f.to.split('/').pop(), { to: f.to, bytes: f.bytes, sha256: f.sha256 }]))

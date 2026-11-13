@@ -107,6 +107,31 @@
           "https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX/tree/814a066640debee5a91e70aa401fb8e17e030503"
         ]
       }
+    },
+    "depthanything": {
+      "label": "Depth Anything V2 Small (ORT Web WASM): the floor-level helper beside SlimSAM",
+      "runtime": "onnxruntime-web",
+      "backend": "wasm",
+      "defaultVariant": "dav2small-uint8",
+      "biggerSmaller": false,
+      "complexity": {
+        "score": 0.3,
+        "why": "One ONNX session on the runtime SlimSAM already loads; our own pre-processing (392 long edge (the model card: 518), multiple of 14, ImageNet mean/std) and floor map (floorDepth.js). It helps SlimSAM choose; it never lays stone itself."
+      },
+      "licence": {
+        "status": "verified",
+        "runtime": "MIT (onnxruntime-web 1.30.0; microsoft/onnxruntime LICENSE)",
+        "weights": "Apache-2.0: depth-anything/Depth-Anything-V2-Small (only the Small model; Base/Large/Giant are CC-BY-NC-4.0 and are NOT used) -> onnx-community/depth-anything-v2-small (ONNX, rev 4472b736, card: apache-2.0)",
+        "code": "Apache-2.0 (DepthAnything/Depth-Anything-V2, for the Small model)",
+        "redistribution": "permitted with notices (Apache-2.0)",
+        "commercialSaaS": "permitted (Apache-2.0)",
+        "caveats": "The authors trained it partly on public datasets, some with non-commercial terms; the weights themselves are licensed Apache-2.0 by the authors. Same open question as ADE20K: for the owner's lawyer.",
+        "sources": [
+          "https://github.com/DepthAnything/Depth-Anything-V2",
+          "https://huggingface.co/depth-anything/Depth-Anything-V2-Small",
+          "https://huggingface.co/onnx-community/depth-anything-v2-small/tree/4472b7362082ad9968fee890ca0f1e5aca36b93d"
+        ]
+      }
     }
   },
   "variants": {
@@ -137,6 +162,32 @@
           "to": "models/slimsam-77-uniform/5850ab45/vision_encoder_quantized.onnx",
           "sha256": "cce23c7b2e5d4f330932738fb67ba518e04b0d99ccdd1cccd22a7da4e01f2971",
           "bytes": 8882165
+        },
+        "decoder": {
+          "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/prompt_encoder_mask_decoder_quantized.onnx",
+          "to": "models/slimsam-77-uniform/5850ab45/prompt_encoder_mask_decoder_quantized.onnx",
+          "sha256": "cb90b279f549d2cab7fd6e20c38522438c65d84bdcca3d2a764cff7d857fdce2",
+          "bytes": 4903810
+        }
+      }
+    },
+    "slimsam77-int8-heads": {
+      "candidate": "slimsam",
+      "precision": "int8",
+      "fullPrecisionBaseline": "slimsam77-fp32",
+      "source": "https://huggingface.co/Xenova/slimsam-77-uniform/tree/5850ab45f587c112167512ffef949107115e26a0",
+      "modified": "The encoder of slimsam77-int8 with its 4 global-attention blocks computed one head at a time (an ONNX Loop over the 12 heads; scripts/vision-assets/headloop.py): the same weights and the same embedding to the bit, reading a photo in ~340 MB instead of ~1.75 GB (iOS closes a tab that big). The decoder is the upstream file.",
+      "files": {
+        "encoder": {
+          "derived": {
+            "from": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/vision_encoder_quantized.onnx",
+            "fromSha256": "cce23c7b2e5d4f330932738fb67ba518e04b0d99ccdd1cccd22a7da4e01f2971",
+            "by": "scripts/vision-assets/headloop.py",
+            "file": "scripts/vision-assets/derived/slimsam-77-uniform/5850ab45-heads/vision_encoder_quantized.onnx"
+          },
+          "to": "models/slimsam-77-uniform/5850ab45-heads/vision_encoder_quantized.onnx",
+          "sha256": "5ffd50eb1eadec452bbd38cb1ef00a6942e773601a559da1e3d90330f9d957cc",
+          "bytes": 8865587
         },
         "decoder": {
           "url": "https://huggingface.co/Xenova/slimsam-77-uniform/resolve/5850ab45f587c112167512ffef949107115e26a0/onnx/prompt_encoder_mask_decoder_quantized.onnx",
@@ -316,6 +367,19 @@
           "to": "models/sam2.1-hiera-tiny/814a0666/prompt_encoder_mask_decoder.onnx_data",
           "sha256": "e9874d900dd4134ed60eab1e97910327c2419e0b2954485d8fd6e7f1a1470f47",
           "bytes": 20958208
+        }
+      }
+    },
+    "dav2small-uint8": {
+      "candidate": "depthanything",
+      "precision": "uint8",
+      "source": "https://huggingface.co/onnx-community/depth-anything-v2-small/tree/4472b7362082ad9968fee890ca0f1e5aca36b93d",
+      "files": {
+        "model": {
+          "url": "https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/4472b7362082ad9968fee890ca0f1e5aca36b93d/onnx/model_uint8.onnx",
+          "to": "models/depth-anything-v2-small/4472b736/model_uint8.onnx",
+          "sha256": "fcf51f1b230362b28690bb9d1809bf0431f29cad20534e3f589bd7285547f20d",
+          "bytes": 27258801
         }
       }
     }

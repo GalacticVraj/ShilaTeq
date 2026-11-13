@@ -133,6 +133,8 @@ export class VisionClient {
   getMask() { return this.mask }
 
   estimateGeometry(opts) { return this.#call('geometry', opts) }
+  /** The depth helper's surest floor spot, [x, y] as shares of the photo, or null. */
+  floorSpot() { return this.#call('floorSpot') }
   computeLighting(opts) { return this.#call('lighting', opts) }
   status() { return this.#call('status') }
   lines() { return this.#call('lines') }
