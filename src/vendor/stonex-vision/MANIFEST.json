@@ -34,7 +34,7 @@
     "lib/vision/segment/postprocess.js": "55295d11c0a9a249ff0a5de56c48865014f5ecbc60678b5b4a3a4a5675421743",
     "lib/vision/segment/regionGrow.js": "b5a7b10717d572623aec7feaeb21a74c479ba6df3c7783622d49a0db59a1325f",
     "lib/vision/segment/sam.js": "d1d8aef1623681b09c7745bd3f54ed24bae515f253a15df74c0cdb369b645757",
-    "lib/vision/segment/samOrt.js": "7b84c1f4dcb47e8de5c6dac8c3d41d465a30974e739044448cf1db0c3b185847",
+    "lib/vision/segment/samOrt.js": "0f0e7a81b4b27008e1acc8619455a03e05ae11ecffe1579fa1153930717b55c2",
     "lib/vision/session.js": "032ac5e3caa166b907aedd8565d050c5de48b4743ad74afb296d6ac23d64087d",
     "lib/vision/stroke.js": "74a897c4e938b4110c91bf908ddebeb565997d6eccbe0c79c8220799d5cb3421",
     "lib/vision/vision.worker.js": "8d762065ab351d7868b4120f3c65fa54889b6981a98734b00fc02214650d3ab6",

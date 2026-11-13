@@ -81,7 +81,10 @@ const EDITS = {
         "    : Promise.reject(",
       "// SHILATEQ EDIT: ORT's own self-contained ES module (ort.wasm.bundle.min.mjs, MIT), served beside the\n" +
         "// models and imported at run time (no npm package, nothing bundled); the WebGPU build is not shipped.\n" +
-        "const ORT_URL = `${VISION_ASSET_BASE}ort/${ORT_VERSION}/ort.wasm.bundle.min.mjs`\n" +
+        "// `?coi`: ORT starts its thread workers from this same URL, and on the isolated /stonevision page a worker\n" +
+        "// script must carry COEP. Browsers keep the copy fetched before the page was isolated (immutable, no COEP)\n" +
+        "// and would block every thread worker with it, so the isolated page asks for a URL no browser has cached.\n" +
+        "const ORT_URL = `${VISION_ASSET_BASE}ort/${ORT_VERSION}/ort.wasm.bundle.min.mjs?coi`\n" +
         "const loadOrt = (backend) => (backend !== 'webgpu'\n" +
         "  ? import(/* webpackIgnore: true */ /* turbopackIgnore: true */ new URL(ORT_URL, self.location.origin).href).catch((err) => { throw downloadFailed('onnxruntime-web/wasm', err) })\n" +
         "  : Promise.reject(",
