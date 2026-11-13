@@ -45,6 +45,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Renames every content-hashed /_next/static file once. Browsers keep those files for a year (immutable),
+  // and a copy fetched before /stonevision was cross-origin isolated has no COEP header: the isolated page
+  // can't start a worker from it (the engine's turbopack-worker bootstrap has the same name in every build).
+  // Change it again only if a header that a worker script needs changes.
+  outputHashSalt: "coep-1",
   // Two root layouts ((site) legacy, (kerf) redesign) need a global 404.
   experimental: { globalNotFound: true },
   // The ERP app links to /privacy, /terms and /refund (VITE_LEGAL_BASE_URL).

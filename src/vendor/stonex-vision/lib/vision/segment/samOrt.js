@@ -19,7 +19,10 @@ const WASM_FILE = { wasm: 'ort-wasm-simd-threaded.wasm', webgpu: 'ort-wasm-simd-
 // that didn't arrive — an asset error, as for the model files.)
 // SHILATEQ EDIT: ORT's own self-contained ES module (ort.wasm.bundle.min.mjs, MIT), served beside the
 // models and imported at run time (no npm package, nothing bundled); the WebGPU build is not shipped.
-const ORT_URL = `${VISION_ASSET_BASE}ort/${ORT_VERSION}/ort.wasm.bundle.min.mjs`
+// `?coi`: ORT starts its thread workers from this same URL, and on the isolated /stonevision page a worker
+// script must carry COEP. Browsers keep the copy fetched before the page was isolated (immutable, no COEP)
+// and would block every thread worker with it, so the isolated page asks for a URL no browser has cached.
+const ORT_URL = `${VISION_ASSET_BASE}ort/${ORT_VERSION}/ort.wasm.bundle.min.mjs?coi`
 const loadOrt = (backend) => (backend !== 'webgpu'
   ? import(/* webpackIgnore: true */ /* turbopackIgnore: true */ new URL(ORT_URL, self.location.origin).href).catch((err) => { throw downloadFailed('onnxruntime-web/wasm', err) })
   : Promise.reject(Object.assign(new Error('the WebGPU runtime is not in this build'), { kind: 'no-webgpu' })))
